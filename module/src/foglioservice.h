@@ -5,12 +5,12 @@
 
 namespace nap
 {
-	class NAPAPI foglioService : public Service
+	class NAPAPI FoglioService : public Service
 	{
 		RTTI_ENABLE(Service)
 	public:
 		// Default Constructor
-		foglioService(ServiceConfiguration* configuration) : Service(configuration)	{ }
+		FoglioService(ServiceConfiguration* configuration) : Service(configuration)	{ }
 
 		/**
 		 * Use this call to register service dependencies
@@ -23,7 +23,7 @@ namespace nap
 		/**
 		 * Initializes the service
 		 * @param errorState contains the error message on failure
-		 * @return if the video service was initialized correctly
+		 * @return if the foglio service was initialized correctly
 		 */
 		virtual bool init(nap::utility::ErrorState& errorState) override;
 		

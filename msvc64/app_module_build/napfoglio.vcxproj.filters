@@ -10,6 +10,9 @@
     <ClCompile Include="rendercanvascomponent.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="canvasshader.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\nap\compiled_0.6.0\apps\foglio\module\src\foglioservice.h">
@@ -531,6 +534,9 @@
     <ClInclude Include="rendercanvascomponent.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="canvasshader.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="C:\nap\compiled_0.6.0\apps\foglio\module\CMakeLists.txt" />
@@ -593,5 +599,19 @@
     <Filter Include="Sources">
       <UniqueIdentifier>{D7798B62-4BD7-325F-81C7-C8430D4A72E8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="data">
+      <UniqueIdentifier>{38cfbdfa-ac6e-4e79-9a47-0edbdb02b06f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="data\shaders">
+      <UniqueIdentifier>{25ee704d-b789-4322-a22f-55972d9547ac}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="data\shaders\canvas.frag">
+      <Filter>data\shaders</Filter>
+    </None>
+    <None Include="data\shaders\canvas.vert">
+      <Filter>data\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

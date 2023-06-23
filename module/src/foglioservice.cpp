@@ -7,30 +7,30 @@
 #include <nap/logger.h>
 #include <iostream>
 
-RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::foglioService)
+RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::FoglioService)
 	RTTI_CONSTRUCTOR(nap::ServiceConfiguration*)
 RTTI_END_CLASS
 
 namespace nap
 {
-	bool foglioService::init(nap::utility::ErrorState& errorState)
+	bool FoglioService::init(nap::utility::ErrorState& errorState)
 	{
-		//Logger::info("Initializing foglioService");
+		//Logger::info("Initializing FoglioService");
 		return true;
 	}
 
 
-	void foglioService::update(double deltaTime)
+	void FoglioService::update(double deltaTime)
 	{
 	}
 	
 
-	void foglioService::getDependentServices(std::vector<rtti::TypeInfo>& dependencies)
+	void FoglioService::getDependentServices(std::vector<rtti::TypeInfo>& dependencies)
 	{
 	}
 	
 
-	void foglioService::shutdown()
+	void FoglioService::shutdown()
 	{
 	}
 }
