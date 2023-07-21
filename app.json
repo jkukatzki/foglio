@@ -4,10 +4,10 @@
     "Title": "foglio",
     "Version": "0.1.0",
     "RequiredModules": [
+        "napfoglio",
         "napapp",
-        "napcameracontrol",
-        "napparametergui",
-        "napfoglio"
+        "napimgui",
+        "napcameracontrol"
     ],
     "Data": "data/objects.json",
     "ServiceConfig": "",

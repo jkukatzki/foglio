@@ -13,6 +13,7 @@ namespace nap
 	// Forward declares
 	class Core;
 	class RenderService;
+	class FoglioService;
 
 	// canvas shader sampler names 
 	namespace uniform
@@ -24,6 +25,8 @@ namespace nap
 				inline constexpr const char* YSampler = "yTexture";	///< canvas shader Y sampler name
 				inline constexpr const char* USampler = "uTexture";	///< canvas shader U sampler name
 				inline constexpr const char* VSampler = "vTexture";	///< canvas shader V sampler name
+
+				inline constexpr const char* MaskSampler = "maskTexture";	///< canvas shader mask sampler name
 			}
 		}
 	}
@@ -55,5 +58,6 @@ namespace nap
 
 	private:
 		RenderService* mRenderService = nullptr;
+		FoglioService* mFoglioService = nullptr;
 	};
 }

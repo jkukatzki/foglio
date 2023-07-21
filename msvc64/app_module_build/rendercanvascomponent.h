@@ -9,6 +9,8 @@
 #include <materialinstance.h>
 #include <renderablemesh.h>
 #include <videoplayer.h>
+#include <imagefromfile.h>
+#include <foglioservice.h>
 
 namespace nap
 {
@@ -22,6 +24,8 @@ namespace nap
 
 	public:
 		ResourcePtr<VideoPlayer>		mVideoPlayer = nullptr;
+		ResourcePtr<ImageFromFile>		mMaskImage = nullptr;
+		int								mVideoIndex = 0;
 	};
 
 	class NAPAPI RenderCanvasComponentInstance : public RenderableComponentInstance

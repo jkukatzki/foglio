@@ -1,18 +1,20 @@
 #pragma once
 
+
 // Core includes
 #include <nap/resourcemanager.h>
 #include <nap/resourceptr.h>
+#include <nap/group.h>
 
 // Module includes
 #include <renderservice.h>
 #include <imguiservice.h>
 #include <sceneservice.h>
 #include <inputservice.h>
-#include <foglioservice.h>
 #include <scene.h>
 #include <renderwindow.h>
 #include <entity.h>
+#include <videoplayer.h>
 #include <app.h>
 
 namespace nap
@@ -77,7 +79,15 @@ namespace nap
 		IMGuiService*				mGuiService = nullptr;			///< Manages GUI related update / draw calls
 		ObjectPtr<RenderWindow>		mRenderWindow;					///< Pointer to the render window	
 		ObjectPtr<Scene>			mScene = nullptr;				///< Pointer to the main scene
+
 		ObjectPtr<EntityInstance>	mCameraEntity = nullptr;		///< Pointer to the entity that holds the perspective camera
 		ObjectPtr<EntityInstance>	mGnomonEntity = nullptr;		///< Pointer to the entity that can render the gnomon
+		ObjectPtr<EntityInstance>	mVideoWallEntity = nullptr;
+
+
+		/**
+		 * Sets up the GUI every frame
+		 */
+		void updateGui();
 	};
 }

@@ -5,6 +5,8 @@
 #include <nap/logger.h>
 #include <inputrouter.h>
 #include <rendergnomoncomponent.h>
+#include <rendercanvascomponent.h>
+#include <foglioservice.h>
 #include <perspcameracomponent.h>
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::foglioApp)
@@ -44,9 +46,13 @@ namespace nap
 			return false;
 
 		// Get the Gnomon entity
-		mGnomonEntity = mScene->findEntity("GnomonEntity");
+		mVideoWallEntity = mScene->findEntity("VideoWallEntity");
 		if (!error.check(mGnomonEntity != nullptr, "unable to find origin Gnomon entity with name: %s", "GnomonEntity"))
 			return false;
+		
+		for (EntityInstance* canvasInstance : mVideoWallEntity->getChildren()) {
+			canvasInstance->getComponent<RenderCanvasComponent>();
+		}
 
 		// All done!
 		return true;
@@ -132,4 +138,16 @@ namespace nap
 		return 0;
 	}
 
+	// Draw some GUI elements
+	void foglioApp::updateGui()
+	{
+		ImGui::Begin("Controls");
+		ImGui::Text(getCurrentDateTime().toString().c_str());
+		ImGui::Text(utility::stringFormat("Framerate: %.02f", getCore().getFramerate()).c_str());
+
+		if (ImGui::CollapsingHeader("Canvas Overview"))
+		{
+
+		}
+	}
 }

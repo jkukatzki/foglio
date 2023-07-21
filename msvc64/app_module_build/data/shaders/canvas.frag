@@ -8,6 +8,8 @@ uniform sampler2D yTexture;
 uniform sampler2D uTexture;
 uniform sampler2D vTexture;
 
+uniform sampler2D maskTexture;
+
 in vec3 pass_Uvs;
 
 const vec3 R_cf = vec3(1.164383,  0.000000,  1.596027);

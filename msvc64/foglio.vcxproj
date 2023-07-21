@@ -58,7 +58,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\nap\compiled_0.6.0\include;C:\nap\compiled_0.6.0\apps\foglio\module\src;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\portaudio\msvc\x86_64\include;C:\nap\compiled_0.6.0\thirdparty\rapidjson\include;C:\nap\compiled_0.6.0\thirdparty\moodycamel;C:\nap\compiled_0.6.0\system_modules\naprender\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\vulkansdk\msvc\x86_64\Include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\FreeImage\msvc\x86_64\Dist\x64;C:\nap\compiled_0.6.0\system_modules\napscene\include;C:\nap\compiled_0.6.0\system_modules\napparameter\include;C:\nap\compiled_0.6.0\system_modules\napvideo\include;C:\nap\compiled_0.6.0\system_modules\napfont\include;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\freetype\msvc\x86_64\include\freetype2;C:\nap\compiled_0.6.0\system_modules\napinput\include;C:\nap\compiled_0.6.0\system_modules\napcolor\include;C:\nap\compiled_0.6.0\system_modules\napmath\include;C:\nap\compiled_0.6.0\system_modules\napmath\thirdparty\glm;C:\nap\compiled_0.6.0\system_modules\napaudio\include;C:\nap\compiled_0.6.0\system_modules\napapp\include;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include;C:\nap\compiled_0.6.0\system_modules\napparametergui\include;C:\nap\compiled_0.6.0\system_modules\napimgui\include;C:\nap\compiled_0.6.0\system_modules\napsdlinput\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\SDL2\msvc\x86_64\include\SDL2;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\nap\compiled_0.6.0\include;C:\nap\compiled_0.6.0\apps\foglio\module\src;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\portaudio\msvc\x86_64\include;C:\nap\compiled_0.6.0\thirdparty\rapidjson\include;C:\nap\compiled_0.6.0\thirdparty\moodycamel;C:\nap\compiled_0.6.0\system_modules\naprender\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\vulkansdk\msvc\x86_64\Include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\FreeImage\msvc\x86_64\Dist\x64;C:\nap\compiled_0.6.0\system_modules\napscene\include;C:\nap\compiled_0.6.0\system_modules\napparameter\include;C:\nap\compiled_0.6.0\system_modules\napvideo\include;C:\nap\compiled_0.6.0\system_modules\napfont\include;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\freetype\msvc\x86_64\include\freetype2;C:\nap\compiled_0.6.0\system_modules\napinput\include;C:\nap\compiled_0.6.0\system_modules\napcolor\include;C:\nap\compiled_0.6.0\system_modules\napmath\include;C:\nap\compiled_0.6.0\system_modules\napmath\thirdparty\glm;C:\nap\compiled_0.6.0\system_modules\napaudio\include;C:\nap\compiled_0.6.0\system_modules\napapp\include;C:\nap\compiled_0.6.0\system_modules\napimgui\include;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include;C:\nap\compiled_0.6.0\system_modules\napsdlinput\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\SDL2\msvc\x86_64\include\SDL2;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /bigobj</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -78,10 +78,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;MODULE_NAME=foglio;GLM_FORCE_CTOR_INIT;RTTR_DLL;NOMINMAX;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\nap\compiled_0.6.0\include;C:\nap\compiled_0.6.0\apps\foglio\module\src;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\portaudio\msvc\x86_64\include;C:\nap\compiled_0.6.0\thirdparty\rapidjson\include;C:\nap\compiled_0.6.0\thirdparty\moodycamel;C:\nap\compiled_0.6.0\system_modules\naprender\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\vulkansdk\msvc\x86_64\Include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\FreeImage\msvc\x86_64\Dist\x64;C:\nap\compiled_0.6.0\system_modules\napscene\include;C:\nap\compiled_0.6.0\system_modules\napparameter\include;C:\nap\compiled_0.6.0\system_modules\napvideo\include;C:\nap\compiled_0.6.0\system_modules\napfont\include;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\freetype\msvc\x86_64\include\freetype2;C:\nap\compiled_0.6.0\system_modules\napinput\include;C:\nap\compiled_0.6.0\system_modules\napcolor\include;C:\nap\compiled_0.6.0\system_modules\napmath\include;C:\nap\compiled_0.6.0\system_modules\napmath\thirdparty\glm;C:\nap\compiled_0.6.0\system_modules\napaudio\include;C:\nap\compiled_0.6.0\system_modules\napapp\include;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include;C:\nap\compiled_0.6.0\system_modules\napparametergui\include;C:\nap\compiled_0.6.0\system_modules\napimgui\include;C:\nap\compiled_0.6.0\system_modules\napsdlinput\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\SDL2\msvc\x86_64\include\SDL2;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\nap\compiled_0.6.0\include;C:\nap\compiled_0.6.0\apps\foglio\module\src;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\portaudio\msvc\x86_64\include;C:\nap\compiled_0.6.0\thirdparty\rapidjson\include;C:\nap\compiled_0.6.0\thirdparty\moodycamel;C:\nap\compiled_0.6.0\system_modules\naprender\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\vulkansdk\msvc\x86_64\Include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\FreeImage\msvc\x86_64\Dist\x64;C:\nap\compiled_0.6.0\system_modules\napscene\include;C:\nap\compiled_0.6.0\system_modules\napparameter\include;C:\nap\compiled_0.6.0\system_modules\napvideo\include;C:\nap\compiled_0.6.0\system_modules\napfont\include;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\freetype\msvc\x86_64\include\freetype2;C:\nap\compiled_0.6.0\system_modules\napinput\include;C:\nap\compiled_0.6.0\system_modules\napcolor\include;C:\nap\compiled_0.6.0\system_modules\napmath\include;C:\nap\compiled_0.6.0\system_modules\napmath\thirdparty\glm;C:\nap\compiled_0.6.0\system_modules\napaudio\include;C:\nap\compiled_0.6.0\system_modules\napapp\include;C:\nap\compiled_0.6.0\system_modules\napimgui\include;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include;C:\nap\compiled_0.6.0\system_modules\napsdlinput\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\SDL2\msvc\x86_64\include\SDL2;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\nap\compiled_0.6.0\include;C:\nap\compiled_0.6.0\apps\foglio\module\src;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\portaudio\msvc\x86_64\include;C:\nap\compiled_0.6.0\thirdparty\rapidjson\include;C:\nap\compiled_0.6.0\thirdparty\moodycamel;C:\nap\compiled_0.6.0\system_modules\naprender\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\vulkansdk\msvc\x86_64\Include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\FreeImage\msvc\x86_64\Dist\x64;C:\nap\compiled_0.6.0\system_modules\napscene\include;C:\nap\compiled_0.6.0\system_modules\napparameter\include;C:\nap\compiled_0.6.0\system_modules\napvideo\include;C:\nap\compiled_0.6.0\system_modules\napfont\include;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\freetype\msvc\x86_64\include\freetype2;C:\nap\compiled_0.6.0\system_modules\napinput\include;C:\nap\compiled_0.6.0\system_modules\napcolor\include;C:\nap\compiled_0.6.0\system_modules\napmath\include;C:\nap\compiled_0.6.0\system_modules\napmath\thirdparty\glm;C:\nap\compiled_0.6.0\system_modules\napaudio\include;C:\nap\compiled_0.6.0\system_modules\napapp\include;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include;C:\nap\compiled_0.6.0\system_modules\napparametergui\include;C:\nap\compiled_0.6.0\system_modules\napimgui\include;C:\nap\compiled_0.6.0\system_modules\napsdlinput\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\SDL2\msvc\x86_64\include\SDL2;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\nap\compiled_0.6.0\include;C:\nap\compiled_0.6.0\apps\foglio\module\src;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\portaudio\msvc\x86_64\include;C:\nap\compiled_0.6.0\thirdparty\rapidjson\include;C:\nap\compiled_0.6.0\thirdparty\moodycamel;C:\nap\compiled_0.6.0\system_modules\naprender\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\vulkansdk\msvc\x86_64\Include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\FreeImage\msvc\x86_64\Dist\x64;C:\nap\compiled_0.6.0\system_modules\napscene\include;C:\nap\compiled_0.6.0\system_modules\napparameter\include;C:\nap\compiled_0.6.0\system_modules\napvideo\include;C:\nap\compiled_0.6.0\system_modules\napfont\include;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\freetype\msvc\x86_64\include\freetype2;C:\nap\compiled_0.6.0\system_modules\napinput\include;C:\nap\compiled_0.6.0\system_modules\napcolor\include;C:\nap\compiled_0.6.0\system_modules\napmath\include;C:\nap\compiled_0.6.0\system_modules\napmath\thirdparty\glm;C:\nap\compiled_0.6.0\system_modules\napaudio\include;C:\nap\compiled_0.6.0\system_modules\napapp\include;C:\nap\compiled_0.6.0\system_modules\napimgui\include;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include;C:\nap\compiled_0.6.0\system_modules\napsdlinput\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\SDL2\msvc\x86_64\include\SDL2;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -89,7 +89,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message>																																	Deploying path mapping to bin	Deploying path mapping to app directory</Message>
+      <Message>																																Deploying path mapping to bin	Deploying path mapping to app directory</Message>
       <Command>setlocal
 C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy C:/nap/compiled_0.6.0/lib/Debug-x86_64/napcore.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
 if %errorlevel% neq 0 goto :cmEnd
@@ -140,64 +140,20 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd
 setlocal
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napimgui//lib/Debug-x86_64/napimgui.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
+if %errorlevel% neq 0 goto :cmEnd
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napimgui//lib/Debug-x86_64/napimgui.json C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
 C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napcameracontrol//lib/Debug-x86_64/napcameracontrol.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
 if %errorlevel% neq 0 goto :cmEnd
 C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napcameracontrol//lib/Debug-x86_64/napcameracontrol.json C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd
-setlocal
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napparametergui//lib/Debug-x86_64/napparametergui.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napparametergui//lib/Debug-x86_64/napparametergui.json C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd
-setlocal
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napscene//lib/Debug-x86_64/napscene.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napscene//lib/Debug-x86_64/napscene.json C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd
-setlocal
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napmath//lib/Debug-x86_64/napmath.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napmath//lib/Debug-x86_64/napmath.json C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd
-setlocal
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napinput//lib/Debug-x86_64/napinput.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napinput//lib/Debug-x86_64/napinput.json C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd
-setlocal
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napparameter//lib/Debug-x86_64/napparameter.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napparameter//lib/Debug-x86_64/napparameter.json C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -235,9 +191,20 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd
 setlocal
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napimgui//lib/Debug-x86_64/napimgui.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napscene//lib/Debug-x86_64/napscene.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
 if %errorlevel% neq 0 goto :cmEnd
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napimgui//lib/Debug-x86_64/napimgui.json C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napscene//lib/Debug-x86_64/napscene.json C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napparameter//lib/Debug-x86_64/napparameter.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
+if %errorlevel% neq 0 goto :cmEnd
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napparameter//lib/Debug-x86_64/napparameter.json C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -329,9 +296,40 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd
 setlocal
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napcolor//lib/Debug-x86_64/napcolor.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napmath//lib/Debug-x86_64/napmath.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
 if %errorlevel% neq 0 goto :cmEnd
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napcolor//lib/Debug-x86_64/napcolor.json C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napmath//lib/Debug-x86_64/napmath.json C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napinput//lib/Debug-x86_64/napinput.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
+if %errorlevel% neq 0 goto :cmEnd
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napinput//lib/Debug-x86_64/napinput.json C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/naprender/thirdparty/SDL2/msvc/x86_64/lib/SDL2.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napsdlinput//lib/Debug-x86_64/napsdlinput.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
+if %errorlevel% neq 0 goto :cmEnd
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napsdlinput//lib/Debug-x86_64/napsdlinput.json C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -360,18 +358,9 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd
 setlocal
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/naprender/thirdparty/SDL2/msvc/x86_64/lib/SDL2.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napcolor//lib/Debug-x86_64/napcolor.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
 if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd
-setlocal
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napsdlinput//lib/Debug-x86_64/napsdlinput.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napsdlinput//lib/Debug-x86_64/napsdlinput.json C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napcolor//lib/Debug-x86_64/napcolor.json C:/nap/compiled_0.6.0/apps/foglio/bin/Debug-x86_64/
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -437,7 +426,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>app_module_build\Debug\napfoglio.lib;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\SDL2\msvc\x86_64\lib\SDL2main.lib;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\SDL2\msvc\x86_64\lib\SDL2.lib;C:\nap\compiled_0.6.0\lib\Debug-x86_64\napcore.lib;C:\nap\compiled_0.6.0\lib\Debug-x86_64\naprtti.lib;C:\nap\compiled_0.6.0\lib\Debug-x86_64\naputility.lib;C:\nap\compiled_0.6.0\system_modules\napscene\\lib\Debug-x86_64\napscene.lib;C:\nap\compiled_0.6.0\system_modules\napmath\\lib\Debug-x86_64\napmath.lib;C:\nap\compiled_0.6.0\system_modules\napinput\\lib\Debug-x86_64\napinput.lib;C:\nap\compiled_0.6.0\system_modules\napparameter\\lib\Debug-x86_64\napparameter.lib;C:\nap\compiled_0.6.0\system_modules\naprender\\lib\Debug-x86_64\naprender.lib;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\vulkansdk\msvc\x86_64\Lib\vulkan-1.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\\lib\Debug-x86_64\napvideo.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avcodec.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avformat.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avutil.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\swresample.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avcodec.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avformat.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avutil.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\swresample.lib;C:\nap\compiled_0.6.0\system_modules\napcolor\\lib\Debug-x86_64\napcolor.lib;C:\nap\compiled_0.6.0\system_modules\napfont\\lib\Debug-x86_64\napfont.lib;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\freetype\msvc\x86_64\lib\Debug\freetyped.lib;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\freetype\msvc\x86_64\lib\Debug\freetyped.lib;C:\nap\compiled_0.6.0\system_modules\napaudio\\lib\Debug-x86_64\napaudio.lib;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\lib\rttr_core_d.lib;C:\nap\compiled_0.6.0\system_modules\napapp\\lib\Debug-x86_64\napapp.lib;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\\lib\Debug-x86_64\napcameracontrol.lib;C:\nap\compiled_0.6.0\system_modules\napparametergui\\lib\Debug-x86_64\napparametergui.lib;C:\nap\compiled_0.6.0\system_modules\napimgui\\lib\Debug-x86_64\napimgui.lib;C:\nap\compiled_0.6.0\system_modules\napsdlinput\\lib\Debug-x86_64\napsdlinput.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>app_module_build\Debug\napfoglio.lib;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\SDL2\msvc\x86_64\lib\SDL2main.lib;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\SDL2\msvc\x86_64\lib\SDL2.lib;C:\nap\compiled_0.6.0\lib\Debug-x86_64\napcore.lib;C:\nap\compiled_0.6.0\lib\Debug-x86_64\naprtti.lib;C:\nap\compiled_0.6.0\lib\Debug-x86_64\naputility.lib;C:\nap\compiled_0.6.0\system_modules\naprender\\lib\Debug-x86_64\naprender.lib;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\vulkansdk\msvc\x86_64\Lib\vulkan-1.lib;C:\nap\compiled_0.6.0\system_modules\napscene\\lib\Debug-x86_64\napscene.lib;C:\nap\compiled_0.6.0\system_modules\napparameter\\lib\Debug-x86_64\napparameter.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\\lib\Debug-x86_64\napvideo.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avcodec.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avformat.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avutil.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\swresample.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avcodec.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avformat.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avutil.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\swresample.lib;C:\nap\compiled_0.6.0\system_modules\napmath\\lib\Debug-x86_64\napmath.lib;C:\nap\compiled_0.6.0\system_modules\napinput\\lib\Debug-x86_64\napinput.lib;C:\nap\compiled_0.6.0\system_modules\napfont\\lib\Debug-x86_64\napfont.lib;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\freetype\msvc\x86_64\lib\Debug\freetyped.lib;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\freetype\msvc\x86_64\lib\Debug\freetyped.lib;C:\nap\compiled_0.6.0\system_modules\napcolor\\lib\Debug-x86_64\napcolor.lib;C:\nap\compiled_0.6.0\system_modules\napaudio\\lib\Debug-x86_64\napaudio.lib;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\lib\rttr_core_d.lib;C:\nap\compiled_0.6.0\system_modules\napapp\\lib\Debug-x86_64\napapp.lib;C:\nap\compiled_0.6.0\system_modules\napimgui\\lib\Debug-x86_64\napimgui.lib;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\\lib\Debug-x86_64\napcameracontrol.lib;C:\nap\compiled_0.6.0\system_modules\napsdlinput\\lib\Debug-x86_64\napsdlinput.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:/nap/compiled_0.6.0/thirdparty/python/msvc/x86_64/libs;C:/nap/compiled_0.6.0/thirdparty/python/msvc/x86_64/libs/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -452,7 +441,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\nap\compiled_0.6.0\include;C:\nap\compiled_0.6.0\apps\foglio\module\src;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\portaudio\msvc\x86_64\include;C:\nap\compiled_0.6.0\thirdparty\rapidjson\include;C:\nap\compiled_0.6.0\thirdparty\moodycamel;C:\nap\compiled_0.6.0\system_modules\naprender\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\vulkansdk\msvc\x86_64\Include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\FreeImage\msvc\x86_64\Dist\x64;C:\nap\compiled_0.6.0\system_modules\napscene\include;C:\nap\compiled_0.6.0\system_modules\napparameter\include;C:\nap\compiled_0.6.0\system_modules\napvideo\include;C:\nap\compiled_0.6.0\system_modules\napfont\include;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\freetype\msvc\x86_64\include\freetype2;C:\nap\compiled_0.6.0\system_modules\napinput\include;C:\nap\compiled_0.6.0\system_modules\napcolor\include;C:\nap\compiled_0.6.0\system_modules\napmath\include;C:\nap\compiled_0.6.0\system_modules\napmath\thirdparty\glm;C:\nap\compiled_0.6.0\system_modules\napaudio\include;C:\nap\compiled_0.6.0\system_modules\napapp\include;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include;C:\nap\compiled_0.6.0\system_modules\napparametergui\include;C:\nap\compiled_0.6.0\system_modules\napimgui\include;C:\nap\compiled_0.6.0\system_modules\napsdlinput\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\SDL2\msvc\x86_64\include\SDL2;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\nap\compiled_0.6.0\include;C:\nap\compiled_0.6.0\apps\foglio\module\src;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\portaudio\msvc\x86_64\include;C:\nap\compiled_0.6.0\thirdparty\rapidjson\include;C:\nap\compiled_0.6.0\thirdparty\moodycamel;C:\nap\compiled_0.6.0\system_modules\naprender\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\vulkansdk\msvc\x86_64\Include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\FreeImage\msvc\x86_64\Dist\x64;C:\nap\compiled_0.6.0\system_modules\napscene\include;C:\nap\compiled_0.6.0\system_modules\napparameter\include;C:\nap\compiled_0.6.0\system_modules\napvideo\include;C:\nap\compiled_0.6.0\system_modules\napfont\include;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\freetype\msvc\x86_64\include\freetype2;C:\nap\compiled_0.6.0\system_modules\napinput\include;C:\nap\compiled_0.6.0\system_modules\napcolor\include;C:\nap\compiled_0.6.0\system_modules\napmath\include;C:\nap\compiled_0.6.0\system_modules\napmath\thirdparty\glm;C:\nap\compiled_0.6.0\system_modules\napaudio\include;C:\nap\compiled_0.6.0\system_modules\napapp\include;C:\nap\compiled_0.6.0\system_modules\napimgui\include;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include;C:\nap\compiled_0.6.0\system_modules\napsdlinput\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\SDL2\msvc\x86_64\include\SDL2;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /bigobj</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -471,10 +460,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;MODULE_NAME=foglio;GLM_FORCE_CTOR_INIT;RTTR_DLL;NOMINMAX;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\nap\compiled_0.6.0\include;C:\nap\compiled_0.6.0\apps\foglio\module\src;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\portaudio\msvc\x86_64\include;C:\nap\compiled_0.6.0\thirdparty\rapidjson\include;C:\nap\compiled_0.6.0\thirdparty\moodycamel;C:\nap\compiled_0.6.0\system_modules\naprender\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\vulkansdk\msvc\x86_64\Include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\FreeImage\msvc\x86_64\Dist\x64;C:\nap\compiled_0.6.0\system_modules\napscene\include;C:\nap\compiled_0.6.0\system_modules\napparameter\include;C:\nap\compiled_0.6.0\system_modules\napvideo\include;C:\nap\compiled_0.6.0\system_modules\napfont\include;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\freetype\msvc\x86_64\include\freetype2;C:\nap\compiled_0.6.0\system_modules\napinput\include;C:\nap\compiled_0.6.0\system_modules\napcolor\include;C:\nap\compiled_0.6.0\system_modules\napmath\include;C:\nap\compiled_0.6.0\system_modules\napmath\thirdparty\glm;C:\nap\compiled_0.6.0\system_modules\napaudio\include;C:\nap\compiled_0.6.0\system_modules\napapp\include;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include;C:\nap\compiled_0.6.0\system_modules\napparametergui\include;C:\nap\compiled_0.6.0\system_modules\napimgui\include;C:\nap\compiled_0.6.0\system_modules\napsdlinput\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\SDL2\msvc\x86_64\include\SDL2;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\nap\compiled_0.6.0\include;C:\nap\compiled_0.6.0\apps\foglio\module\src;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\portaudio\msvc\x86_64\include;C:\nap\compiled_0.6.0\thirdparty\rapidjson\include;C:\nap\compiled_0.6.0\thirdparty\moodycamel;C:\nap\compiled_0.6.0\system_modules\naprender\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\vulkansdk\msvc\x86_64\Include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\FreeImage\msvc\x86_64\Dist\x64;C:\nap\compiled_0.6.0\system_modules\napscene\include;C:\nap\compiled_0.6.0\system_modules\napparameter\include;C:\nap\compiled_0.6.0\system_modules\napvideo\include;C:\nap\compiled_0.6.0\system_modules\napfont\include;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\freetype\msvc\x86_64\include\freetype2;C:\nap\compiled_0.6.0\system_modules\napinput\include;C:\nap\compiled_0.6.0\system_modules\napcolor\include;C:\nap\compiled_0.6.0\system_modules\napmath\include;C:\nap\compiled_0.6.0\system_modules\napmath\thirdparty\glm;C:\nap\compiled_0.6.0\system_modules\napaudio\include;C:\nap\compiled_0.6.0\system_modules\napapp\include;C:\nap\compiled_0.6.0\system_modules\napimgui\include;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include;C:\nap\compiled_0.6.0\system_modules\napsdlinput\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\SDL2\msvc\x86_64\include\SDL2;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\nap\compiled_0.6.0\include;C:\nap\compiled_0.6.0\apps\foglio\module\src;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\portaudio\msvc\x86_64\include;C:\nap\compiled_0.6.0\thirdparty\rapidjson\include;C:\nap\compiled_0.6.0\thirdparty\moodycamel;C:\nap\compiled_0.6.0\system_modules\naprender\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\vulkansdk\msvc\x86_64\Include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\FreeImage\msvc\x86_64\Dist\x64;C:\nap\compiled_0.6.0\system_modules\napscene\include;C:\nap\compiled_0.6.0\system_modules\napparameter\include;C:\nap\compiled_0.6.0\system_modules\napvideo\include;C:\nap\compiled_0.6.0\system_modules\napfont\include;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\freetype\msvc\x86_64\include\freetype2;C:\nap\compiled_0.6.0\system_modules\napinput\include;C:\nap\compiled_0.6.0\system_modules\napcolor\include;C:\nap\compiled_0.6.0\system_modules\napmath\include;C:\nap\compiled_0.6.0\system_modules\napmath\thirdparty\glm;C:\nap\compiled_0.6.0\system_modules\napaudio\include;C:\nap\compiled_0.6.0\system_modules\napapp\include;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include;C:\nap\compiled_0.6.0\system_modules\napparametergui\include;C:\nap\compiled_0.6.0\system_modules\napimgui\include;C:\nap\compiled_0.6.0\system_modules\napsdlinput\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\SDL2\msvc\x86_64\include\SDL2;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\nap\compiled_0.6.0\include;C:\nap\compiled_0.6.0\apps\foglio\module\src;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\portaudio\msvc\x86_64\include;C:\nap\compiled_0.6.0\thirdparty\rapidjson\include;C:\nap\compiled_0.6.0\thirdparty\moodycamel;C:\nap\compiled_0.6.0\system_modules\naprender\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\vulkansdk\msvc\x86_64\Include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\FreeImage\msvc\x86_64\Dist\x64;C:\nap\compiled_0.6.0\system_modules\napscene\include;C:\nap\compiled_0.6.0\system_modules\napparameter\include;C:\nap\compiled_0.6.0\system_modules\napvideo\include;C:\nap\compiled_0.6.0\system_modules\napfont\include;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\freetype\msvc\x86_64\include\freetype2;C:\nap\compiled_0.6.0\system_modules\napinput\include;C:\nap\compiled_0.6.0\system_modules\napcolor\include;C:\nap\compiled_0.6.0\system_modules\napmath\include;C:\nap\compiled_0.6.0\system_modules\napmath\thirdparty\glm;C:\nap\compiled_0.6.0\system_modules\napaudio\include;C:\nap\compiled_0.6.0\system_modules\napapp\include;C:\nap\compiled_0.6.0\system_modules\napimgui\include;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include;C:\nap\compiled_0.6.0\system_modules\napsdlinput\include;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\SDL2\msvc\x86_64\include\SDL2;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -482,7 +471,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message>																																	Deploying path mapping to bin	Deploying path mapping to app directory</Message>
+      <Message>																																Deploying path mapping to bin	Deploying path mapping to app directory</Message>
       <Command>setlocal
 C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy C:/nap/compiled_0.6.0/lib/Release-x86_64/napcore.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
 if %errorlevel% neq 0 goto :cmEnd
@@ -533,64 +522,20 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd
 setlocal
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napimgui//lib/Release-x86_64/napimgui.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
+if %errorlevel% neq 0 goto :cmEnd
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napimgui//lib/Release-x86_64/napimgui.json C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
 C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napcameracontrol//lib/Release-x86_64/napcameracontrol.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
 if %errorlevel% neq 0 goto :cmEnd
 C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napcameracontrol//lib/Release-x86_64/napcameracontrol.json C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd
-setlocal
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napparametergui//lib/Release-x86_64/napparametergui.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napparametergui//lib/Release-x86_64/napparametergui.json C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd
-setlocal
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napscene//lib/Release-x86_64/napscene.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napscene//lib/Release-x86_64/napscene.json C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd
-setlocal
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napmath//lib/Release-x86_64/napmath.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napmath//lib/Release-x86_64/napmath.json C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd
-setlocal
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napinput//lib/Release-x86_64/napinput.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napinput//lib/Release-x86_64/napinput.json C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd
-setlocal
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napparameter//lib/Release-x86_64/napparameter.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napparameter//lib/Release-x86_64/napparameter.json C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -628,9 +573,20 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd
 setlocal
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napimgui//lib/Release-x86_64/napimgui.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napscene//lib/Release-x86_64/napscene.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
 if %errorlevel% neq 0 goto :cmEnd
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napimgui//lib/Release-x86_64/napimgui.json C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napscene//lib/Release-x86_64/napscene.json C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napparameter//lib/Release-x86_64/napparameter.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
+if %errorlevel% neq 0 goto :cmEnd
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napparameter//lib/Release-x86_64/napparameter.json C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -722,9 +678,40 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd
 setlocal
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napcolor//lib/Release-x86_64/napcolor.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napmath//lib/Release-x86_64/napmath.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
 if %errorlevel% neq 0 goto :cmEnd
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napcolor//lib/Release-x86_64/napcolor.json C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napmath//lib/Release-x86_64/napmath.json C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napinput//lib/Release-x86_64/napinput.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
+if %errorlevel% neq 0 goto :cmEnd
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napinput//lib/Release-x86_64/napinput.json C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/naprender/thirdparty/SDL2/msvc/x86_64/lib/SDL2.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napsdlinput//lib/Release-x86_64/napsdlinput.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
+if %errorlevel% neq 0 goto :cmEnd
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napsdlinput//lib/Release-x86_64/napsdlinput.json C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -753,18 +740,9 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd
 setlocal
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/naprender/thirdparty/SDL2/msvc/x86_64/lib/SDL2.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napcolor//lib/Release-x86_64/napcolor.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
 if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd
-setlocal
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napsdlinput//lib/Release-x86_64/napsdlinput.dll C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
-if %errorlevel% neq 0 goto :cmEnd
-C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napsdlinput//lib/Release-x86_64/napsdlinput.json C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
+C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\bin\cmake.exe -E copy_if_different C:/nap/compiled_0.6.0/system_modules/napcolor//lib/Release-x86_64/napcolor.json C:/nap/compiled_0.6.0/apps/foglio/bin/Release-x86_64/
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -830,7 +808,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>app_module_build\Release\napfoglio.lib;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\SDL2\msvc\x86_64\lib\SDL2main.lib;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\SDL2\msvc\x86_64\lib\SDL2.lib;C:\nap\compiled_0.6.0\lib\Release-x86_64\napcore.lib;C:\nap\compiled_0.6.0\lib\Release-x86_64\naprtti.lib;C:\nap\compiled_0.6.0\lib\Release-x86_64\naputility.lib;C:\nap\compiled_0.6.0\system_modules\napscene\\lib\Release-x86_64\napscene.lib;C:\nap\compiled_0.6.0\system_modules\napmath\\lib\Release-x86_64\napmath.lib;C:\nap\compiled_0.6.0\system_modules\napinput\\lib\Release-x86_64\napinput.lib;C:\nap\compiled_0.6.0\system_modules\napparameter\\lib\Release-x86_64\napparameter.lib;C:\nap\compiled_0.6.0\system_modules\naprender\\lib\Release-x86_64\naprender.lib;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\vulkansdk\msvc\x86_64\Lib\vulkan-1.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\\lib\Release-x86_64\napvideo.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avcodec.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avformat.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avutil.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\swresample.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avcodec.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avformat.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avutil.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\swresample.lib;C:\nap\compiled_0.6.0\system_modules\napcolor\\lib\Release-x86_64\napcolor.lib;C:\nap\compiled_0.6.0\system_modules\napfont\\lib\Release-x86_64\napfont.lib;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\freetype\msvc\x86_64\lib\Release\freetype.lib;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\freetype\msvc\x86_64\lib\Release\freetype.lib;C:\nap\compiled_0.6.0\system_modules\napaudio\\lib\Release-x86_64\napaudio.lib;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\lib\rttr_core.lib;C:\nap\compiled_0.6.0\system_modules\napapp\\lib\Release-x86_64\napapp.lib;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\\lib\Release-x86_64\napcameracontrol.lib;C:\nap\compiled_0.6.0\system_modules\napparametergui\\lib\Release-x86_64\napparametergui.lib;C:\nap\compiled_0.6.0\system_modules\napimgui\\lib\Release-x86_64\napimgui.lib;C:\nap\compiled_0.6.0\system_modules\napsdlinput\\lib\Release-x86_64\napsdlinput.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>app_module_build\Release\napfoglio.lib;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\SDL2\msvc\x86_64\lib\SDL2main.lib;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\SDL2\msvc\x86_64\lib\SDL2.lib;C:\nap\compiled_0.6.0\lib\Release-x86_64\napcore.lib;C:\nap\compiled_0.6.0\lib\Release-x86_64\naprtti.lib;C:\nap\compiled_0.6.0\lib\Release-x86_64\naputility.lib;C:\nap\compiled_0.6.0\system_modules\naprender\\lib\Release-x86_64\naprender.lib;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\vulkansdk\msvc\x86_64\Lib\vulkan-1.lib;C:\nap\compiled_0.6.0\system_modules\napscene\\lib\Release-x86_64\napscene.lib;C:\nap\compiled_0.6.0\system_modules\napparameter\\lib\Release-x86_64\napparameter.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\\lib\Release-x86_64\napvideo.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avcodec.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avformat.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avutil.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\swresample.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avcodec.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avformat.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\avutil.lib;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\ffmpeg\msvc\x86_64\bin\swresample.lib;C:\nap\compiled_0.6.0\system_modules\napmath\\lib\Release-x86_64\napmath.lib;C:\nap\compiled_0.6.0\system_modules\napinput\\lib\Release-x86_64\napinput.lib;C:\nap\compiled_0.6.0\system_modules\napfont\\lib\Release-x86_64\napfont.lib;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\freetype\msvc\x86_64\lib\Release\freetype.lib;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\freetype\msvc\x86_64\lib\Release\freetype.lib;C:\nap\compiled_0.6.0\system_modules\napcolor\\lib\Release-x86_64\napcolor.lib;C:\nap\compiled_0.6.0\system_modules\napaudio\\lib\Release-x86_64\napaudio.lib;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\lib\rttr_core.lib;C:\nap\compiled_0.6.0\system_modules\napapp\\lib\Release-x86_64\napapp.lib;C:\nap\compiled_0.6.0\system_modules\napimgui\\lib\Release-x86_64\napimgui.lib;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\\lib\Release-x86_64\napcameracontrol.lib;C:\nap\compiled_0.6.0\system_modules\napsdlinput\\lib\Release-x86_64\napsdlinput.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:/nap/compiled_0.6.0/thirdparty/python/msvc/x86_64/libs;C:/nap/compiled_0.6.0/thirdparty/python/msvc/x86_64/libs/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -858,7 +836,7 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\nap\compiled_0.6.0\apps\foglio\app.json;C:\nap\compiled_0.6.0\apps\foglio\cached_app_json.cmake;C:\nap\compiled_0.6.0\apps\foglio\module\cached_module_json.cmake;C:\nap\compiled_0.6.0\apps\foglio\module\module.json;C:\nap\compiled_0.6.0\apps\foglio\msvc64\CMakeFiles\3.21.3\CMakeCCompiler.cmake;C:\nap\compiled_0.6.0\apps\foglio\msvc64\CMakeFiles\3.21.3\CMakeCXXCompiler.cmake;C:\nap\compiled_0.6.0\apps\foglio\msvc64\CMakeFiles\3.21.3\CMakeRCCompiler.cmake;C:\nap\compiled_0.6.0\apps\foglio\msvc64\CMakeFiles\3.21.3\CMakeSystem.cmake;C:\nap\compiled_0.6.0\apps\foglio\msvc64\arch.c;C:\nap\compiled_0.6.0\cmake\find_modules\Findmoodycamel.cmake;C:\nap\compiled_0.6.0\cmake\find_modules\Findnapcore.cmake;C:\nap\compiled_0.6.0\cmake\find_modules\Findnaprtti.cmake;C:\nap\compiled_0.6.0\cmake\find_modules\Findnaputility.cmake;C:\nap\compiled_0.6.0\cmake\find_modules\Findrapidjson.cmake;C:\nap\compiled_0.6.0\cmake\install_napkin_with_app.cmake;C:\nap\compiled_0.6.0\cmake\macros_and_functions.cmake;C:\nap\compiled_0.6.0\cmake\nap_app.cmake;C:\nap\compiled_0.6.0\cmake\targetarch.cmake;C:\nap\compiled_0.6.0\system_modules\napapp\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napapp\module.json;C:\nap\compiled_0.6.0\system_modules\napaudio\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napaudio\module.json;C:\nap\compiled_0.6.0\system_modules\napaudio\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\cmake_find_modules\Findlibmpg123.cmake;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\cmake_find_modules\Findlibsndfile.cmake;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\cmake_find_modules\Findportaudio.cmake;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\module.json;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napcolor\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napcolor\module.json;C:\nap\compiled_0.6.0\system_modules\napcolor\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napfont\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napfont\module.json;C:\nap\compiled_0.6.0\system_modules\napfont\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\cmake_find_modules\Findfreetype.cmake;C:\nap\compiled_0.6.0\system_modules\napimgui\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napimgui\module.json;C:\nap\compiled_0.6.0\system_modules\napimgui\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napinput\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napinput\module.json;C:\nap\compiled_0.6.0\system_modules\napinput\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napmath\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napmath\module.json;C:\nap\compiled_0.6.0\system_modules\napmath\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napmath\thirdparty\cmake_find_modules\Findglm.cmake;C:\nap\compiled_0.6.0\system_modules\napparameter\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napparameter\module.json;C:\nap\compiled_0.6.0\system_modules\napparametergui\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napparametergui\module.json;C:\nap\compiled_0.6.0\system_modules\naprender\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\module.json;C:\nap\compiled_0.6.0\system_modules\naprender\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\assimp\msvc\x86_64\lib\cmake\assimp-3.3\assimp-config-version.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\assimp\msvc\x86_64\lib\cmake\assimp-3.3\assimp-config.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\cmake_find_modules\FindSDL2.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\cmake_find_modules\Findfreeimage.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\cmake_find_modules\Findvulkansdk.cmake;C:\nap\compiled_0.6.0\system_modules\napscene\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napscene\module.json;C:\nap\compiled_0.6.0\system_modules\napscene\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napsdlinput\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napsdlinput\module.json;C:\nap\compiled_0.6.0\system_modules\napsdlinput\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napvideo\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napvideo\module.json;C:\nap\compiled_0.6.0\system_modules\napvideo\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\cmake_find_modules\FindFFmpeg.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeCInformation.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeCXXInformation.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeCommonLanguageInclude.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeGenericSystem.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeInitializeConfigs.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeLanguageInformation.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeRCInformation.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeSystemSpecificInformation.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeSystemSpecificInitialize.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CheckCSourceCompiles.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CheckIncludeFile.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CheckLibraryExists.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Compiler\MSVC-C.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Compiler\MSVC-CXX.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\FindPackageHandleStandardArgs.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\FindPackageMessage.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\FindThreads.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Platform\Windows-MSVC-C.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Platform\Windows-MSVC-CXX.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Platform\Windows-MSVC.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Platform\Windows.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Platform\WindowsPaths.cmake;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\cmake\rttr-config-debug.cmake;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\cmake\rttr-config-release.cmake;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\cmake\rttr-config-version.cmake;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\cmake\rttr-config.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\nap\compiled_0.6.0\apps\foglio\app.json;C:\nap\compiled_0.6.0\apps\foglio\cached_app_json.cmake;C:\nap\compiled_0.6.0\apps\foglio\module\cached_module_json.cmake;C:\nap\compiled_0.6.0\apps\foglio\module\module.json;C:\nap\compiled_0.6.0\apps\foglio\msvc64\CMakeFiles\3.21.3\CMakeCCompiler.cmake;C:\nap\compiled_0.6.0\apps\foglio\msvc64\CMakeFiles\3.21.3\CMakeCXXCompiler.cmake;C:\nap\compiled_0.6.0\apps\foglio\msvc64\CMakeFiles\3.21.3\CMakeRCCompiler.cmake;C:\nap\compiled_0.6.0\apps\foglio\msvc64\CMakeFiles\3.21.3\CMakeSystem.cmake;C:\nap\compiled_0.6.0\apps\foglio\msvc64\arch.c;C:\nap\compiled_0.6.0\cmake\find_modules\Findmoodycamel.cmake;C:\nap\compiled_0.6.0\cmake\find_modules\Findnapcore.cmake;C:\nap\compiled_0.6.0\cmake\find_modules\Findnaprtti.cmake;C:\nap\compiled_0.6.0\cmake\find_modules\Findnaputility.cmake;C:\nap\compiled_0.6.0\cmake\find_modules\Findrapidjson.cmake;C:\nap\compiled_0.6.0\cmake\install_napkin_with_app.cmake;C:\nap\compiled_0.6.0\cmake\macros_and_functions.cmake;C:\nap\compiled_0.6.0\cmake\nap_app.cmake;C:\nap\compiled_0.6.0\cmake\targetarch.cmake;C:\nap\compiled_0.6.0\system_modules\napapp\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napapp\module.json;C:\nap\compiled_0.6.0\system_modules\napaudio\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napaudio\module.json;C:\nap\compiled_0.6.0\system_modules\napaudio\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\cmake_find_modules\Findlibmpg123.cmake;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\cmake_find_modules\Findlibsndfile.cmake;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\cmake_find_modules\Findportaudio.cmake;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\module.json;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napcolor\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napcolor\module.json;C:\nap\compiled_0.6.0\system_modules\napcolor\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napfont\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napfont\module.json;C:\nap\compiled_0.6.0\system_modules\napfont\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\cmake_find_modules\Findfreetype.cmake;C:\nap\compiled_0.6.0\system_modules\napimgui\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napimgui\module.json;C:\nap\compiled_0.6.0\system_modules\napimgui\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napinput\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napinput\module.json;C:\nap\compiled_0.6.0\system_modules\napinput\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napmath\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napmath\module.json;C:\nap\compiled_0.6.0\system_modules\napmath\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napmath\thirdparty\cmake_find_modules\Findglm.cmake;C:\nap\compiled_0.6.0\system_modules\napparameter\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napparameter\module.json;C:\nap\compiled_0.6.0\system_modules\naprender\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\module.json;C:\nap\compiled_0.6.0\system_modules\naprender\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\assimp\msvc\x86_64\lib\cmake\assimp-3.3\assimp-config-version.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\assimp\msvc\x86_64\lib\cmake\assimp-3.3\assimp-config.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\cmake_find_modules\FindSDL2.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\cmake_find_modules\Findfreeimage.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\cmake_find_modules\Findvulkansdk.cmake;C:\nap\compiled_0.6.0\system_modules\napscene\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napscene\module.json;C:\nap\compiled_0.6.0\system_modules\napscene\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napsdlinput\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napsdlinput\module.json;C:\nap\compiled_0.6.0\system_modules\napsdlinput\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napvideo\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napvideo\module.json;C:\nap\compiled_0.6.0\system_modules\napvideo\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\cmake_find_modules\FindFFmpeg.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeCInformation.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeCXXInformation.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeCommonLanguageInclude.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeGenericSystem.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeInitializeConfigs.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeLanguageInformation.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeRCInformation.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeSystemSpecificInformation.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeSystemSpecificInitialize.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CheckCSourceCompiles.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CheckIncludeFile.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CheckLibraryExists.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Compiler\MSVC-C.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Compiler\MSVC-CXX.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\FindPackageHandleStandardArgs.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\FindPackageMessage.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\FindThreads.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Platform\Windows-MSVC-C.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Platform\Windows-MSVC-CXX.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Platform\Windows-MSVC.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Platform\Windows.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Platform\WindowsPaths.cmake;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\cmake\rttr-config-debug.cmake;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\cmake\rttr-config-release.cmake;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\cmake\rttr-config-version.cmake;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\cmake\rttr-config.cmake;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\nap\compiled_0.6.0\apps\foglio\msvc64\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/nap/compiled_0.6.0/apps/foglio/CMakeLists.txt</Message>
@@ -871,7 +849,7 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\nap\compiled_0.6.0\apps\foglio\app.json;C:\nap\compiled_0.6.0\apps\foglio\cached_app_json.cmake;C:\nap\compiled_0.6.0\apps\foglio\module\cached_module_json.cmake;C:\nap\compiled_0.6.0\apps\foglio\module\module.json;C:\nap\compiled_0.6.0\apps\foglio\msvc64\CMakeFiles\3.21.3\CMakeCCompiler.cmake;C:\nap\compiled_0.6.0\apps\foglio\msvc64\CMakeFiles\3.21.3\CMakeCXXCompiler.cmake;C:\nap\compiled_0.6.0\apps\foglio\msvc64\CMakeFiles\3.21.3\CMakeRCCompiler.cmake;C:\nap\compiled_0.6.0\apps\foglio\msvc64\CMakeFiles\3.21.3\CMakeSystem.cmake;C:\nap\compiled_0.6.0\apps\foglio\msvc64\arch.c;C:\nap\compiled_0.6.0\cmake\find_modules\Findmoodycamel.cmake;C:\nap\compiled_0.6.0\cmake\find_modules\Findnapcore.cmake;C:\nap\compiled_0.6.0\cmake\find_modules\Findnaprtti.cmake;C:\nap\compiled_0.6.0\cmake\find_modules\Findnaputility.cmake;C:\nap\compiled_0.6.0\cmake\find_modules\Findrapidjson.cmake;C:\nap\compiled_0.6.0\cmake\install_napkin_with_app.cmake;C:\nap\compiled_0.6.0\cmake\macros_and_functions.cmake;C:\nap\compiled_0.6.0\cmake\nap_app.cmake;C:\nap\compiled_0.6.0\cmake\targetarch.cmake;C:\nap\compiled_0.6.0\system_modules\napapp\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napapp\module.json;C:\nap\compiled_0.6.0\system_modules\napaudio\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napaudio\module.json;C:\nap\compiled_0.6.0\system_modules\napaudio\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\cmake_find_modules\Findlibmpg123.cmake;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\cmake_find_modules\Findlibsndfile.cmake;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\cmake_find_modules\Findportaudio.cmake;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\module.json;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napcolor\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napcolor\module.json;C:\nap\compiled_0.6.0\system_modules\napcolor\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napfont\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napfont\module.json;C:\nap\compiled_0.6.0\system_modules\napfont\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\cmake_find_modules\Findfreetype.cmake;C:\nap\compiled_0.6.0\system_modules\napimgui\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napimgui\module.json;C:\nap\compiled_0.6.0\system_modules\napimgui\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napinput\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napinput\module.json;C:\nap\compiled_0.6.0\system_modules\napinput\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napmath\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napmath\module.json;C:\nap\compiled_0.6.0\system_modules\napmath\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napmath\thirdparty\cmake_find_modules\Findglm.cmake;C:\nap\compiled_0.6.0\system_modules\napparameter\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napparameter\module.json;C:\nap\compiled_0.6.0\system_modules\napparametergui\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napparametergui\module.json;C:\nap\compiled_0.6.0\system_modules\naprender\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\module.json;C:\nap\compiled_0.6.0\system_modules\naprender\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\assimp\msvc\x86_64\lib\cmake\assimp-3.3\assimp-config-version.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\assimp\msvc\x86_64\lib\cmake\assimp-3.3\assimp-config.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\cmake_find_modules\FindSDL2.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\cmake_find_modules\Findfreeimage.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\cmake_find_modules\Findvulkansdk.cmake;C:\nap\compiled_0.6.0\system_modules\napscene\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napscene\module.json;C:\nap\compiled_0.6.0\system_modules\napscene\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napsdlinput\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napsdlinput\module.json;C:\nap\compiled_0.6.0\system_modules\napsdlinput\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napvideo\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napvideo\module.json;C:\nap\compiled_0.6.0\system_modules\napvideo\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\cmake_find_modules\FindFFmpeg.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeCInformation.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeCXXInformation.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeCommonLanguageInclude.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeGenericSystem.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeInitializeConfigs.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeLanguageInformation.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeRCInformation.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeSystemSpecificInformation.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeSystemSpecificInitialize.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CheckCSourceCompiles.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CheckIncludeFile.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CheckLibraryExists.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Compiler\MSVC-C.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Compiler\MSVC-CXX.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\FindPackageHandleStandardArgs.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\FindPackageMessage.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\FindThreads.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Platform\Windows-MSVC-C.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Platform\Windows-MSVC-CXX.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Platform\Windows-MSVC.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Platform\Windows.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Platform\WindowsPaths.cmake;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\cmake\rttr-config-debug.cmake;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\cmake\rttr-config-release.cmake;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\cmake\rttr-config-version.cmake;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\cmake\rttr-config.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\nap\compiled_0.6.0\apps\foglio\app.json;C:\nap\compiled_0.6.0\apps\foglio\cached_app_json.cmake;C:\nap\compiled_0.6.0\apps\foglio\module\cached_module_json.cmake;C:\nap\compiled_0.6.0\apps\foglio\module\module.json;C:\nap\compiled_0.6.0\apps\foglio\msvc64\CMakeFiles\3.21.3\CMakeCCompiler.cmake;C:\nap\compiled_0.6.0\apps\foglio\msvc64\CMakeFiles\3.21.3\CMakeCXXCompiler.cmake;C:\nap\compiled_0.6.0\apps\foglio\msvc64\CMakeFiles\3.21.3\CMakeRCCompiler.cmake;C:\nap\compiled_0.6.0\apps\foglio\msvc64\CMakeFiles\3.21.3\CMakeSystem.cmake;C:\nap\compiled_0.6.0\apps\foglio\msvc64\arch.c;C:\nap\compiled_0.6.0\cmake\find_modules\Findmoodycamel.cmake;C:\nap\compiled_0.6.0\cmake\find_modules\Findnapcore.cmake;C:\nap\compiled_0.6.0\cmake\find_modules\Findnaprtti.cmake;C:\nap\compiled_0.6.0\cmake\find_modules\Findnaputility.cmake;C:\nap\compiled_0.6.0\cmake\find_modules\Findrapidjson.cmake;C:\nap\compiled_0.6.0\cmake\install_napkin_with_app.cmake;C:\nap\compiled_0.6.0\cmake\macros_and_functions.cmake;C:\nap\compiled_0.6.0\cmake\nap_app.cmake;C:\nap\compiled_0.6.0\cmake\targetarch.cmake;C:\nap\compiled_0.6.0\system_modules\napapp\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napapp\module.json;C:\nap\compiled_0.6.0\system_modules\napaudio\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napaudio\module.json;C:\nap\compiled_0.6.0\system_modules\napaudio\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\cmake_find_modules\Findlibmpg123.cmake;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\cmake_find_modules\Findlibsndfile.cmake;C:\nap\compiled_0.6.0\system_modules\napaudio\thirdparty\cmake_find_modules\Findportaudio.cmake;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\module.json;C:\nap\compiled_0.6.0\system_modules\napcameracontrol\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napcolor\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napcolor\module.json;C:\nap\compiled_0.6.0\system_modules\napcolor\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napfont\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napfont\module.json;C:\nap\compiled_0.6.0\system_modules\napfont\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napfont\thirdparty\cmake_find_modules\Findfreetype.cmake;C:\nap\compiled_0.6.0\system_modules\napimgui\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napimgui\module.json;C:\nap\compiled_0.6.0\system_modules\napimgui\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napinput\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napinput\module.json;C:\nap\compiled_0.6.0\system_modules\napinput\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napmath\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napmath\module.json;C:\nap\compiled_0.6.0\system_modules\napmath\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napmath\thirdparty\cmake_find_modules\Findglm.cmake;C:\nap\compiled_0.6.0\system_modules\napparameter\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napparameter\module.json;C:\nap\compiled_0.6.0\system_modules\naprender\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\module.json;C:\nap\compiled_0.6.0\system_modules\naprender\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\assimp\msvc\x86_64\lib\cmake\assimp-3.3\assimp-config-version.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\assimp\msvc\x86_64\lib\cmake\assimp-3.3\assimp-config.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\cmake_find_modules\FindSDL2.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\cmake_find_modules\Findfreeimage.cmake;C:\nap\compiled_0.6.0\system_modules\naprender\thirdparty\cmake_find_modules\Findvulkansdk.cmake;C:\nap\compiled_0.6.0\system_modules\napscene\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napscene\module.json;C:\nap\compiled_0.6.0\system_modules\napscene\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napsdlinput\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napsdlinput\module.json;C:\nap\compiled_0.6.0\system_modules\napsdlinput\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napvideo\cached_module_json.cmake;C:\nap\compiled_0.6.0\system_modules\napvideo\module.json;C:\nap\compiled_0.6.0\system_modules\napvideo\module_extra.cmake;C:\nap\compiled_0.6.0\system_modules\napvideo\thirdparty\cmake_find_modules\FindFFmpeg.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeCInformation.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeCXXInformation.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeCommonLanguageInclude.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeGenericSystem.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeInitializeConfigs.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeLanguageInformation.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeRCInformation.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeSystemSpecificInformation.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CMakeSystemSpecificInitialize.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CheckCSourceCompiles.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CheckIncludeFile.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\CheckLibraryExists.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Compiler\MSVC-C.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Compiler\MSVC-CXX.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\FindPackageHandleStandardArgs.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\FindPackageMessage.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\FindThreads.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Platform\Windows-MSVC-C.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Platform\Windows-MSVC-CXX.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Platform\Windows-MSVC.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Platform\Windows.cmake;C:\nap\compiled_0.6.0\thirdparty\cmake\msvc\x86_64\share\cmake-3.21\Modules\Platform\WindowsPaths.cmake;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\cmake\rttr-config-debug.cmake;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\cmake\rttr-config-release.cmake;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\cmake\rttr-config-version.cmake;C:\nap\compiled_0.6.0\thirdparty\rttr\msvc\x86_64\cmake\rttr-config.cmake;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\nap\compiled_0.6.0\apps\foglio\msvc64\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
     </CustomBuild>
@@ -1055,12 +1033,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napapp\include\appeventhandler.h" />
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napapp\include\apprunner.h" />
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napapp\include\servicerunner.h" />
-    <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include\cameracontroller.h" />
-    <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include\firstpersoncontroller.h" />
-    <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include\orbitcontroller.h" />
-    <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include\orthocontroller.h" />
-    <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napparametergui\include\parametergui.h" />
-    <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napparametergui\include\parameterguiservice.h" />
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napimgui\include\guiappeventhandler.h" />
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napimgui\include\imgui\guiapp.h" />
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napimgui\include\imgui\imconfig.h" />
@@ -1074,6 +1046,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napimgui\include\imguiicon.h" />
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napimgui\include\imguiservice.h" />
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napimgui\include\imguiutils.h" />
+    <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include\cameracontroller.h" />
+    <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include\firstpersoncontroller.h" />
+    <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include\orbitcontroller.h" />
+    <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include\orthocontroller.h" />
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napsdlinput\include\sdlappeventhandler.h" />
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napsdlinput\include\sdleventconverter.h" />
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napsdlinput\include\sdlinputservice.h" />

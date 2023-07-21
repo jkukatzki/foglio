@@ -537,24 +537,6 @@
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napapp\include\servicerunner.h">
       <Filter>Modules\napapp</Filter>
     </ClInclude>
-    <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include\cameracontroller.h">
-      <Filter>Modules\napcameracontrol</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include\firstpersoncontroller.h">
-      <Filter>Modules\napcameracontrol</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include\orbitcontroller.h">
-      <Filter>Modules\napcameracontrol</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include\orthocontroller.h">
-      <Filter>Modules\napcameracontrol</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napparametergui\include\parametergui.h">
-      <Filter>Modules\napparametergui</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napparametergui\include\parameterguiservice.h">
-      <Filter>Modules\napparametergui</Filter>
-    </ClInclude>
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napimgui\include\guiappeventhandler.h">
       <Filter>Modules\napimgui</Filter>
     </ClInclude>
@@ -594,6 +576,18 @@
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napimgui\include\imguiutils.h">
       <Filter>Modules\napimgui</Filter>
     </ClInclude>
+    <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include\cameracontroller.h">
+      <Filter>Modules\napcameracontrol</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include\firstpersoncontroller.h">
+      <Filter>Modules\napcameracontrol</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include\orbitcontroller.h">
+      <Filter>Modules\napcameracontrol</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napcameracontrol\include\orthocontroller.h">
+      <Filter>Modules\napcameracontrol</Filter>
+    </ClInclude>
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napsdlinput\include\sdlappeventhandler.h">
       <Filter>Modules\napsdlinput</Filter>
     </ClInclude>
@@ -628,9 +622,6 @@
     </Filter>
     <Filter Include="Modules\napimgui\imgui">
       <UniqueIdentifier>{EC3BEF62-290F-3159-93F3-948575D16F26}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Modules\napparametergui">
-      <UniqueIdentifier>{1176C910-D978-3C57-81AF-32E0FC819D1D}</UniqueIdentifier>
     </Filter>
     <Filter Include="Modules\napsdlinput">
       <UniqueIdentifier>{67D39699-3D8A-3550-ABB9-38844A64477D}</UniqueIdentifier>

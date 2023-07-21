@@ -655,10 +655,12 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\module\src\canvasshader.cpp" />
+    <ClCompile Include="..\..\module\src\rendercanvascomponent.cpp" />
     <ClCompile Include="C:\nap\compiled_0.6.0\apps\foglio\module\src\foglioservice.cpp" />
     <ClCompile Include="C:\nap\compiled_0.6.0\apps\foglio\module\src\napfoglio.cpp" />
-    <ClCompile Include="canvasshader.cpp" />
-    <ClCompile Include="rendercanvascomponent.cpp" />
+    <ClInclude Include="..\..\module\src\canvasshader.h" />
+    <ClInclude Include="..\..\module\src\rendercanvascomponent.h" />
     <ClInclude Include="C:\nap\compiled_0.6.0\apps\foglio\module\src\foglioservice.h" />
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\naprender\include\bitmap.h" />
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\naprender\include\bitmapfilebuffer.h" />
@@ -831,8 +833,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napaudio\include\audio\utility\rampedvalue.h" />
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napaudio\include\audio\utility\safeptr.h" />
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napaudio\include\audio\utility\translator.h" />
-    <ClInclude Include="canvasshader.h" />
-    <ClInclude Include="rendercanvascomponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="C:\nap\compiled_0.6.0\apps\foglio\msvc64\ZERO_CHECK.vcxproj">
@@ -841,10 +841,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="data\shaders\canvas.frag" />
-    <None Include="data\shaders\canvas.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

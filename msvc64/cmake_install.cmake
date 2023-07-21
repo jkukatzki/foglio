@@ -50,7 +50,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/licenses/GLM" TYPE FILE FILES "C:/nap/compiled_0.6.0/system_modules/napmath/thirdparty/glm/copying.txt")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/system_modules/napimgui" TYPE DIRECTORY FILES "C:/nap/compiled_0.6.0/system_modules/napimgui/data")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -90,10 +90,6 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/system_modules/napimgui" TYPE DIRECTORY FILES "C:/nap/compiled_0.6.0/system_modules/napimgui/data")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/licenses/FFmpeg" TYPE FILE FILES
     "C:/nap/compiled_0.6.0/system_modules/napvideo/thirdparty/ffmpeg/licenses/COPYING.LGPLv2.1"
     "C:/nap/compiled_0.6.0/system_modules/napvideo/thirdparty/ffmpeg/licenses/COPYING.LGPLv3"
@@ -103,6 +99,10 @@ endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/licenses/FFmpeg" TYPE FILE FILES "C:/nap/compiled_0.6.0/system_modules/napvideo/thirdparty/ffmpeg/ffmpeg-3.4.2.tar.xz")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/licenses/GLM" TYPE FILE FILES "C:/nap/compiled_0.6.0/system_modules/napmath/thirdparty/glm/copying.txt")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)

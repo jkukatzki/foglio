@@ -7,10 +7,10 @@
     <ClCompile Include="C:\nap\compiled_0.6.0\apps\foglio\module\src\napfoglio.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="rendercanvascomponent.cpp">
+    <ClCompile Include="..\..\module\src\rendercanvascomponent.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="canvasshader.cpp">
+    <ClCompile Include="..\..\module\src\canvasshader.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -531,10 +531,10 @@
     <ClInclude Include="C:\nap\compiled_0.6.0\system_modules\napaudio\include\audio\utility\translator.h">
       <Filter>Modules\napaudio\audio\utility</Filter>
     </ClInclude>
-    <ClInclude Include="rendercanvascomponent.h">
+    <ClInclude Include="..\..\module\src\rendercanvascomponent.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="canvasshader.h">
+    <ClInclude Include="..\..\module\src\canvasshader.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -599,19 +599,5 @@
     <Filter Include="Sources">
       <UniqueIdentifier>{D7798B62-4BD7-325F-81C7-C8430D4A72E8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="data">
-      <UniqueIdentifier>{38cfbdfa-ac6e-4e79-9a47-0edbdb02b06f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="data\shaders">
-      <UniqueIdentifier>{25ee704d-b789-4322-a22f-55972d9547ac}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="data\shaders\canvas.frag">
-      <Filter>data\shaders</Filter>
-    </None>
-    <None Include="data\shaders\canvas.vert">
-      <Filter>data\shaders</Filter>
-    </None>
   </ItemGroup>
 </Project>

@@ -2,6 +2,41 @@
     "Objects": [
         {
             "Type": "nap::Entity",
+            "mID": "BackgroundCanvasEntity",
+            "Components": [
+                {
+                    "Type": "nap::RenderCanvasComponent",
+                    "mID": "BackgroundCanvas",
+                    "Visible": true,
+                    "VideoPlayer": "BackgroundVideoPlayer"
+                },
+                {
+                    "Type": "nap::TransformComponent",
+                    "mID": "TransformBackgroundCanvas",
+                    "Properties": {
+                        "Translate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Rotate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        },
+                        "UniformScale": 1.0
+                    }
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::Entity",
             "mID": "CameraEntity",
             "Components": [
                 {
@@ -53,7 +88,9 @@
                         "x": 0.0,
                         "y": 0.0,
                         "z": 0.0
-                    }
+                    },
+                    "MinimumZoomDistance": 0.5,
+                    "LimitZoomDistance": false
                 },
                 {
                     "Type": "nap::PointerInputComponent",
@@ -64,19 +101,17 @@
         },
         {
             "Type": "nap::Entity",
-            "mID": "GnomonEntity",
+            "mID": "FlowerCanvasEntity",
             "Components": [
                 {
-                    "Type": "nap::RenderGnomonComponent",
-                    "mID": "RenderGnomon",
+                    "Type": "nap::RenderCanvasComponent",
+                    "mID": "FlowerCanvas",
                     "Visible": true,
-                    "Gnomon": "Gnomon",
-                    "LineWidth": 1.0,
-                    "DepthMode": "ReadWrite"
+                    "VideoPlayer": "FlowerVideoPlayer"
                 },
                 {
                     "Type": "nap::TransformComponent",
-                    "mID": "PositionGnomon",
+                    "mID": "TransformFlowerCanvas",
                     "Properties": {
                         "Translate": {
                             "x": 0.0,
@@ -100,14 +135,13 @@
             "Children": []
         },
         {
-            "Type": "nap::GnomonMesh",
-            "mID": "Gnomon",
-            "Size": 1.0,
-            "Position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            }
+            "Type": "nap::Entity",
+            "mID": "VideoWallEntity",
+            "Components": [],
+            "Children": [
+                "BackgroundCanvasEntity",
+                "FlowerCanvasEntity"
+            ]
         },
         {
             "Type": "nap::RenderWindow",
@@ -121,24 +155,77 @@
             "Height": 720,
             "Mode": "Immediate",
             "ClearColor": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0,
-                "w": 1.0
+                "Values": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
             },
             "Samples": "Four",
-            "AdditionalSwapImages": 1
+            "AdditionalSwapImages": 1,
+            "RestoreSize": true,
+            "RestorePosition": true
+        },
+        {
+            "Type": "nap::ResourceGroup",
+            "mID": "ImageMasks",
+            "Members": [
+                {
+                    "Type": "nap::ImageFromFile",
+                    "mID": "FlowerMask",
+                    "Usage": "Static",
+                    "ImagePath": "images/masks/flower.png",
+                    "GenerateLods": true
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::ResourceGroup",
+            "mID": "VideoPlayers",
+            "Members": [
+                {
+                    "Type": "nap::VideoPlayer",
+                    "mID": "BackgroundVideoPlayer",
+                    "Loop": false,
+                    "VideoFiles": [
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "people",
+                            "Path": "videos/background/people.mp4"
+                        }
+                    ],
+                    "VideoIndex": 0,
+                    "Speed": 1.0
+                },
+                {
+                    "Type": "nap::VideoPlayer",
+                    "mID": "FlowerVideoPlayer",
+                    "Loop": false,
+                    "VideoFiles": [
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "uv_sphere",
+                            "Path": "videos/flower/flower_uv_sphere_sine_1.1.mp4"
+                        }
+                    ],
+                    "VideoIndex": 0,
+                    "Speed": 1.0
+                }
+            ],
+            "Children": []
         },
         {
             "Type": "nap::Scene",
             "mID": "Scene",
             "Entities": [
                 {
-                    "Entity": "GnomonEntity",
+                    "Entity": "CameraEntity",
                     "InstanceProperties": []
                 },
                 {
-                    "Entity": "CameraEntity",
+                    "Entity": "VideoWallEntity",
                     "InstanceProperties": []
                 }
             ]
