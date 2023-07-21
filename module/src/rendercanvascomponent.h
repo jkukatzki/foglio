@@ -56,7 +56,6 @@ namespace nap
 		RenderableMesh				mRenderableMesh;
 
 		RenderService*				mRenderService = nullptr;
-		FoglioService*				mFoglioService = nullptr;
 
 		UniformMat4Instance*		mModelMatrixUniform = nullptr;
 		UniformMat4Instance*		mProjectMatrixUniform = nullptr;

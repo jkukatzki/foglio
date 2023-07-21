@@ -5,6 +5,7 @@
  // Local includes
 #include "canvasshader.h"
 #include "foglioservice.h"
+#include "renderservice.h"
 
 // External includes
 #include <nap/core.h>

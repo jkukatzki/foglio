@@ -31,8 +31,8 @@ namespace nap
 		mResourceManager = getCore().getResourceManager();
 
 		// Get the render window
-		mRenderWindow = mResourceManager->findObject<nap::RenderWindow>("Window");
-		if (!error.check(mRenderWindow != nullptr, "unable to find render window with name: %s", "Window"))
+		mRenderWindow = mResourceManager->findObject<nap::RenderWindow>("MainWindow");
+		if (!error.check(mRenderWindow != nullptr, "unable to find render window with name: %s", "MainWindow"))
 			return false;
 
 		// Get the scene that contains our entities and components
@@ -47,12 +47,12 @@ namespace nap
 
 		// Get the Gnomon entity
 		mVideoWallEntity = mScene->findEntity("VideoWallEntity");
-		if (!error.check(mGnomonEntity != nullptr, "unable to find origin Gnomon entity with name: %s", "GnomonEntity"))
+		if (!error.check(mVideoWallEntity != nullptr, "unable to find video wall entity with name: %s", "VideoWallEntity"))
 			return false;
 		
-		for (EntityInstance* canvasInstance : mVideoWallEntity->getChildren()) {
-			canvasInstance->getComponent<RenderCanvasComponent>();
-		}
+		//for (EntityInstance* canvasInstance : mVideoWallEntity->getChildren()) {
+		//	canvasInstance->getComponent<RenderCanvasComponent>();
+		//}
 
 		// All done!
 		return true;

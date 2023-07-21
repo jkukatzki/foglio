@@ -6,14 +6,13 @@
 #include <nap/core.h>
 #include <renderservice.h>
 #include <renderglobals.h>
-#include <foglioservice.h>
 #include <glm/gtc/matrix_transform.hpp>
 
 
 // nap::rendercanvascomponent run time class definition
 RTTI_BEGIN_CLASS(nap::RenderCanvasComponent)
 	RTTI_PROPERTY("VideoPlayer", &nap::RenderCanvasComponent::mVideoPlayer, nap::rtti::EPropertyMetaData::Required)
-	RTTI_PROPERTY("MaskImage", &nap::RenderCanvasComponent::mMaskImage, nap::rtti::EPropertyMetaData::FileLink)
+	RTTI_PROPERTY("MaskImage", &nap::RenderCanvasComponent::mMaskImage, nap::rtti::EPropertyMetaData::Required)
 	RTTI_PROPERTY("Index", &nap::RenderCanvasComponent::mVideoIndex, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
@@ -49,7 +48,7 @@ namespace nap
 	{
 		if (!RenderableComponentInstance::init(errorState))
 			return false;
-
+		std::cout << "first";
 		// Get resource
 		RenderCanvasComponent* resource = getComponent<RenderCanvasComponent>();
 
@@ -59,6 +58,8 @@ namespace nap
 			return false;
 
 		// Setup output texture
+		mOutputTexture->mWidth = 1920;
+		mOutputTexture->mHeight = 1080;
 		mOutputTexture->mFormat = RenderTexture2D::EFormat::RGBA8;
 		if (!mOutputTexture->init(errorState))
 			return false;
@@ -87,14 +88,10 @@ namespace nap
 		mRenderService = getEntityInstance()->getCore()->getService<RenderService>();
 		assert(mRenderService != nullptr);
 
-		// Extract foglio service for asset 
-		mFoglioService = getEntityInstance()->getCore()->getService<FoglioService>();
-		std::string relative_path = utility::joinPath({ "shaders", utility::appendFileExtension("canvas", "vert") });
-		const std::string frag_shader_path = mFoglioService->getModule().findAsset(relative_path);
 
 		// create canvas material
 		Material* canvas_material = mRenderService->getOrCreateMaterial<CanvasShader>(errorState);
-		if (!errorState.check(canvas_material != nullptr, "%s: unable to get or create video material", resource->mID.c_str()))
+		if (!errorState.check(canvas_material != nullptr, "%s: unable to get or create canvas material", resource->mID.c_str()))
 			return false;
 
 		// Create resource for the canvas material instance

@@ -8,7 +8,9 @@
                     "Type": "nap::RenderCanvasComponent",
                     "mID": "BackgroundCanvas",
                     "Visible": true,
-                    "VideoPlayer": "BackgroundVideoPlayer"
+                    "VideoPlayer": "BackgroundVideoPlayer",
+                    "MaskImage": "FlowerMask",
+                    "Index": 0
                 },
                 {
                     "Type": "nap::TransformComponent",
@@ -107,7 +109,9 @@
                     "Type": "nap::RenderCanvasComponent",
                     "mID": "FlowerCanvas",
                     "Visible": true,
-                    "VideoPlayer": "FlowerVideoPlayer"
+                    "VideoPlayer": "FlowerVideoPlayer",
+                    "MaskImage": "FlowerMask",
+                    "Index": 0
                 },
                 {
                     "Type": "nap::TransformComponent",
