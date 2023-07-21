@@ -1,7 +1,0 @@
-C:/nap/compiled_0.6.0/apps/foglio/msvc64/CMakeFiles/foglio.dir
-C:/nap/compiled_0.6.0/apps/foglio/msvc64/CMakeFiles/INSTALL.dir
-C:/nap/compiled_0.6.0/apps/foglio/msvc64/CMakeFiles/ALL_BUILD.dir
-C:/nap/compiled_0.6.0/apps/foglio/msvc64/CMakeFiles/ZERO_CHECK.dir
-C:/nap/compiled_0.6.0/apps/foglio/msvc64/app_module_build/CMakeFiles/napfoglio.dir
-C:/nap/compiled_0.6.0/apps/foglio/msvc64/app_module_build/CMakeFiles/INSTALL.dir
-C:/nap/compiled_0.6.0/apps/foglio/msvc64/app_module_build/CMakeFiles/ALL_BUILD.dir
