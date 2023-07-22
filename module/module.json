@@ -7,5 +7,6 @@
         "napparameter",
         "napvideo"
     ], 
-    "WindowsDllSearchPaths": []
+    "WindowsDllSearchPaths": [],
+    "DataSearchPaths": ["{PROJECT_DIR}/module/data"]
 }

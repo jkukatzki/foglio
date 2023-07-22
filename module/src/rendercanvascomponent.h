@@ -11,6 +11,7 @@
 #include <videoplayer.h>
 #include <imagefromfile.h>
 #include <foglioservice.h>
+#include <transformcomponent.h>
 
 namespace nap
 {
@@ -40,20 +41,25 @@ namespace nap
 
 		void draw();
 
+		Texture2D& getOutputTexture();
+
+		VideoPlayer* getVideoPlayer();
+
 	protected:
 
 		virtual void onDraw(IRenderTarget& renderTarget, VkCommandBuffer commandBuffer, const glm::mat4& viewmatrix, const glm::mat4& projectionMatrix) override;
 
 	private:
 		VideoPlayer*				mPlayer = nullptr;
-		RenderTexture2D*			mOutputTexture = nullptr;
 		RenderTarget				mTarget;
-
+		RenderTexture2D* mOutputTexture = nullptr;
 		PlaneMesh					mPlane;
 		Material*					mCanvasMaterial;
 		MaterialInstance			mMaterialInstance;
 		MaterialInstanceResource	mMaterialInstanceResource;
 		RenderableMesh				mRenderableMesh;
+		
+		TransformComponentInstance*	mTransformComponent = nullptr;
 
 		RenderService*				mRenderService = nullptr;
 

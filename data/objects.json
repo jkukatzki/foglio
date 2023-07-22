@@ -140,6 +140,58 @@
         },
         {
             "Type": "nap::Entity",
+            "mID": "OrthoCameraEntity",
+            "Components": [
+                {
+                    "Type": "nap::OrthoCameraComponent",
+                    "mID": "nap::OrthoCameraComponent_ab24e06d",
+                    "Properties": {
+                        "Mode": "PixelSpace",
+                        "LeftPlane": 0.0,
+                        "RightPlane": 100.0,
+                        "TopPlane": 100.0,
+                        "BottomPlane": 0.0,
+                        "NearClippingPlane": 0.0,
+                        "FarClippingPlane": 1000.0,
+                        "ClipRect": {
+                            "Min": {
+                                "x": 0.0,
+                                "y": 0.0
+                            },
+                            "Max": {
+                                "x": 1.0,
+                                "y": 1.0
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "nap::TransformComponent",
+                    "mID": "nap::TransformComponent_370564a5",
+                    "Properties": {
+                        "Translate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 1.0
+                        },
+                        "Rotate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        },
+                        "UniformScale": 1.0
+                    }
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::Entity",
             "mID": "VideoWallEntity",
             "Components": [],
             "Children": [
@@ -149,7 +201,31 @@
         },
         {
             "Type": "nap::RenderWindow",
-            "mID": "Window",
+            "mID": "ControlsWindow",
+            "Borderless": false,
+            "Resizable": true,
+            "Visible": true,
+            "SampleShading": true,
+            "Title": "",
+            "Width": 512,
+            "Height": 512,
+            "Mode": "Immediate",
+            "ClearColor": {
+                "Values": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "Samples": "Four",
+            "AdditionalSwapImages": 1,
+            "RestoreSize": true,
+            "RestorePosition": true
+        },
+        {
+            "Type": "nap::RenderWindow",
+            "mID": "MainWindow",
             "Borderless": false,
             "Resizable": true,
             "Visible": true,
@@ -192,7 +268,7 @@
                 {
                     "Type": "nap::VideoPlayer",
                     "mID": "BackgroundVideoPlayer",
-                    "Loop": false,
+                    "Loop": true,
                     "VideoFiles": [
                         {
                             "Type": "nap::VideoFile",
@@ -206,7 +282,7 @@
                 {
                     "Type": "nap::VideoPlayer",
                     "mID": "FlowerVideoPlayer",
-                    "Loop": false,
+                    "Loop": true,
                     "VideoFiles": [
                         {
                             "Type": "nap::VideoFile",
@@ -230,7 +306,76 @@
                 },
                 {
                     "Entity": "VideoWallEntity",
-                    "InstanceProperties": []
+                    "InstanceProperties": [
+                        {
+                            "TargetComponent": "./FlowerCanvasEntity:0/TransformFlowerCanvas",
+                            "TargetAttributes": [
+                                {
+                                    "Path": "Properties/Scale/x",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_1796ec8e",
+                                        "Value": 0.30000001192092898
+                                    }
+                                },
+                                {
+                                    "Path": "Properties/Scale/y",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_ba42af6b",
+                                        "Value": 0.30000001192092898
+                                    }
+                                },
+                                {
+                                    "Path": "Properties/Scale/z",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_04c50bbb",
+                                        "Value": 0.30000001192092898
+                                    }
+                                },
+                                {
+                                    "Path": "Properties/Translate/x",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_a90c15dd",
+                                        "Value": 50.0
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "Entity": "OrthoCameraEntity",
+                    "InstanceProperties": [
+                        {
+                            "TargetComponent": "./nap::TransformComponent_370564a5",
+                            "TargetAttributes": [
+                                {
+                                    "Path": "Properties/Translate/z",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_477fe6ae",
+                                        "Value": 1.0
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "TargetComponent": "./nap::OrthoCameraComponent_ab24e06d",
+                            "TargetAttributes": [
+                                {
+                                    "Path": "Properties/NearClippingPlane",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_dd53379b",
+                                        "Value": 0.0
+                                    }
+                                }
+                            ]
+                        }
+                    ]
                 }
             ]
         }

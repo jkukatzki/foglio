@@ -7,6 +7,7 @@
 #include <renderservice.h>
 #include <renderglobals.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <transformcomponent.h>
 
 
 // nap::rendercanvascomponent run time class definition
@@ -23,17 +24,30 @@ RTTI_END_CLASS
 namespace nap
 {
 
-	static void computeModelMatrix(const nap::IRenderTarget& target, glm::mat4& outMatrix)
+	static void computeModelMatrix(const nap::IRenderTarget& target, glm::mat4& outMatrix, bool fullscreen, TransformComponentInstance* transform_comp)
 	{
-		// Transform to middle of target
-		glm::ivec2 tex_size = target.getBufferSize();
-		outMatrix = glm::translate(glm::mat4(), glm::vec3(
-			tex_size.x / 2.0f,
-			tex_size.y / 2.0f,
-			0.0f));
+		if (fullscreen) {
+			// Transform to middle of target
+			glm::ivec2 tex_size = target.getBufferSize();
+			outMatrix = glm::translate(glm::mat4(), glm::vec3(
+				tex_size.x / 2.0f,
+				tex_size.y / 2.0f,
+				0.0f));
 
-		// Scale to fit target
-		outMatrix = glm::scale(outMatrix, glm::vec3(tex_size.x, tex_size.y, 1.0f));
+			// Scale to fit target
+			outMatrix = glm::scale(outMatrix, glm::vec3(tex_size.x, tex_size.y, 1.0f));
+		}
+		else {
+			glm::vec3 translate = transform_comp->getTranslate();
+			glm::vec3 scale = transform_comp->getScale();
+			glm::ivec2 tex_size = target.getBufferSize();
+			outMatrix = glm::translate(glm::mat4(), glm::vec3(
+				translate.x + tex_size.x / 2.0f,
+				translate.y + tex_size.y / 2.0f,
+				0.0f));
+			// Scale correlating to target
+			outMatrix = glm::scale(outMatrix, glm::vec3(tex_size.x * scale.x, tex_size.y * scale.y, 1.0f));
+		}
 	}
 
 	RenderCanvasComponentInstance::RenderCanvasComponentInstance(EntityInstance& entity, Component& resource) :
@@ -46,9 +60,9 @@ namespace nap
 
 	bool RenderCanvasComponentInstance::init(utility::ErrorState& errorState)
 	{
+		mTransformComponent = getEntityInstance()->findComponent<TransformComponentInstance>();
 		if (!RenderableComponentInstance::init(errorState))
 			return false;
-		std::cout << "first";
 		// Get resource
 		RenderCanvasComponent* resource = getComponent<RenderCanvasComponent>();
 
@@ -58,14 +72,14 @@ namespace nap
 			return false;
 
 		// Setup output texture
-		mOutputTexture->mWidth = 1920;
-		mOutputTexture->mHeight = 1080;
+		mOutputTexture->mWidth = mPlayer->getWidth();
+		mOutputTexture->mHeight = mPlayer->getHeight();
 		mOutputTexture->mFormat = RenderTexture2D::EFormat::RGBA8;
 		if (!mOutputTexture->init(errorState))
 			return false;
 
 		// Setup render target and initialize
-		mTarget.mClearColor = RGBAColor8( 255, 255, 255, 255).convert<RGBAColorFloat>();
+		mTarget.mClearColor = RGBAColor8( 255, 255, 255, 0).convert<RGBAColorFloat>();
 		mTarget.mColorTexture = mOutputTexture;
 		mTarget.mSampleShading = true;
 		mTarget.mRequestedSamples = ERasterizationSamples::One;
@@ -95,7 +109,7 @@ namespace nap
 			return false;
 
 		// Create resource for the canvas material instance
-		mMaterialInstanceResource.mBlendMode = EBlendMode::Opaque;
+		mMaterialInstanceResource.mBlendMode = EBlendMode::AlphaBlend;
 		mMaterialInstanceResource.mDepthMode = EDepthMode::NoReadWrite;
 		mMaterialInstanceResource.mMaterial = canvas_material;
 
@@ -144,15 +158,34 @@ namespace nap
 		return camera.get_type().is_derived_from(RTTI_OF(OrthoCameraComponentInstance));
 	}
 
+	nap::Texture2D& RenderCanvasComponentInstance::getOutputTexture()
+	{
+		return mTarget.getColorTexture();
+	}
+
+	nap::VideoPlayer* RenderCanvasComponentInstance::getVideoPlayer()
+	{
+		return mPlayer;
+	}
+
 	void RenderCanvasComponentInstance::onDraw(IRenderTarget& renderTarget, VkCommandBuffer commandBuffer, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 	{
+
+		// Create orthographic projection matrix
+		glm::ivec2 size = mTarget.getBufferSize();
+
+		// Create projection matrix
+		glm::mat4 proj_matrix = OrthoCameraComponentInstance::createRenderProjectionMatrix(0.0f, (float)size.x, 0.0f, (float)size.y);
+
+		
 		// Update the model matrix so that the plane mesh is of the same size as the render target
-		computeModelMatrix(renderTarget, mModelMatrix);
+		glm::mat4 originalModelMatrix = mModelMatrix;
+		computeModelMatrix(mTarget, mModelMatrix, true, mTransformComponent);
 		mModelMatrixUniform->setValue(mModelMatrix);
 
 		// Update matrices, projection and model are required
-		mProjectMatrixUniform->setValue(projectionMatrix);
-		mViewMatrixUniform->setValue(viewMatrix);
+		mProjectMatrixUniform->setValue(proj_matrix);
+		mViewMatrixUniform->setValue(glm::mat4());
 
 		// Get valid descriptor set
 		const DescriptorSet& descriptor_set = mMaterialInstance.update();
@@ -163,13 +196,41 @@ namespace nap
 
 		// Get pipeline to to render with
 		utility::ErrorState error_state;
-		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(renderTarget, mRenderableMesh.getMesh(), mMaterialInstance, error_state);
+		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(mTarget, mRenderableMesh.getMesh(), mMaterialInstance, error_state);
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mPipeline);
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mLayout, 0, 1, &descriptor_set.mSet, 0, nullptr);
 
-		// Bind buffers and draw
 		const std::vector<VkBuffer>& vertexBuffers = mRenderableMesh.getVertexBuffers();
 		const std::vector<VkDeviceSize>& vertexBufferOffsets = mRenderableMesh.getVertexBufferOffsets();
+
+
+		vkCmdBindVertexBuffers(commandBuffer, 0, vertexBuffers.size(), vertexBuffers.data(), vertexBufferOffsets.data());
+		for (int index = 0; index < mesh_instance.getNumShapes(); ++index)
+		{
+			const IndexBuffer& index_buffer = mesh.getIndexBuffer(index);
+			vkCmdBindIndexBuffer(commandBuffer, index_buffer.getBuffer(), 0, VK_INDEX_TYPE_UINT32);
+			vkCmdDrawIndexed(commandBuffer, index_buffer.getCount(), 1, 0, 0, 0);
+		}
+
+		//////////////
+
+		// Update the model matrix so that the plane mesh is of the same size as the render target
+		computeModelMatrix(renderTarget, originalModelMatrix, false, mTransformComponent);
+		mModelMatrixUniform->setValue(originalModelMatrix);
+
+		// Update matrices, projection and model are required
+		mProjectMatrixUniform->setValue(projectionMatrix);
+		mViewMatrixUniform->setValue(viewMatrix);
+
+		// Get valid descriptor set
+		const DescriptorSet& new_descriptor_set = mMaterialInstance.update();
+
+		// Get pipeline to to render with
+		utility::ErrorState new_error_state;
+		RenderService::Pipeline new_pipeline = mRenderService->getOrCreatePipeline(renderTarget, mRenderableMesh.getMesh(), mMaterialInstance, new_error_state);
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, new_pipeline.mPipeline);
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, new_pipeline.mLayout, 0, 1, &new_descriptor_set.mSet, 0, nullptr);
+
 
 		vkCmdBindVertexBuffers(commandBuffer, 0, vertexBuffers.size(), vertexBuffers.data(), vertexBufferOffsets.data());
 		for (int index = 0; index < mesh_instance.getNumShapes(); ++index)

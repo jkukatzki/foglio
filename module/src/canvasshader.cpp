@@ -41,7 +41,7 @@ namespace nap
 
 		relative_path = utility::joinPath({ "shaders", utility::appendFileExtension(shader::canvas, "frag") });
 		const std::string fragment_shader_path = mFoglioService->getModule().findAsset(relative_path);
-		if (!errorState.check(!fragment_shader_path.empty(), "%s: Unable to find %s frag shader %s", mFoglioService->getModule().getName().c_str(), shader::canvas, vertex_shader_path.c_str()))
+		if (!errorState.check(!fragment_shader_path.empty(), "%s: Unable to find %s frag shader %s", mFoglioService->getModule().getName().c_str(), shader::canvas, fragment_shader_path.c_str()))
 			return false;
 
 		// Read vert shader file
