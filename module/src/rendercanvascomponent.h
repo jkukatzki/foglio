@@ -39,25 +39,26 @@ namespace nap
 
 		virtual bool isSupported(nap::CameraComponentInstance& camera) const override;
 
-		void draw();
-
 		Texture2D& getOutputTexture();
 
 		VideoPlayer* getVideoPlayer();
+
+		void draw();
 
 	protected:
 
 		virtual void onDraw(IRenderTarget& renderTarget, VkCommandBuffer commandBuffer, const glm::mat4& viewmatrix, const glm::mat4& projectionMatrix) override;
 
 	private:
-		VideoPlayer*				mPlayer = nullptr;
-		RenderTarget				mTarget;
-		RenderTexture2D* mOutputTexture = nullptr;
-		PlaneMesh					mPlane;
-		Material*					mCanvasMaterial;
-		MaterialInstance			mMaterialInstance;
-		MaterialInstanceResource	mMaterialInstanceResource;
-		RenderableMesh				mRenderableMesh;
+		VideoPlayer*					mPlayer = nullptr;
+		RenderTarget					mTarget;
+		ResourcePtr<RenderTexture2D>	mOutputTexture = nullptr;
+
+		PlaneMesh						mPlane;
+		Material*						mCanvasOutputMaterial;
+		MaterialInstance				mOutputMaterialInstance;
+		MaterialInstanceResource		mOutputMaterialInstResource;
+		RenderableMesh					mRenderableOutputMesh;
 		
 		TransformComponentInstance*	mTransformComponent = nullptr;
 

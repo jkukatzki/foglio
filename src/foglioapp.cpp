@@ -83,19 +83,45 @@ namespace nap
 		// The system might wait until all commands that were previously associated with the new frame have been processed on the GPU.
 		// Multiple frames are in flight at the same time, but if the graphics load is heavy the system might wait here to ensure resources are available.
 		mRenderService->beginFrame();
+
 		// Find the orthographic camera component
 		nap::OrthoCameraComponentInstance& ortho_cam = mOrthoCameraEntity->getComponent<OrthoCameraComponentInstance>();
+
+
+		// get canvases for headless rendering
+		std::vector<nap::RenderCanvasComponentInstance*> canvas_components_to_render;
+		for (nap::EntityInstance* canvasEntity : mVideoWallEntity->getChildren()) {
+			canvas_components_to_render.emplace_back(&canvasEntity->getComponent<RenderCanvasComponentInstance>());
+		}
+
+		// Start recording into the headless recording buffer.
+		if (mRenderService->beginHeadlessRecording())
+		{
+			for (nap::RenderCanvasComponentInstance* canvas : canvas_components_to_render) {
+				canvas->draw();
+			}
+
+
+
+
+			// Tell the render service we are done rendering into render-targets.
+			// The queue is submitted and executed.
+			mRenderService->endHeadlessRecording();
+		}
+
+		//get canvases once again for the render service
+		std::vector<nap::RenderableComponentInstance*> canvas_mesh_components_to_render;
+		for (nap::EntityInstance* canvasEntity : mVideoWallEntity->getChildren()) {
+			canvas_mesh_components_to_render.emplace_back(&canvasEntity->getComponent<RenderableComponentInstance>());
+		};
+
 		if (mRenderService->beginRecording(*mMainWindow)) {
 			// Begin render pass
 			mMainWindow->beginRendering();
 			
-			// Find the video wall entity and draw all canvases with the orthographic camera
-			std::vector<nap::RenderableComponentInstance*> canvas_components_to_render;
-			for (nap::EntityInstance* canvasEntity : mVideoWallEntity->getChildren()) {
-				canvas_components_to_render.emplace_back(&canvasEntity->getComponent<RenderCanvasComponentInstance>());
-			}
-			mRenderService->renderObjects(*mMainWindow, ortho_cam, canvas_components_to_render);
-
+			
+			mRenderService->renderObjects(*mMainWindow, ortho_cam, canvas_mesh_components_to_render);
+			mGuiService->draw();
 			// End render pass
 			mMainWindow->endRendering();
 
@@ -170,6 +196,7 @@ namespace nap
 				float col_width = ImGui::GetContentRegionAvailWidth();
 				float ratio_canvas_tex = static_cast<float>(canvas_tex.getWidth()) / static_cast<float>(canvas_tex.getHeight());
 				ImGui::Image(canvas_tex, { col_width , col_width / ratio_canvas_tex });
+				ImGui::Text(std::to_string(canvas_tex.getHeight()).c_str());
 				if (ImGui::CollapsingHeader("Playback"))
 				{
 					float current_time = canvas_comp.getVideoPlayer()->getCurrentTime();

@@ -55,7 +55,7 @@ namespace nap
 		mTarget(*entity.getCore()),
 		mPlane(*entity.getCore()),
 		mOutputTexture(new RenderTexture2D(*entity.getCore())),
-		mCanvasMaterial(new Material(*entity.getCore()))
+		mCanvasOutputMaterial(new Material(*entity.getCore()))
 		{ }
 
 	bool RenderCanvasComponentInstance::init(utility::ErrorState& errorState)
@@ -72,14 +72,14 @@ namespace nap
 			return false;
 
 		// Setup output texture
-		mOutputTexture->mWidth = mPlayer->getWidth();
-		mOutputTexture->mHeight = mPlayer->getHeight();
-		mOutputTexture->mFormat = RenderTexture2D::EFormat::RGBA8;
-		if (!mOutputTexture->init(errorState))
+		mOutputTexture.get()->mWidth = mPlayer->getWidth();
+		mOutputTexture.get()->mHeight = mPlayer->getHeight();
+		mOutputTexture.get()->mFormat = RenderTexture2D::EFormat::RGBA8;
+		if (!mOutputTexture.get()->init(errorState))
 			return false;
 
 		// Setup render target and initialize
-		mTarget.mClearColor = RGBAColor8( 255, 255, 255, 0).convert<RGBAColorFloat>();
+		mTarget.mClearColor = RGBAColor8( 255, 255, 255, 255).convert<RGBAColorFloat>();
 		mTarget.mColorTexture = mOutputTexture;
 		mTarget.mSampleShading = true;
 		mTarget.mRequestedSamples = ERasterizationSamples::One;
@@ -108,19 +108,21 @@ namespace nap
 		if (!errorState.check(canvas_material != nullptr, "%s: unable to get or create canvas material", resource->mID.c_str()))
 			return false;
 
-		// Create resource for the canvas material instance
-		mMaterialInstanceResource.mBlendMode = EBlendMode::AlphaBlend;
-		mMaterialInstanceResource.mDepthMode = EDepthMode::NoReadWrite;
-		mMaterialInstanceResource.mMaterial = canvas_material;
+		
+
+		// Create resource for the final output canvas material instance
+		mOutputMaterialInstResource.mBlendMode = EBlendMode::AlphaBlend;
+		mOutputMaterialInstResource.mDepthMode = EDepthMode::NoReadWrite;
+		mOutputMaterialInstResource.mMaterial = canvas_material; //replace canvas material with new 
 
 		// Initialize canvas material instance, used for rendering canvas
-		if (!mMaterialInstance.init(*mRenderService, mMaterialInstanceResource, errorState))
+		if (!mOutputMaterialInstance.init(*mRenderService, mOutputMaterialInstResource, errorState))
 			return false;
 
 		// Ensure the mvp struct is available
-		mMVPStruct = mMaterialInstance.getOrCreateUniform(uniform::mvpStruct);
+		mMVPStruct = mOutputMaterialInstance.getOrCreateUniform(uniform::mvpStruct);
 		if (!errorState.check(mMVPStruct != nullptr, "%s: Unable to find uniform MVP struct: %s in material: %s",
-			this->mID.c_str(), uniform::mvpStruct, mMaterialInstance.getMaterial().mID.c_str()))
+			this->mID.c_str(), uniform::mvpStruct, mOutputMaterialInstance.getMaterial().mID.c_str()))
 			return false;
 
 		// Get all matrices
@@ -140,8 +142,8 @@ namespace nap
 			return false;
 
 		// Create the renderable mesh, which represents a valid mesh / material combination
-		mRenderableMesh = mRenderService->createRenderableMesh(mPlane, mMaterialInstance, errorState);
-		if (!mRenderableMesh.isValid())
+		mRenderableOutputMesh = mRenderService->createRenderableMesh(mPlane, mOutputMaterialInstance, errorState);
+		if (!mRenderableOutputMesh.isValid())
 			return false;
 
 		// Listen to video selection changes
@@ -168,8 +170,11 @@ namespace nap
 		return mPlayer;
 	}
 
-	void RenderCanvasComponentInstance::onDraw(IRenderTarget& renderTarget, VkCommandBuffer commandBuffer, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
+	
+	void RenderCanvasComponentInstance::draw()
 	{
+		// Get current command buffer, should be headless.
+		VkCommandBuffer command_buffer = mRenderService->getCurrentCommandBuffer();
 
 		// Create orthographic projection matrix
 		glm::ivec2 size = mTarget.getBufferSize();
@@ -177,9 +182,10 @@ namespace nap
 		// Create projection matrix
 		glm::mat4 proj_matrix = OrthoCameraComponentInstance::createRenderProjectionMatrix(0.0f, (float)size.x, 0.0f, (float)size.y);
 
+		// do onDraw() but headless
+		mTarget.beginRendering();
 		
 		// Update the model matrix so that the plane mesh is of the same size as the render target
-		glm::mat4 originalModelMatrix = mModelMatrix;
 		computeModelMatrix(mTarget, mModelMatrix, true, mTransformComponent);
 		mModelMatrixUniform->setValue(mModelMatrix);
 
@@ -188,49 +194,61 @@ namespace nap
 		mViewMatrixUniform->setValue(glm::mat4());
 
 		// Get valid descriptor set
-		const DescriptorSet& descriptor_set = mMaterialInstance.update();
+		const DescriptorSet& descriptor_set = mOutputMaterialInstance.update();
 
 		// Gather draw info
-		MeshInstance& mesh_instance = mRenderableMesh.getMesh().getMeshInstance();
+		MeshInstance& mesh_instance = mRenderableOutputMesh.getMesh().getMeshInstance();
 		GPUMesh& mesh = mesh_instance.getGPUMesh();
 
 		// Get pipeline to to render with
 		utility::ErrorState error_state;
-		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(mTarget, mRenderableMesh.getMesh(), mMaterialInstance, error_state);
-		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mPipeline);
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mLayout, 0, 1, &descriptor_set.mSet, 0, nullptr);
+		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(mTarget, mRenderableOutputMesh.getMesh(), mOutputMaterialInstance, error_state);
+		vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mPipeline);
+		vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mLayout, 0, 1, &descriptor_set.mSet, 0, nullptr);
 
-		const std::vector<VkBuffer>& vertexBuffers = mRenderableMesh.getVertexBuffers();
-		const std::vector<VkDeviceSize>& vertexBufferOffsets = mRenderableMesh.getVertexBufferOffsets();
+		// Bind buffers and draw
+		const std::vector<VkBuffer>& vertexBuffers = mRenderableOutputMesh.getVertexBuffers();
+		const std::vector<VkDeviceSize>& vertexBufferOffsets = mRenderableOutputMesh.getVertexBufferOffsets();
 
-
-		vkCmdBindVertexBuffers(commandBuffer, 0, vertexBuffers.size(), vertexBuffers.data(), vertexBufferOffsets.data());
+		vkCmdBindVertexBuffers(command_buffer, 0, vertexBuffers.size(), vertexBuffers.data(), vertexBufferOffsets.data());
 		for (int index = 0; index < mesh_instance.getNumShapes(); ++index)
 		{
 			const IndexBuffer& index_buffer = mesh.getIndexBuffer(index);
-			vkCmdBindIndexBuffer(commandBuffer, index_buffer.getBuffer(), 0, VK_INDEX_TYPE_UINT32);
-			vkCmdDrawIndexed(commandBuffer, index_buffer.getCount(), 1, 0, 0, 0);
+			vkCmdBindIndexBuffer(command_buffer, index_buffer.getBuffer(), 0, VK_INDEX_TYPE_UINT32);
+			vkCmdDrawIndexed(command_buffer, index_buffer.getCount(), 1, 0, 0, 0);
 		}
 
-		//////////////
+		mTarget.endRendering();
+	}
 
+
+	void RenderCanvasComponentInstance::onDraw(IRenderTarget& renderTarget, VkCommandBuffer commandBuffer, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
+	{
+		
 		// Update the model matrix so that the plane mesh is of the same size as the render target
-		computeModelMatrix(renderTarget, originalModelMatrix, false, mTransformComponent);
-		mModelMatrixUniform->setValue(originalModelMatrix);
+		computeModelMatrix(renderTarget, mModelMatrix, false, mTransformComponent);
+		mModelMatrixUniform->setValue(mModelMatrix);
 
 		// Update matrices, projection and model are required
 		mProjectMatrixUniform->setValue(projectionMatrix);
 		mViewMatrixUniform->setValue(viewMatrix);
 
 		// Get valid descriptor set
-		const DescriptorSet& new_descriptor_set = mMaterialInstance.update();
+		const DescriptorSet& descriptor_set = mOutputMaterialInstance.update();
+
+		// Gather draw info
+		MeshInstance& mesh_instance = mRenderableOutputMesh.getMesh().getMeshInstance();
+		GPUMesh& mesh = mesh_instance.getGPUMesh();
 
 		// Get pipeline to to render with
-		utility::ErrorState new_error_state;
-		RenderService::Pipeline new_pipeline = mRenderService->getOrCreatePipeline(renderTarget, mRenderableMesh.getMesh(), mMaterialInstance, new_error_state);
-		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, new_pipeline.mPipeline);
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, new_pipeline.mLayout, 0, 1, &new_descriptor_set.mSet, 0, nullptr);
+		utility::ErrorState error_state;
+		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(renderTarget, mRenderableOutputMesh.getMesh(), mOutputMaterialInstance, error_state);
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mPipeline);
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mLayout, 0, 1, &descriptor_set.mSet, 0, nullptr);
 
+		// Bind buffers and draw
+		const std::vector<VkBuffer>& vertexBuffers = mRenderableOutputMesh.getVertexBuffers();
+		const std::vector<VkDeviceSize>& vertexBufferOffsets = mRenderableOutputMesh.getVertexBufferOffsets();
 
 		vkCmdBindVertexBuffers(commandBuffer, 0, vertexBuffers.size(), vertexBuffers.data(), vertexBufferOffsets.data());
 		for (int index = 0; index < mesh_instance.getNumShapes(); ++index)
@@ -247,17 +265,17 @@ namespace nap
 		UniformMat4Instance* found_uniform = mMVPStruct->getOrCreateUniform<UniformMat4Instance>(uniformName);
 		if (!error.check(found_uniform != nullptr,
 			"%s: unable to find uniform: %s in material: %s", this->mID.c_str(), uniformName.c_str(),
-			mMaterialInstance.getMaterial().mID.c_str()))
+			mOutputMaterialInstance.getMaterial().mID.c_str()))
 			return nullptr;
 		return found_uniform;
 	}
 
 	nap::Sampler2DInstance* RenderCanvasComponentInstance::ensureSampler(const std::string& samplerName, utility::ErrorState& error)
 	{
-		Sampler2DInstance* found_sampler = mMaterialInstance.getOrCreateSampler<Sampler2DInstance>(samplerName);
+		Sampler2DInstance* found_sampler = mOutputMaterialInstance.getOrCreateSampler<Sampler2DInstance>(samplerName);
 		if (!error.check(found_sampler != nullptr,
 			"%s: unable to find sampler: %s in material: %s", this->mID.c_str(), samplerName.c_str(),
-			mMaterialInstance.getMaterial().mID.c_str()))
+			mOutputMaterialInstance.getMaterial().mID.c_str()))
 			return nullptr;
 		return found_sampler;
 	}
