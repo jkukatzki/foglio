@@ -55,6 +55,7 @@ namespace nap
 
 	private:
 		VideoPlayer*					mPlayer = nullptr;
+		Texture2D*						mMask = nullptr;
 		RenderTarget					mTarget;
 		ResourcePtr<RenderTexture2D>	mOutputTexture = nullptr;
 
@@ -75,6 +76,7 @@ namespace nap
 		Sampler2DInstance*			mYSampler = nullptr;
 		Sampler2DInstance*			mUSampler = nullptr;
 		Sampler2DInstance*			mVSampler = nullptr;
+		Sampler2DInstance*			mMaskSampler = nullptr;
 		glm::mat4x4					mModelMatrix;
 
 

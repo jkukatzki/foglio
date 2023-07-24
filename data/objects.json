@@ -306,7 +306,37 @@
                 },
                 {
                     "Entity": "VideoWallEntity",
-                    "InstanceProperties": []
+                    "InstanceProperties": [
+                        {
+                            "TargetComponent": "./FlowerCanvasEntity:0/TransformFlowerCanvas",
+                            "TargetAttributes": [
+                                {
+                                    "Path": "Properties/Scale/x",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_ca1c0551",
+                                        "Value": 0.30000001192092898
+                                    }
+                                },
+                                {
+                                    "Path": "Properties/Scale/y",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_bf12e9f8",
+                                        "Value": 0.30000001192092898
+                                    }
+                                },
+                                {
+                                    "Path": "Properties/Scale/z",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_37f8b8d7",
+                                        "Value": 0.30000001192092898
+                                    }
+                                }
+                            ]
+                        }
+                    ]
                 },
                 {
                     "Entity": "OrthoCameraEntity",

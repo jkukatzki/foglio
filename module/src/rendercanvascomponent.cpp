@@ -13,7 +13,7 @@
 // nap::rendercanvascomponent run time class definition
 RTTI_BEGIN_CLASS(nap::RenderCanvasComponent)
 	RTTI_PROPERTY("VideoPlayer", &nap::RenderCanvasComponent::mVideoPlayer, nap::rtti::EPropertyMetaData::Required)
-	RTTI_PROPERTY("MaskImage", &nap::RenderCanvasComponent::mMaskImage, nap::rtti::EPropertyMetaData::Required)
+	RTTI_PROPERTY("MaskImage", &nap::RenderCanvasComponent::mMaskImage, nap::rtti::EPropertyMetaData::Default)
 	RTTI_PROPERTY("Index", &nap::RenderCanvasComponent::mVideoIndex, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
@@ -24,9 +24,6 @@ RTTI_END_CLASS
 namespace nap
 {
 	
-
-	
-
 	RenderCanvasComponentInstance::RenderCanvasComponentInstance(EntityInstance& entity, Component& resource) :
 		RenderableComponentInstance(entity, resource),
 		mTarget(*entity.getCore()),
@@ -48,6 +45,8 @@ namespace nap
 		if (!errorState.check(mPlayer != nullptr, "%s: no video player", resource->mID.c_str()))
 			return false;
 
+		mMask = resource->mMaskImage.get();
+
 		// Setup output texture
 		mOutputTexture.get()->mWidth = mPlayer->getWidth();
 		mOutputTexture.get()->mHeight = mPlayer->getHeight();
@@ -64,7 +63,7 @@ namespace nap
 			return false;
 
 		// Now create a plane and initialize it
-		// The plane is positioned on update based on current texture output size
+		// The plane is positioned on update based on current texture output size and transform component
 		mPlane.mSize = glm::vec2(1.0f, 1.0f);
 		mPlane.mPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 		mPlane.mCullMode = ECullMode::Back;
@@ -114,7 +113,16 @@ namespace nap
 		mYSampler = ensureSampler(uniform::canvas::sampler::YSampler, errorState);
 		mUSampler = ensureSampler(uniform::canvas::sampler::USampler, errorState);
 		mVSampler = ensureSampler(uniform::canvas::sampler::VSampler, errorState);
-
+		mMaskSampler = ensureSampler(uniform::canvas::sampler::MaskSampler, errorState);
+		if (mMask != nullptr) {
+			
+			mMaskSampler->setTexture(*mMask);
+		}
+		else {
+			
+		}
+		
+		
 		if (mYSampler == nullptr || mUSampler == nullptr || mVSampler == nullptr)
 			return false;
 
@@ -166,10 +174,10 @@ namespace nap
 		float window_ratio = static_cast<float>(tex_size.x) / static_cast<float>(tex_size.y);
 
 		if (window_ratio > canvas_ratio) {
-			tex_size.y = tex_size.x / canvas_ratio;
+			tex_size.x = tex_size.y * canvas_ratio;
 		}
 		else {
-			tex_size.x = tex_size.y * canvas_ratio;
+			tex_size.y = tex_size.x / canvas_ratio;
 		}
 			
 

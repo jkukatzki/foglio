@@ -29,5 +29,5 @@ void main()
 	vec3 yuv = vec3(y,u,v);
 	yuv += offset;
 
-	out_Color = vec4(dot(yuv, R_cf), dot(yuv, G_cf), dot(yuv, B_cf), 1.0);
+	out_Color = vec4(dot(yuv, R_cf), dot(yuv, G_cf), dot(yuv, B_cf), texture(maskTexture, vec2(pass_Uvs.x, pass_Uvs.y)).w);
 }
