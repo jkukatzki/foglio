@@ -45,6 +45,10 @@ namespace nap
 
 		void draw();
 
+		void computeModelMatrix(const nap::IRenderTarget& target, glm::mat4& outMatrix, ResourcePtr<RenderTexture2D> canvas_output_texture, TransformComponentInstance* transform_comp);
+
+		void computeModelMatrixFullscreen(glm::mat4& outMatrix);
+
 	protected:
 
 		virtual void onDraw(IRenderTarget& renderTarget, VkCommandBuffer commandBuffer, const glm::mat4& viewmatrix, const glm::mat4& projectionMatrix) override;

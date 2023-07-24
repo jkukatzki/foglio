@@ -23,32 +23,9 @@ RTTI_END_CLASS
 
 namespace nap
 {
+	
 
-	static void computeModelMatrix(const nap::IRenderTarget& target, glm::mat4& outMatrix, bool fullscreen, TransformComponentInstance* transform_comp)
-	{
-		if (fullscreen) {
-			// Transform to middle of target
-			glm::ivec2 tex_size = target.getBufferSize();
-			outMatrix = glm::translate(glm::mat4(), glm::vec3(
-				tex_size.x / 2.0f,
-				tex_size.y / 2.0f,
-				0.0f));
-
-			// Scale to fit target
-			outMatrix = glm::scale(outMatrix, glm::vec3(tex_size.x, tex_size.y, 1.0f));
-		}
-		else {
-			glm::vec3 translate = transform_comp->getTranslate();
-			glm::vec3 scale = transform_comp->getScale();
-			glm::ivec2 tex_size = target.getBufferSize();
-			outMatrix = glm::translate(glm::mat4(), glm::vec3(
-				translate.x + tex_size.x / 2.0f,
-				translate.y + tex_size.y / 2.0f,
-				0.0f));
-			// Scale correlating to target
-			outMatrix = glm::scale(outMatrix, glm::vec3(tex_size.x * scale.x, tex_size.y * scale.y, 1.0f));
-		}
-	}
+	
 
 	RenderCanvasComponentInstance::RenderCanvasComponentInstance(EntityInstance& entity, Component& resource) :
 		RenderableComponentInstance(entity, resource),
@@ -153,6 +130,51 @@ namespace nap
 
 		return true;
 
+
+
+	}
+
+	void RenderCanvasComponentInstance::computeModelMatrixFullscreen(glm::mat4& outMatrix) {
+		//aspect ratio should be right because we set mTarget textures height and width to video players?
+		// Transform to middle of target
+		glm::ivec2 tex_size = mTarget.getBufferSize();
+		outMatrix = glm::translate(glm::mat4(), glm::vec3(
+			tex_size.x / 2.0f,
+			tex_size.y / 2.0f,
+			0.0f));
+
+		// Scale to fit target
+		outMatrix = glm::scale(outMatrix, glm::vec3(tex_size.x, tex_size.y, 1.0f));
+	}
+
+	void RenderCanvasComponentInstance::computeModelMatrix(const nap::IRenderTarget& target, glm::mat4& outMatrix, ResourcePtr<RenderTexture2D> canvas_output_texture, TransformComponentInstance* transform_comp)
+	{
+		//target should be window target
+
+		glm::vec3 translate = transform_comp->getTranslate();
+		glm::vec3 scale = transform_comp->getScale();
+		glm::ivec2 canvas_tex_size = canvas_output_texture->getSize();
+		glm::ivec2 tex_size = target.getBufferSize();
+		glm::ivec2 new_size;
+		outMatrix = glm::translate(glm::mat4(), glm::vec3(
+			translate.x + tex_size.x / 2.0f,
+			translate.y + tex_size.y / 2.0f,
+			0.0f));
+		// Scale correlating to target
+		// Calculate ratio
+		float canvas_ratio = static_cast<float>(canvas_tex_size.x) / static_cast<float>(canvas_tex_size.y);
+		float window_ratio = static_cast<float>(tex_size.x) / static_cast<float>(tex_size.y);
+
+		if (window_ratio > canvas_ratio) {
+			tex_size.y = tex_size.x / canvas_ratio;
+		}
+		else {
+			tex_size.x = tex_size.y * canvas_ratio;
+		}
+			
+
+		outMatrix = glm::scale(outMatrix, glm::vec3(tex_size.x * scale.x, tex_size.y * scale.y, 1.0f));
+
 	}
 
 	bool RenderCanvasComponentInstance::isSupported(nap::CameraComponentInstance& camera) const
@@ -186,7 +208,7 @@ namespace nap
 		mTarget.beginRendering();
 		
 		// Update the model matrix so that the plane mesh is of the same size as the render target
-		computeModelMatrix(mTarget, mModelMatrix, true, mTransformComponent);
+		computeModelMatrixFullscreen(mModelMatrix);
 		mModelMatrixUniform->setValue(mModelMatrix);
 
 		// Update matrices, projection and model are required
@@ -226,7 +248,7 @@ namespace nap
 	{
 		
 		// Update the model matrix so that the plane mesh is of the same size as the render target
-		computeModelMatrix(renderTarget, mModelMatrix, false, mTransformComponent);
+		computeModelMatrix(renderTarget, mModelMatrix, mOutputTexture, mTransformComponent);
 		mModelMatrixUniform->setValue(mModelMatrix);
 
 		// Update matrices, projection and model are required

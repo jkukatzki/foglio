@@ -306,45 +306,7 @@
                 },
                 {
                     "Entity": "VideoWallEntity",
-                    "InstanceProperties": [
-                        {
-                            "TargetComponent": "./FlowerCanvasEntity:0/TransformFlowerCanvas",
-                            "TargetAttributes": [
-                                {
-                                    "Path": "Properties/Scale/x",
-                                    "Value": {
-                                        "Type": "nap::FloatInstancePropertyValue",
-                                        "mID": "override_1796ec8e",
-                                        "Value": 0.30000001192092898
-                                    }
-                                },
-                                {
-                                    "Path": "Properties/Scale/y",
-                                    "Value": {
-                                        "Type": "nap::FloatInstancePropertyValue",
-                                        "mID": "override_ba42af6b",
-                                        "Value": 0.30000001192092898
-                                    }
-                                },
-                                {
-                                    "Path": "Properties/Scale/z",
-                                    "Value": {
-                                        "Type": "nap::FloatInstancePropertyValue",
-                                        "mID": "override_04c50bbb",
-                                        "Value": 0.30000001192092898
-                                    }
-                                },
-                                {
-                                    "Path": "Properties/Translate/x",
-                                    "Value": {
-                                        "Type": "nap::FloatInstancePropertyValue",
-                                        "mID": "override_a90c15dd",
-                                        "Value": 50.0
-                                    }
-                                }
-                            ]
-                        }
-                    ]
+                    "InstanceProperties": []
                 },
                 {
                     "Entity": "OrthoCameraEntity",
