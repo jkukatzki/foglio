@@ -28,6 +28,23 @@ namespace nap
 
 				inline constexpr const char* MaskSampler = "maskTexture";	///< canvas shader mask sampler name
 			}
+
+		
+
+		}
+	}
+	namespace vertexid
+	{	
+		namespace canvas {
+			inline constexpr const char* CornerOffset = "CornerOffset";
+		}
+		
+		namespace shader
+		{
+			namespace canvas {
+				inline constexpr const char* CornerOffset = "in_CornerOffset";
+			}
+			
 		}
 	}
 

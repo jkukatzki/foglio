@@ -8,6 +8,9 @@
 #include <renderglobals.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <transformcomponent.h>
+#include <material.h>
+#include <nap/resourceptr.h>
+#include <rtti/objectptr.h>
 
 
 // nap::rendercanvascomponent run time class definition
@@ -15,6 +18,7 @@ RTTI_BEGIN_CLASS(nap::RenderCanvasComponent)
 	RTTI_PROPERTY("VideoPlayer", &nap::RenderCanvasComponent::mVideoPlayer, nap::rtti::EPropertyMetaData::Required)
 	RTTI_PROPERTY("MaskImage", &nap::RenderCanvasComponent::mMaskImage, nap::rtti::EPropertyMetaData::Default)
 	RTTI_PROPERTY("Index", &nap::RenderCanvasComponent::mVideoIndex, nap::rtti::EPropertyMetaData::Default)
+	RTTI_PROPERTY("Canvas", &nap::RenderCanvasComponent::mCanvas, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::RenderCanvasComponentInstance)
@@ -27,10 +31,22 @@ namespace nap
 	RenderCanvasComponentInstance::RenderCanvasComponentInstance(EntityInstance& entity, Component& resource) :
 		RenderableComponentInstance(entity, resource),
 		mTarget(*entity.getCore()),
-		mPlane(*entity.getCore()),
+		mPlane(new PlaneMesh(*entity.getCore())),
 		mOutputTexture(new RenderTexture2D(*entity.getCore())),
 		mCanvasOutputMaterial(new Material(*entity.getCore()))
 		{ }
+
+	
+
+	nap::Texture2D& RenderCanvasComponentInstance::getOutputTexture()
+	{
+		return mTarget.getColorTexture();
+	}
+
+	nap::VideoPlayer* RenderCanvasComponentInstance::getVideoPlayer()
+	{
+		return mPlayer;
+	}
 
 	bool RenderCanvasComponentInstance::init(utility::ErrorState& errorState)
 	{
@@ -53,7 +69,6 @@ namespace nap
 		mOutputTexture.get()->mFormat = RenderTexture2D::EFormat::RGBA8;
 		if (!mOutputTexture.get()->init(errorState))
 			return false;
-
 		// Setup render target and initialize
 		mTarget.mClearColor = RGBAColor8( 255, 255, 255, 255).convert<RGBAColorFloat>();
 		mTarget.mColorTexture = mOutputTexture;
@@ -64,7 +79,14 @@ namespace nap
 
 		// Now create a plane and initialize it
 		// The plane is positioned on update based on current texture output size and transform component
-		mPlane.mSize = glm::vec2(1.0f, 1.0f);
+		mCanvas = resource->mCanvas.get();
+		//if (errorState.check(mCanvas->init(errorState), "%s: unable to init canvas resource", resource->mID.c_str()))
+			//return false;
+		if (!errorState.check(mCanvas != nullptr, "unable to find canvas resource in: %s", getEntityInstance()->mID))
+			return false;
+
+		mCanvasPlane = mCanvas->getMesh();
+		/***mPlane.mSize = glm::vec2(1.0f, 1.0f);
 		mPlane.mPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 		mPlane.mCullMode = ECullMode::Back;
 		mPlane.mUsage = EMemoryUsage::Static;
@@ -72,7 +94,8 @@ namespace nap
 		mPlane.mRows = 1;
 
 		if (!mPlane.init(errorState))
-			return false;
+			return false;***/
+		mPlane = mCanvasPlane;
 
 		// Extract render service
 		mRenderService = getEntityInstance()->getCore()->getService<RenderService>();
@@ -83,7 +106,12 @@ namespace nap
 		Material* canvas_material = mRenderService->getOrCreateMaterial<CanvasShader>(errorState);
 		if (!errorState.check(canvas_material != nullptr, "%s: unable to get or create canvas material", resource->mID.c_str()))
 			return false;
-
+		if (canvas_material == nullptr) {
+			return false;
+		}
+		//Material* canvas_material = mCanvas->mMaterialWithBindings.get();
+		nap::Logger::info("XXXXXXXXXXXXXXXXXXXXXXXXXXXX" + mCanvas->mMaterialWithBindings->mVertexAttributeBindings.front().mMeshAttributeID);
+		nap::Logger::info(mCanvas->mMaterialWithBindings->mVertexAttributeBindings.front().mShaderAttributeID);
 		
 
 		// Create resource for the final output canvas material instance
@@ -101,6 +129,8 @@ namespace nap
 			this->mID.c_str(), uniform::mvpStruct, mOutputMaterialInstance.getMaterial().mID.c_str()))
 			return false;
 
+		
+
 		// Get all matrices
 		mModelMatrixUniform = ensureUniform(uniform::modelMatrix, errorState);
 		mProjectMatrixUniform = ensureUniform(uniform::projectionMatrix, errorState);
@@ -108,6 +138,9 @@ namespace nap
 
 		if (mModelMatrixUniform == nullptr || mProjectMatrixUniform == nullptr || mViewMatrixUniform == nullptr)
 			return false;
+
+		
+		
 
 		// Get sampler inputs to update from canvas material
 		mYSampler = ensureSampler(uniform::canvas::sampler::YSampler, errorState);
@@ -127,7 +160,7 @@ namespace nap
 			return false;
 
 		// Create the renderable mesh, which represents a valid mesh / material combination
-		mRenderableOutputMesh = mRenderService->createRenderableMesh(mPlane, mOutputMaterialInstance, errorState);
+		mRenderableOutputMesh = mRenderService->createRenderableMesh(*mPlane, mOutputMaterialInstance, errorState);
 		if (!mRenderableOutputMesh.isValid())
 			return false;
 
@@ -142,63 +175,7 @@ namespace nap
 
 	}
 
-	void RenderCanvasComponentInstance::computeModelMatrixFullscreen(glm::mat4& outMatrix) {
-		//aspect ratio should be right because we set mTarget textures height and width to video players?
-		// Transform to middle of target
-		glm::ivec2 tex_size = mTarget.getBufferSize();
-		outMatrix = glm::translate(glm::mat4(), glm::vec3(
-			tex_size.x / 2.0f,
-			tex_size.y / 2.0f,
-			0.0f));
-
-		// Scale to fit target
-		outMatrix = glm::scale(outMatrix, glm::vec3(tex_size.x, tex_size.y, 1.0f));
-	}
-
-	void RenderCanvasComponentInstance::computeModelMatrix(const nap::IRenderTarget& target, glm::mat4& outMatrix, ResourcePtr<RenderTexture2D> canvas_output_texture, TransformComponentInstance* transform_comp)
-	{
-		//target should be window target
-
-		glm::vec3 translate = transform_comp->getTranslate();
-		glm::vec3 scale = transform_comp->getScale();
-		glm::ivec2 canvas_tex_size = canvas_output_texture->getSize();
-		glm::ivec2 tex_size = target.getBufferSize();
-		glm::ivec2 new_size;
-		outMatrix = glm::translate(glm::mat4(), glm::vec3(
-			translate.x + tex_size.x / 2.0f,
-			translate.y + tex_size.y / 2.0f,
-			0.0f));
-		// Scale correlating to target
-		// Calculate ratio
-		float canvas_ratio = static_cast<float>(canvas_tex_size.x) / static_cast<float>(canvas_tex_size.y);
-		float window_ratio = static_cast<float>(tex_size.x) / static_cast<float>(tex_size.y);
-
-		if (window_ratio > canvas_ratio) {
-			tex_size.x = tex_size.y * canvas_ratio;
-		}
-		else {
-			tex_size.y = tex_size.x / canvas_ratio;
-		}
-			
-
-		outMatrix = glm::scale(outMatrix, glm::vec3(tex_size.x * scale.x, tex_size.y * scale.y, 1.0f));
-
-	}
-
-	bool RenderCanvasComponentInstance::isSupported(nap::CameraComponentInstance& camera) const
-	{
-		return camera.get_type().is_derived_from(RTTI_OF(OrthoCameraComponentInstance));
-	}
-
-	nap::Texture2D& RenderCanvasComponentInstance::getOutputTexture()
-	{
-		return mTarget.getColorTexture();
-	}
-
-	nap::VideoPlayer* RenderCanvasComponentInstance::getVideoPlayer()
-	{
-		return mPlayer;
-	}
+	
 
 	
 	void RenderCanvasComponentInstance::draw()
@@ -216,6 +193,7 @@ namespace nap
 		mTarget.beginRendering();
 		
 		// Update the model matrix so that the plane mesh is of the same size as the render target
+		// maybe do this only on update and store in member when window is resized for example to prevent unnecessary calculations
 		computeModelMatrixFullscreen(mModelMatrix);
 		mModelMatrixUniform->setValue(mModelMatrix);
 
@@ -255,7 +233,7 @@ namespace nap
 	void RenderCanvasComponentInstance::onDraw(IRenderTarget& renderTarget, VkCommandBuffer commandBuffer, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 	{
 		
-		// Update the model matrix so that the plane mesh is of the same size as the render target
+		// compute the model matrix with aspect ratio calculated with mOutputTexture and size and position with mTransformComponent
 		computeModelMatrix(renderTarget, mModelMatrix, mOutputTexture, mTransformComponent);
 		mModelMatrixUniform->setValue(mModelMatrix);
 
@@ -288,6 +266,56 @@ namespace nap
 			vkCmdDrawIndexed(commandBuffer, index_buffer.getCount(), 1, 0, 0, 0);
 		}
 	}
+
+	bool RenderCanvasComponentInstance::isSupported(nap::CameraComponentInstance& camera) const
+	{
+		return camera.get_type().is_derived_from(RTTI_OF(OrthoCameraComponentInstance));
+	}
+
+	void RenderCanvasComponentInstance::computeModelMatrixFullscreen(glm::mat4& outMatrix) {
+		//aspect ratio should be right because we set mTarget textures height and width to video players?
+		// Transform to middle of target
+		glm::ivec2 tex_size = mTarget.getBufferSize();
+		outMatrix = glm::translate(glm::mat4(), glm::vec3(
+			tex_size.x / 2.0f,
+			tex_size.y / 2.0f,
+			0.0f));
+
+		// Scale to fit target
+		outMatrix = glm::scale(outMatrix, glm::vec3(tex_size.x, tex_size.y, 1.0f));
+	}
+
+	void RenderCanvasComponentInstance::computeModelMatrix(const nap::IRenderTarget& target, glm::mat4& outMatrix, ResourcePtr<RenderTexture2D> canvas_output_texture, TransformComponentInstance* transform_comp)
+	{
+		//target should be window target
+
+		glm::vec3 translate = transform_comp->getTranslate();
+		glm::vec3 scale = transform_comp->getScale();
+		glm::ivec2 canvas_tex_size = canvas_output_texture->getSize();
+		glm::ivec2 tex_size = target.getBufferSize();
+		glm::ivec2 new_size;
+		outMatrix = glm::translate(glm::mat4(), glm::vec3(
+			translate.x + tex_size.x / 2.0f,
+			translate.y + tex_size.y / 2.0f,
+			0.0f));
+		// Scale correlating to target
+		// Calculate ratio
+		float canvas_ratio = static_cast<float>(canvas_tex_size.x) / static_cast<float>(canvas_tex_size.y);
+		float window_ratio = static_cast<float>(tex_size.x) / static_cast<float>(tex_size.y);
+
+		if (window_ratio > canvas_ratio) {
+			tex_size.x = tex_size.y * canvas_ratio;
+		}
+		else {
+			tex_size.y = tex_size.x / canvas_ratio;
+		}
+
+
+		outMatrix = glm::scale(outMatrix, glm::vec3(tex_size.x * scale.x, tex_size.y * scale.y, 1.0f));
+
+	}
+
+	
 
 	nap::UniformMat4Instance* RenderCanvasComponentInstance::ensureUniform(const std::string& uniformName, utility::ErrorState& error)
 	{

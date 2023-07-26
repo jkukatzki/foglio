@@ -12,7 +12,9 @@ uniform nap
 
 in vec3	in_Position;
 in vec3	in_UV0;
+//in vec3 in_CornerOffset;
 out vec3 pass_Uvs;
+
 
 void main(void)
 {

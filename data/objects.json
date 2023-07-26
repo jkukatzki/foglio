@@ -1,16 +1,21 @@
 {
     "Objects": [
         {
+            "Type": "nap::CanvasShader",
+            "mID": "CanvasShader_1a91bda9"
+        },
+        {
             "Type": "nap::Entity",
             "mID": "BackgroundCanvasEntity",
             "Components": [
                 {
                     "Type": "nap::RenderCanvasComponent",
-                    "mID": "BackgroundCanvas",
+                    "mID": "Canvas",
                     "Visible": true,
                     "VideoPlayer": "BackgroundVideoPlayer",
                     "MaskImage": "FlowerMask",
-                    "Index": 0
+                    "Index": 0,
+                    "Canvas": "Background"
                 },
                 {
                     "Type": "nap::TransformComponent",
@@ -27,7 +32,7 @@
                             "z": 0.0
                         },
                         "Scale": {
-                            "x": 1.0,
+                            "x": 2.0,
                             "y": 1.0,
                             "z": 1.0
                         },
@@ -111,7 +116,8 @@
                     "Visible": true,
                     "VideoPlayer": "FlowerVideoPlayer",
                     "MaskImage": "FlowerMask",
-                    "Index": 0
+                    "Index": 0,
+                    "Canvas": "Background"
                 },
                 {
                     "Type": "nap::TransformComponent",
@@ -200,6 +206,30 @@
             ]
         },
         {
+            "Type": "nap::Material",
+            "mID": "DefaultCanvasBindings",
+            "Uniforms": [],
+            "Samplers": [],
+            "Buffers": [],
+            "Shader": "CanvasShader_1a91bda9",
+            "VertexAttributeBindings": [
+                {
+                    "MeshAttributeID": "CornerOffset",
+                    "ShaderAttributeID": "in_CornerOffset"
+                },
+                {
+                    "MeshAttributeID": "Position",
+                    "ShaderAttributeID": "in_Position"
+                },
+                {
+                    "MeshAttributeID": "UV0",
+                    "ShaderAttributeID": "in_UV0"
+                }
+            ],
+            "BlendMode": "Opaque",
+            "DepthMode": "InheritFromBlendMode"
+        },
+        {
             "Type": "nap::RenderWindow",
             "mID": "ControlsWindow",
             "Borderless": false,
@@ -246,6 +276,29 @@
             "AdditionalSwapImages": 1,
             "RestoreSize": true,
             "RestorePosition": true
+        },
+        {
+            "Type": "nap::ResourceGroup",
+            "mID": "CanvasResources",
+            "Members": [
+                {
+                    "Type": "nap::Canvas",
+                    "mID": "Background",
+                    "VideoPlayer": "BackgroundVideoPlayer",
+                    "MaskImage": "",
+                    "DefaultVertexBinding": "DefaultCanvasBindings",
+                    "Name": "Background"
+                },
+                {
+                    "Type": "nap::Canvas",
+                    "mID": "Flower",
+                    "VideoPlayer": "FlowerVideoPlayer",
+                    "MaskImage": "FlowerMask",
+                    "DefaultVertexBinding": "DefaultCanvasBindings",
+                    "Name": "Flower"
+                }
+            ],
+            "Children": []
         },
         {
             "Type": "nap::ResourceGroup",
@@ -332,6 +385,19 @@
                                         "Type": "nap::FloatInstancePropertyValue",
                                         "mID": "override_37f8b8d7",
                                         "Value": 0.30000001192092898
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "TargetComponent": "./BackgroundCanvasEntity:0/TransformBackgroundCanvas",
+                            "TargetAttributes": [
+                                {
+                                    "Path": "Properties/Scale/x",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_e237f047",
+                                        "Value": 2.0
                                     }
                                 }
                             ]

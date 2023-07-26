@@ -1,5 +1,7 @@
 #pragma once
 
+#include "canvas.h"
+
 #include <component.h>
 #include <rendercomponent.h>
 #include <nap/resourceptr.h>
@@ -12,6 +14,8 @@
 #include <imagefromfile.h>
 #include <foglioservice.h>
 #include <transformcomponent.h>
+#include <material.h>
+
 
 namespace nap
 {
@@ -24,6 +28,7 @@ namespace nap
 		DECLARE_COMPONENT(RenderCanvasComponent, RenderCanvasComponentInstance)
 
 	public:
+		ResourcePtr<Canvas>				mCanvas = nullptr;
 		ResourcePtr<VideoPlayer>		mVideoPlayer = nullptr;
 		ResourcePtr<ImageFromFile>		mMaskImage = nullptr;
 		int								mVideoIndex = 0;
@@ -54,12 +59,14 @@ namespace nap
 		virtual void onDraw(IRenderTarget& renderTarget, VkCommandBuffer commandBuffer, const glm::mat4& viewmatrix, const glm::mat4& projectionMatrix) override;
 
 	private:
+		Canvas*							mCanvas = nullptr;
 		VideoPlayer*					mPlayer = nullptr;
 		Texture2D*						mMask = nullptr;
 		RenderTarget					mTarget;
 		ResourcePtr<RenderTexture2D>	mOutputTexture = nullptr;
-
-		PlaneMesh						mPlane;
+		
+		PlaneMesh*						mCanvasPlane;
+		PlaneMesh*						mPlane;
 		Material*						mCanvasOutputMaterial;
 		MaterialInstance				mOutputMaterialInstance;
 		MaterialInstanceResource		mOutputMaterialInstResource;
@@ -69,15 +76,20 @@ namespace nap
 
 		RenderService*				mRenderService = nullptr;
 
+		Vec3VertexAttribute*		mOffsetVec3Uniform = nullptr;
+
 		UniformMat4Instance*		mModelMatrixUniform = nullptr;
 		UniformMat4Instance*		mProjectMatrixUniform = nullptr;
 		UniformMat4Instance*		mViewMatrixUniform = nullptr;
 		UniformStructInstance*		mMVPStruct = nullptr;
+
 		Sampler2DInstance*			mYSampler = nullptr;
 		Sampler2DInstance*			mUSampler = nullptr;
 		Sampler2DInstance*			mVSampler = nullptr;
+
 		Sampler2DInstance*			mMaskSampler = nullptr;
 		glm::mat4x4					mModelMatrix;
+
 
 
 		UniformMat4Instance* ensureUniform(const std::string& uniformName, utility::ErrorState& error);
