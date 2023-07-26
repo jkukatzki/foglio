@@ -39,11 +39,12 @@ namespace nap {
 		mPlane->mRows = 1;
 		if (!errorState.check(mPlane->setup(errorState), "Unable to setup canvas plane %s", mID.c_str()))
 			return false;
-
 		mCornerOffsetAttribute = &(mPlane->getMeshInstance()).getOrCreateAttribute<glm::vec3>(vertexid::canvas::CornerOffset);
-		mCornerOffsetAttribute->addData(glm::vec3(50.0, 50.0, 50.0));
-		mCornerOffsetAttribute->addData(glm::vec3(50.0, -50.0, 50.0));
-		return errorState.check(mPlane->init(errorState), "Unable to initialize canvas plane %s", mID.c_str());
+		mCornerOffsetAttribute->addData(glm::vec3(0.0f, 1.0f, 0.0f));
+		mCornerOffsetAttribute->addData(glm::vec3(0.0f, 0.0f, 0.0f));
+		mCornerOffsetAttribute->addData(glm::vec3(0.0f, 0.0f, 0.0f));
+		mCornerOffsetAttribute->addData(glm::vec3(0.0f, 0.0f, 0.0f));
+		return errorState.check(mPlane->getMeshInstance().init(errorState), "Unable to initialize canvas plane %s", mID.c_str());
 	}
 
 }

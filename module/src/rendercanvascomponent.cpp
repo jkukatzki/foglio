@@ -84,6 +84,8 @@ namespace nap
 			//return false;
 		if (!errorState.check(mCanvas != nullptr, "unable to find canvas resource in: %s", getEntityInstance()->mID))
 			return false;
+		//TODO: add error check
+		mCanvas->init(errorState);
 
 		mCanvasPlane = mCanvas->getMesh();
 		/***mPlane.mSize = glm::vec2(1.0f, 1.0f);
@@ -109,9 +111,10 @@ namespace nap
 		if (canvas_material == nullptr) {
 			return false;
 		}
-		//Material* canvas_material = mCanvas->mMaterialWithBindings.get();
-		nap::Logger::info("XXXXXXXXXXXXXXXXXXXXXXXXXXXX" + mCanvas->mMaterialWithBindings->mVertexAttributeBindings.front().mMeshAttributeID);
-		nap::Logger::info(mCanvas->mMaterialWithBindings->mVertexAttributeBindings.front().mShaderAttributeID);
+
+		canvas_material->mVertexAttributeBindings = mCanvas->mMaterialWithBindings->mVertexAttributeBindings;
+		
+		
 		
 
 		// Create resource for the final output canvas material instance

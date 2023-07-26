@@ -20,10 +20,13 @@ namespace nap
 
 		virtual bool init(utility::ErrorState& errorState) override;
 
+		bool setup(utility::ErrorState& error);
 		/**
 		* @return MeshInstance (mPlane) as created during init().
 		*/
 		virtual MeshInstance& getMeshInstance();
+
+		void constructCanvasMaterialInstance();
 
 		PlaneMesh* getMesh();
 
