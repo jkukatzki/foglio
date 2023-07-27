@@ -7,6 +7,7 @@
 #include <inputcomponent.h>
 #include <componentptr.h>
 
+#include <renderservice.h>
 
 
 namespace nap
@@ -38,7 +39,8 @@ namespace nap
 		virtual void trigger(const nap::InputEvent& inEvent) override;
 
 	private:
-		ComponentPtr<RenderCanvasComponent>	mSelectedCanvas = nullptr;
+		RenderService*								mRenderService = nullptr;
+		ComponentPtr<RenderCanvasComponent>			mSelectedCanvas = nullptr;
 		std::vector<RenderCanvasComponentInstance*> mCanvases;
 	};
 }

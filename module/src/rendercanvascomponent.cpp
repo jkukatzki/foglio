@@ -32,7 +32,6 @@ namespace nap
 		RenderableComponentInstance(entity, resource),
 		mTarget(*entity.getCore()),
 		mPlane(new PlaneMesh(*entity.getCore())),
-		mOutputTexture(new RenderTexture2D(*entity.getCore())),
 		mCanvasOutputMaterial(new Material(*entity.getCore()))
 		{ }
 
@@ -78,11 +77,8 @@ namespace nap
 		if (!errorState.check(mPlayer != nullptr, "%s: no video player", resource->mID.c_str()))
 			return false;
 		// Setup output texture
-		mOutputTexture.get()->mWidth = mPlayer->getWidth();
-		mOutputTexture.get()->mHeight = mPlayer->getHeight();
-		mOutputTexture.get()->mFormat = RenderTexture2D::EFormat::RGBA8;
-		if (!mOutputTexture.get()->init(errorState))
-			return false;
+		
+		mOutputTexture = mCanvas->getOutputTexture();
 		// Setup render target and initialize
 		mTarget.mClearColor = RGBAColor8(255, 255, 255, 255).convert<RGBAColorFloat>();
 		mTarget.mColorTexture = mOutputTexture;
@@ -92,7 +88,7 @@ namespace nap
 			return false;
 		mMask = resource->mCanvas->mMaskImage.get();
 
-		mCanvasPlane = mCanvas->getMesh();
+		mCanvasPlane = mCanvas->getMesh().get();
 		/***mPlane.mSize = glm::vec2(1.0f, 1.0f);
 		mPlane.mPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 		mPlane.mCullMode = ECullMode::Back;

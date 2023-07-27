@@ -32,19 +32,21 @@ namespace nap
 
 		void constructCanvasMaterialInstance();
 
-		PlaneMesh* getMesh();
+		ResourcePtr<PlaneMesh> getMesh();
 
-		RenderTexture2D* getOutputTexture();
+		ResourcePtr<RenderTexture2D> getOutputTexture();
 
 		ResourcePtr<VideoPlayer>		mVideoPlayer;
 		ResourcePtr<ImageFromFile>		mMaskImage;
 		ResourcePtr<Material>			mMaterialWithBindings;
+		
 		std::vector<glm::vec3>			mCornerOffsets = std::vector<glm::vec3>(4);
 
 	private:
-		RenderTexture2D*					mOutputTexture;
+		ResourcePtr<RenderTexture2D>	mOutputTexture;
+		ResourcePtr<PlaneMesh>			mPlane;
 		RenderService*						mRenderService;
-		PlaneMesh*							mPlane;
+		
 		Material*							mCanvasOutputMaterial;
 		MaterialInstance					mOutputMaterialInstance;
 		MaterialInstanceResource			mOutputMaterialInstResource;

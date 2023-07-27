@@ -25,16 +25,21 @@ namespace nap {
 		return mPlane->getMeshInstance();
 	}
 
-	PlaneMesh* Canvas::getMesh() {
+	ResourcePtr<PlaneMesh> Canvas::getMesh() {
 		return mPlane;
 	}
 
-	RenderTexture2D* Canvas::getOutputTexture() {
+	ResourcePtr<RenderTexture2D> Canvas::getOutputTexture() {
 		return mOutputTexture;
 	}
 
 	bool Canvas::init(utility::ErrorState& errorState)
 	{
+		mOutputTexture->mWidth = mVideoPlayer->getWidth();
+		mOutputTexture->mHeight = mVideoPlayer->getHeight();
+		mOutputTexture->mFormat = RenderTexture2D::EFormat::RGBA8;
+		if (!mOutputTexture->init(errorState))
+			return false;
 		// Now create a plane and initialize it
 		// The plane is positioned on update based on current texture output size and transform component
 		mPlane->mSize = glm::vec2(1.0f, 1.0f);

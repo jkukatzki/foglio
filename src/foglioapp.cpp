@@ -73,8 +73,8 @@ namespace nap
 	{
 		// Use a default input router to forward input events (recursively) to all input components in the default scene
 		nap::DefaultInputRouter input_router(true);
-		mInputService->processWindowEvents(*mMainWindow, input_router, { &mScene->getRootEntity() });
-
+		//mInputService->processWindowEvents(*mMainWindow, input_router, { &mScene->getRootEntity() });
+		mInputService->processWindowEvents(*mControlsWindow, input_router, { &mScene->getRootEntity() });
 		updateGUI();
 	}
 	
@@ -90,14 +90,15 @@ namespace nap
 		// Find the orthographic camera component
 		nap::OrthoCameraComponentInstance& ortho_cam = mOrthoCameraEntity->getComponent<OrthoCameraComponentInstance>();
 
-
+		std::vector<nap::RenderCanvasComponentInstance*> canvas_components_to_render;
+		for (nap::EntityInstance* canvasEntity : mVideoWallEntity->getChildren()) {
+			canvas_components_to_render.emplace_back(&canvasEntity->getComponent<RenderCanvasComponentInstance>());
+		}
+		CanvasGroupComponentInstance* canvasGroupComponent = &mVideoWallEntity->getComponent<CanvasGroupComponentInstance>();
 		// Start recording into the headless recording buffer.
 		if (mRenderService->beginHeadlessRecording())
 		{
-			CanvasGroupComponentInstance* canvasGroupComponent = &mVideoWallEntity->getComponent<CanvasGroupComponentInstance>();
-			/***for (nap::RenderCanvasComponentInstance* canvas : canvas_components_to_render) {
-				canvas->draw();
-			}***/
+			
 			canvasGroupComponent->drawAllHeadless();
 			// Tell the render service we are done rendering into render-targets.
 			// The queue is submitted and executed.
@@ -124,13 +125,16 @@ namespace nap
 			mRenderService->endRecording();
 		}
 	
+		// for canvas in canvas_mesh_components: canvas.mRenderUITexture = true
 
 		if (mRenderService->beginRecording(*mControlsWindow)) {
 			// Begin render pass
 			mControlsWindow->beginRendering();
+			// render canvases
+			mRenderService->renderObjects(*mControlsWindow, ortho_cam, canvas_mesh_components_to_render);
 			// Render GUI elements
 			mGuiService->draw();
-
+			
 			// End render pass
 			mControlsWindow->endRendering();
 			

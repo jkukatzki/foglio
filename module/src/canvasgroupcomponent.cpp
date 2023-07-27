@@ -31,30 +31,29 @@ namespace nap
 		// Get resource
 		CanvasGroupComponent* resource = getComponent<CanvasGroupComponent>();
 
+
+		
 	}
 
 	void CanvasGroupComponentInstance::trigger(const nap::InputEvent& inEvent) {
 		// Ensure it's a pointer event
-		/***
-		/rtti::TypeInfo event_type = inEvent.get_type().get_raw_type();
+		rtti::TypeInfo event_type = inEvent.get_type().get_raw_type();
 		if (!event_type.is_derived_from(RTTI_OF(nap::PointerEvent)))
 			return;
 
 		if (event_type == RTTI_OF(PointerPressEvent))
 		{
 			const PointerPressEvent& press_event = static_cast<const PointerPressEvent&>(inEvent);
-			nap::Logger::info("press event!!! "+press_event.mX);
-		}***/
+			nap::Logger::info("press event!!!" + std::to_string(press_event.mX));
+		}
+
 	}
 
 	void CanvasGroupComponentInstance::drawAllHeadless()
 	{
-		std::vector<EntityInstance*> mCanvasEntities = getEntityInstance()->getChildren();
+		std::vector<EntityInstance*> mCanvasEntities = getEntityInstance()->getChildren(); //TODO: maybe set in init() and update() when entityinstance children update call?
 		for (EntityInstance* canvasEntity : mCanvasEntities) {
-			mCanvases.emplace_back(&(canvasEntity->getComponent<RenderCanvasComponentInstance>()));
-		}
-		for (RenderCanvasComponentInstance* canvasComp : mCanvases) {
-			canvasComp->draw();
+			canvasEntity->getComponent<RenderCanvasComponentInstance>().draw();
 		}
 	}
 
