@@ -7,10 +7,14 @@
 #include <planemesh.h>
 #include <material.h>
 #include <materialinstance.h>
+#include <vertexattribute.h>
+
+
 
 
 namespace nap
 {	
+	
 	class Core;
 	class Canvas : public Resource
 	{
@@ -30,11 +34,15 @@ namespace nap
 
 		PlaneMesh* getMesh();
 
+		RenderTexture2D* getOutputTexture();
+
 		ResourcePtr<VideoPlayer>		mVideoPlayer;
 		ResourcePtr<ImageFromFile>		mMaskImage;
 		ResourcePtr<Material>			mMaterialWithBindings;
+		std::vector<glm::vec3>			mCornerOffsets = std::vector<glm::vec3>(4);
 
 	private:
+		RenderTexture2D*					mOutputTexture;
 		RenderService*						mRenderService;
 		PlaneMesh*							mPlane;
 		Material*							mCanvasOutputMaterial;

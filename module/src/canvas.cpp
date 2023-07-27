@@ -6,16 +6,18 @@
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::Canvas)
 RTTI_CONSTRUCTOR(nap::Core&)
-RTTI_PROPERTY("VideoPlayer", &nap::Canvas::mVideoPlayer, nap::rtti::EPropertyMetaData::Required)
-RTTI_PROPERTY("MaskImage", &nap::Canvas::mMaskImage, nap::rtti::EPropertyMetaData::Default)
-RTTI_PROPERTY("DefaultVertexBinding", &nap::Canvas::mMaterialWithBindings, nap::rtti::EPropertyMetaData::Required)
-RTTI_PROPERTY("Name", &nap::Canvas::mID, nap::rtti::EPropertyMetaData::Default);
+	RTTI_PROPERTY("VideoPlayer", &nap::Canvas::mVideoPlayer, nap::rtti::EPropertyMetaData::Required)
+	RTTI_PROPERTY("MaskImage", &nap::Canvas::mMaskImage, nap::rtti::EPropertyMetaData::Default)
+	RTTI_PROPERTY("DefaultVertexBinding", &nap::Canvas::mMaterialWithBindings, nap::rtti::EPropertyMetaData::Required)
+	RTTI_PROPERTY("CornerOffsets", &nap::Canvas::mCornerOffsets, nap::rtti::EPropertyMetaData::Default)
+	RTTI_PROPERTY("Name", &nap::Canvas::mID, nap::rtti::EPropertyMetaData::Default);
 RTTI_END_CLASS
 
 namespace nap {
 	Canvas::Canvas(Core& core) :
 		mRenderService(core.getService<RenderService>()),
-		mPlane(new PlaneMesh(core))
+		mPlane(new PlaneMesh(core)),
+		mOutputTexture(new RenderTexture2D(core))
 	{
 	}
 
@@ -25,6 +27,10 @@ namespace nap {
 
 	PlaneMesh* Canvas::getMesh() {
 		return mPlane;
+	}
+
+	RenderTexture2D* Canvas::getOutputTexture() {
+		return mOutputTexture;
 	}
 
 	bool Canvas::init(utility::ErrorState& errorState)
@@ -40,10 +46,10 @@ namespace nap {
 		if (!errorState.check(mPlane->setup(errorState), "Unable to setup canvas plane %s", mID.c_str()))
 			return false;
 		mCornerOffsetAttribute = &(mPlane->getMeshInstance()).getOrCreateAttribute<glm::vec3>(vertexid::canvas::CornerOffset);
-		mCornerOffsetAttribute->addData(glm::vec3(0.0f, 1.0f, 0.0f));
-		mCornerOffsetAttribute->addData(glm::vec3(0.0f, 0.0f, 0.0f));
-		mCornerOffsetAttribute->addData(glm::vec3(0.0f, 0.0f, 0.0f));
-		mCornerOffsetAttribute->addData(glm::vec3(0.0f, 0.0f, 0.0f));
+		mCornerOffsetAttribute->addData(mCornerOffsets[0]);
+		mCornerOffsetAttribute->addData(mCornerOffsets[1]);
+		mCornerOffsetAttribute->addData(mCornerOffsets[2]);
+		mCornerOffsetAttribute->addData(mCornerOffsets[3]);
 		return errorState.check(mPlane->getMeshInstance().init(errorState), "Unable to initialize canvas plane %s", mID.c_str());
 	}
 

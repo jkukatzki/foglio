@@ -1,12 +1,13 @@
 #include "foglioapp.h"
 
 // External Includes
+
 #include <utility/fileutils.h>
 #include <nap/logger.h>
 #include <imgui/imgui.h>
 #include <inputrouter.h>
-#include <rendergnomoncomponent.h>
 #include <rendercanvascomponent.h>
+#include <canvasgroupcomponent.h>
 #include <foglioservice.h>
 #include <perspcameracomponent.h>
 #include <orthocameracomponent.h>
@@ -34,6 +35,7 @@ namespace nap
 		mResourceManager = getCore().getResourceManager();
 
 		// Get the render window
+		ResourcePtr<nap::RenderWindow> dynWindow = mResourceManager->createObject<nap::RenderWindow>();
 		mMainWindow = mResourceManager->findObject<nap::RenderWindow>("MainWindow");
 		if (!error.check(mMainWindow != nullptr, "unable to find render window with name: %s", "MainWindow"))
 			return false;
@@ -45,6 +47,7 @@ namespace nap
 		mScene = mResourceManager->findObject<Scene>("Scene");
 		if (!error.check(mScene != nullptr, "unable to find scene with name: %s", "Scene"))
 			return false;
+		
 
 		// Get the camera entity
 		mCameraEntity = mScene->findEntity("CameraEntity");
@@ -88,22 +91,14 @@ namespace nap
 		nap::OrthoCameraComponentInstance& ortho_cam = mOrthoCameraEntity->getComponent<OrthoCameraComponentInstance>();
 
 
-		// get canvases for headless rendering
-		std::vector<nap::RenderCanvasComponentInstance*> canvas_components_to_render;
-		for (nap::EntityInstance* canvasEntity : mVideoWallEntity->getChildren()) {
-			canvas_components_to_render.emplace_back(&canvasEntity->getComponent<RenderCanvasComponentInstance>());
-		}
-
 		// Start recording into the headless recording buffer.
 		if (mRenderService->beginHeadlessRecording())
 		{
-			for (nap::RenderCanvasComponentInstance* canvas : canvas_components_to_render) {
+			CanvasGroupComponentInstance* canvasGroupComponent = &mVideoWallEntity->getComponent<CanvasGroupComponentInstance>();
+			/***for (nap::RenderCanvasComponentInstance* canvas : canvas_components_to_render) {
 				canvas->draw();
-			}
-
-
-
-
+			}***/
+			canvasGroupComponent->drawAllHeadless();
 			// Tell the render service we are done rendering into render-targets.
 			// The queue is submitted and executed.
 			mRenderService->endHeadlessRecording();

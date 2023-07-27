@@ -56,26 +56,12 @@ namespace nap
 		// Get resource
 		RenderCanvasComponent* resource = getComponent<RenderCanvasComponent>();
 
-		// Extract player
-		mPlayer = resource->mVideoPlayer.get();
-		if (!errorState.check(mPlayer != nullptr, "%s: no video player", resource->mID.c_str()))
-			return false;
+		
+		// T          O                D              O
+		// create new member plane that doesnt carry canvasshader, only use canvasshader in final output in ondraw()
+		
 
-		mMask = resource->mMaskImage.get();
-
-		// Setup output texture
-		mOutputTexture.get()->mWidth = mPlayer->getWidth();
-		mOutputTexture.get()->mHeight = mPlayer->getHeight();
-		mOutputTexture.get()->mFormat = RenderTexture2D::EFormat::RGBA8;
-		if (!mOutputTexture.get()->init(errorState))
-			return false;
-		// Setup render target and initialize
-		mTarget.mClearColor = RGBAColor8( 255, 255, 255, 255).convert<RGBAColorFloat>();
-		mTarget.mColorTexture = mOutputTexture;
-		mTarget.mSampleShading = true;
-		mTarget.mRequestedSamples = ERasterizationSamples::One;
-		if (!mTarget.init(errorState))
-			return false;
+		
 
 		// Now create a plane and initialize it
 		// The plane is positioned on update based on current texture output size and transform component
@@ -86,6 +72,25 @@ namespace nap
 			return false;
 		//TODO: add error check
 		mCanvas->init(errorState);
+
+		// Extract player
+		mPlayer = resource->mCanvas->mVideoPlayer.get();
+		if (!errorState.check(mPlayer != nullptr, "%s: no video player", resource->mID.c_str()))
+			return false;
+		// Setup output texture
+		mOutputTexture.get()->mWidth = mPlayer->getWidth();
+		mOutputTexture.get()->mHeight = mPlayer->getHeight();
+		mOutputTexture.get()->mFormat = RenderTexture2D::EFormat::RGBA8;
+		if (!mOutputTexture.get()->init(errorState))
+			return false;
+		// Setup render target and initialize
+		mTarget.mClearColor = RGBAColor8(255, 255, 255, 255).convert<RGBAColorFloat>();
+		mTarget.mColorTexture = mOutputTexture;
+		mTarget.mSampleShading = true;
+		mTarget.mRequestedSamples = ERasterizationSamples::One;
+		if (!mTarget.init(errorState))
+			return false;
+		mMask = resource->mCanvas->mMaskImage.get();
 
 		mCanvasPlane = mCanvas->getMesh();
 		/***mPlane.mSize = glm::vec2(1.0f, 1.0f);
@@ -155,7 +160,9 @@ namespace nap
 			mMaskSampler->setTexture(*mMask);
 		}
 		else {
-			
+			RenderTexture2D* blank = new RenderTexture2D(*getEntityInstance()->getCore());
+			blank->mClearColor = RGBAColor8(255, 255, 255, 255).convert<RGBAColorFloat>();
+			mMaskSampler->setTexture(*blank);
 		}
 		
 		

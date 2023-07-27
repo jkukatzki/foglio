@@ -117,7 +117,7 @@
                     "VideoPlayer": "FlowerVideoPlayer",
                     "MaskImage": "FlowerMask",
                     "Index": 0,
-                    "Canvas": "Background"
+                    "Canvas": "Flower"
                 },
                 {
                     "Type": "nap::TransformComponent",
@@ -199,7 +199,12 @@
         {
             "Type": "nap::Entity",
             "mID": "VideoWallEntity",
-            "Components": [],
+            "Components": [
+                {
+                    "Type": "nap::CanvasGroupComponent",
+                    "mID": "CanvasGroup"
+                }
+            ],
             "Children": [
                 "BackgroundCanvasEntity",
                 "FlowerCanvasEntity"
@@ -287,6 +292,28 @@
                     "VideoPlayer": "BackgroundVideoPlayer",
                     "MaskImage": "",
                     "DefaultVertexBinding": "DefaultCanvasBindings",
+                    "CornerOffsets": [
+                        {
+                            "x": 0.800000011920929,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        }
+                    ],
                     "Name": "Background"
                 },
                 {
@@ -295,6 +322,28 @@
                     "VideoPlayer": "FlowerVideoPlayer",
                     "MaskImage": "FlowerMask",
                     "DefaultVertexBinding": "DefaultCanvasBindings",
+                    "CornerOffsets": [
+                        {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        }
+                    ],
                     "Name": "Flower"
                 }
             ],
@@ -397,7 +446,7 @@
                                     "Value": {
                                         "Type": "nap::FloatInstancePropertyValue",
                                         "mID": "override_e237f047",
-                                        "Value": 2.0
+                                        "Value": 1.0
                                     }
                                 }
                             ]
