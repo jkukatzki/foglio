@@ -31,6 +31,9 @@ namespace nap
 		// Get resource
 		CanvasGroupComponent* resource = getComponent<CanvasGroupComponent>();
 
+		for (EntityInstance* canvasEntity : getEntityInstance()->getChildren()) {
+			canvasEntity->getComponent<RenderCanvasComponentInstance>().getCanvas()->mVideoPlayer->play();
+		}
 
 		
 	}

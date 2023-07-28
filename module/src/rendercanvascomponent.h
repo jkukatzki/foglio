@@ -48,6 +48,8 @@ namespace nap
 
 		VideoPlayer* getVideoPlayer();
 
+		Canvas* getCanvas() { return mCanvas; };
+
 		void draw();
 
 		void computeModelMatrix(const nap::IRenderTarget& target, glm::mat4& outMatrix, ResourcePtr<RenderTexture2D> canvas_output_texture, TransformComponentInstance* transform_comp);

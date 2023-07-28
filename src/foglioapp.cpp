@@ -59,9 +59,7 @@ namespace nap
 		mVideoWallEntity = mScene->findEntity("VideoWallEntity");
 		if (!error.check(mVideoWallEntity != nullptr, "unable to find video wall entity with name: %s", "VideoWallEntity"))
 			return false;
-		for (EntityInstance* canvasEntity : mVideoWallEntity->getChildren()) {
-			canvasEntity->getComponent<RenderCanvasComponentInstance>().getVideoPlayer()->play();
-		}
+		
 
 		// All done!
 		return true;

@@ -88,18 +88,8 @@ namespace nap
 			return false;
 		mMask = resource->mCanvas->mMaskImage.get();
 
-		mCanvasPlane = mCanvas->getMesh().get();
-		/***mPlane.mSize = glm::vec2(1.0f, 1.0f);
-		mPlane.mPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-		mPlane.mCullMode = ECullMode::Back;
-		mPlane.mUsage = EMemoryUsage::Static;
-		mPlane.mColumns = 1;
-		mPlane.mRows = 1;
-
-		if (!mPlane.init(errorState))
-			return false;***/
-		mPlane = mCanvasPlane;
-
+		
+		
 		// Extract render service
 		mRenderService = getEntityInstance()->getCore()->getService<RenderService>();
 		assert(mRenderService != nullptr);
@@ -166,7 +156,7 @@ namespace nap
 			return false;
 
 		// Create the renderable mesh, which represents a valid mesh / material combination
-		mRenderableOutputMesh = mRenderService->createRenderableMesh(*mPlane, mOutputMaterialInstance, errorState);
+		mRenderableOutputMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh().get(), mCanvas->mVideoMaterialInstance, errorState);
 		if (!mRenderableOutputMesh.isValid())
 			return false;
 
@@ -216,7 +206,7 @@ namespace nap
 
 		// Get pipeline to to render with
 		utility::ErrorState error_state;
-		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(mTarget, mRenderableOutputMesh.getMesh(), mOutputMaterialInstance, error_state);
+		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(mTarget, mRenderableOutputMesh.getMesh(), mCanvas->mVideoMaterialInstance, error_state);
 		vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mPipeline);
 		vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mLayout, 0, 1, &descriptor_set.mSet, 0, nullptr);
 
@@ -256,7 +246,7 @@ namespace nap
 
 		// Get pipeline to to render with
 		utility::ErrorState error_state;
-		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(renderTarget, mRenderableOutputMesh.getMesh(), mOutputMaterialInstance, error_state);
+		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(renderTarget, mRenderableOutputMesh.getMesh(), mCanvas->mVideoMaterialInstance, error_state);
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mPipeline);
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mLayout, 0, 1, &descriptor_set.mSet, 0, nullptr);
 
