@@ -98,9 +98,8 @@ namespace nap
 
 		Sampler2DInstance* ensureSampler(const std::string& samplerName, utility::ErrorState& error);
 
-		void videoChanged(VideoPlayer& player);
 
-		nap::Slot<VideoPlayer&> mVideoChangedSlot = { this, &RenderCanvasComponentInstance::videoChanged };
+		//nap::Slot<VideoPlayer&> mVideoChangedSlot = { this, &RenderCanvasComponentInstance::videoChanged };
 
 	};
 }

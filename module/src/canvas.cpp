@@ -19,6 +19,8 @@ RTTI_CONSTRUCTOR(nap::Core&)
 RTTI_END_CLASS
 
 namespace nap {
+	CanvasMaterialItem::CanvasMaterialItem() {}
+
 	Canvas::Canvas(Core& core) :
 		mRenderService(core.getService<RenderService>()),
 		mPlane(new PlaneMesh(core)),
@@ -64,52 +66,23 @@ namespace nap {
 		mCornerOffsetAttribute->addData(mCornerOffsets[2]);
 		mCornerOffsetAttribute->addData(mCornerOffsets[3]);
 
-		//	create video material
-		mVideoMaterial = mRenderService->getOrCreateMaterial<VideoShader>(errorState);
-		if (!errorState.check(mVideoMaterial != nullptr, "%s: unable to get or create canvas material", mID.c_str()))
-			return false;
-
-		// create resource for video material instance
-		mVideoMaterialInstResource.mBlendMode = EBlendMode::AlphaBlend;
-		mVideoMaterialInstResource.mDepthMode = EDepthMode::NoReadWrite;
-		mVideoMaterialInstResource.mMaterial = mVideoMaterial;
-		if (!errorState.check(mVideoMaterialInstance.init(*mRenderService, mVideoMaterialInstResource, errorState), "%s: unable to instance video material", this->mID.c_str())) {
-			return false;
-		}
-
-		// Ensure the mvp struct is available
-		mMVPStruct = mVideoMaterialInstance.getOrCreateUniform(uniform::mvpStruct);
-		if (!errorState.check(mMVPStruct != nullptr, "%s: Unable to find uniform MVP struct: %s in material: %s",
-			this->mID.c_str(), uniform::mvpStruct, mVideoMaterialInstance.getMaterial().mID.c_str()))
-			return false;
-
-		// Get all matrices
-		mModelMatrixUniform = ensureUniform(uniform::modelMatrix, errorState);
-		mProjectMatrixUniform = ensureUniform(uniform::projectionMatrix, errorState);
-		mViewMatrixUniform = ensureUniform(uniform::viewMatrix, errorState);
-
-
+		mCanvasMaterialItems.insert(std::pair<std::string, CanvasMaterialItem>("video", CanvasMaterialItem()));
+		constructMaterialInstance(CanvasMaterialTypes::VIDEO, errorState);
+		//constructMaterialInstance(CanvasMaterialTypes::CANVASOUTPUT, errorState);
 
 		
-		if (mModelMatrixUniform == nullptr || mProjectMatrixUniform == nullptr || mViewMatrixUniform == nullptr) {
-			return false;
-		}
+
+		
 			
 			
 		
 
-		// Get sampler inputs to update from canvas material
-		mYSampler = ensureSampler(uniform::video::sampler::YSampler, errorState);
-		mUSampler = ensureSampler(uniform::video::sampler::USampler, errorState);
-		mVSampler = ensureSampler(uniform::video::sampler::VSampler, errorState);
+		
 		/***mMaskSampler = ensureSampler(uniform::canvas::sampler::MaskSampler, errorState);
 		if (mMaskImage != nullptr) {
 
 			mMaskSampler->setTexture(*mMaskImage);
 		}***/
-		if (mYSampler == nullptr || mUSampler == nullptr || mVSampler == nullptr) {
-			return false;
-		}
 		
 		videoChanged(*mVideoPlayer);
 
@@ -117,32 +90,95 @@ namespace nap {
 		return errorState.check(mPlane->getMeshInstance().init(errorState), "Unable to initialize canvas plane %s", mID.c_str());
 	}
 
-	nap::UniformMat4Instance* Canvas::ensureUniform(const std::string& uniformName, utility::ErrorState& error)
+	bool Canvas::constructMaterialInstance(CanvasMaterialTypes type, utility::ErrorState& error) {
+		CanvasMaterialItem* materialItem = nullptr;
+		switch (type) {
+			case CanvasMaterialTypes::VIDEO : {
+				materialItem = &mCanvasMaterialItems["video"];
+				//create video material
+				//create material resource
+				materialItem->mMaterialInstResource = new MaterialInstanceResource();
+				materialItem->mMaterialInstResource->mBlendMode = EBlendMode::AlphaBlend;
+				materialItem->mMaterialInstResource->mDepthMode = EDepthMode::NoReadWrite;
+				materialItem->mMaterial = mRenderService->getOrCreateMaterial<VideoShader>(error);
+				break;
+			}
+			default:
+			{
+				nap::Logger::info("Unspecified shader in Canvas::constructMaterialInstance");
+				break;
+			}
+		}
+
+		if (materialItem == nullptr)
+			return false;
+		if (!error.check(materialItem->mMaterial != nullptr, "%s: unable to get or create video material", mID.c_str()))
+			return false;
+		materialItem->mMaterialInstance = new MaterialInstance();
+		materialItem->mMaterialInstResource->mMaterial = materialItem->mMaterial;
+		if (!error.check(materialItem->mMaterialInstance->init(*mRenderService, *materialItem->mMaterialInstResource, error), "%s: unable to instance %s material", this->mID.c_str(), type)) {
+			return false;
+		}
+		//create mvp struct on material instance, regardless of type
+		materialItem->mMVPStruct = materialItem->mMaterialInstance->getOrCreateUniform(uniform::mvpStruct);
+		if (!error.check(materialItem->mMVPStruct != nullptr, "%s: Unable to find uniform MVP struct: %s in material: %s",
+			this->mID.c_str(), uniform::mvpStruct, materialItem->mMaterial->mID.c_str()))
+			return false;
+		// Get all matrices
+		materialItem->mModelMatrixUniform = ensureUniform(uniform::modelMatrix, *materialItem, error);
+		materialItem->mProjectMatrixUniform = ensureUniform(uniform::projectionMatrix, *materialItem, error);
+		materialItem->mViewMatrixUniform = ensureUniform(uniform::viewMatrix, *materialItem, error);
+
+		if (materialItem->mModelMatrixUniform == nullptr || materialItem->mProjectMatrixUniform == nullptr || materialItem->mViewMatrixUniform == nullptr) {
+			return false;
+		}
+
+		//sampler definitions
+		switch (type) {
+		case CanvasMaterialTypes::VIDEO: {
+			materialItem->mSamplers["YSampler"] = ensureSampler(uniform::video::sampler::YSampler, *materialItem, error);
+			materialItem->mSamplers["USampler"] = ensureSampler(uniform::video::sampler::USampler, *materialItem, error);
+			materialItem->mSamplers["VSampler"] = ensureSampler(uniform::video::sampler::VSampler, *materialItem, error);
+
+			if (materialItem->mSamplers["YSampler"] == nullptr || materialItem->mSamplers["USampler"] == nullptr || materialItem->mSamplers["VSampler"] == nullptr)
+				return false;
+
+		}
+		default:
+		{
+			nap::Logger::info("Unspecified shader in Canvas::constructMaterialInstance");
+			break;
+		}
+		}
+
+	}
+
+	nap::UniformMat4Instance* Canvas::ensureUniform(const std::string& uniformName, CanvasMaterialItem& materialItem, utility::ErrorState& error)
 	{
 		assert(mMVPStruct != nullptr);
-		UniformMat4Instance* found_uniform = mMVPStruct->getOrCreateUniform<UniformMat4Instance>(uniformName);
+		UniformMat4Instance* found_uniform = materialItem.mMVPStruct->getOrCreateUniform<UniformMat4Instance>(uniformName);
 		if (!error.check(found_uniform != nullptr,
 			"%s: unable to find uniform: %s in material: %s", this->mID.c_str(), uniformName.c_str(),
-			mVideoMaterialInstance.getMaterial().mID.c_str()))
+			materialItem.mMaterial->mID.c_str()))
 			return nullptr;
 		return found_uniform;
 	}
 
-	nap::Sampler2DInstance* Canvas::ensureSampler(const std::string& samplerName, utility::ErrorState& error)
+	nap::Sampler2DInstance* Canvas::ensureSampler(const std::string& samplerName, CanvasMaterialItem& materialItem, utility::ErrorState& error)
 	{
-		Sampler2DInstance* found_sampler = mVideoMaterialInstance.getOrCreateSampler<Sampler2DInstance>(samplerName);
+		Sampler2DInstance* found_sampler = materialItem.mMaterialInstance->getOrCreateSampler<Sampler2DInstance>(samplerName);
 		if (!error.check(found_sampler != nullptr,
 			"%s: unable to find sampler: %s in material: %s", this->mID.c_str(), samplerName.c_str(),
-			mVideoMaterialInstance.getMaterial().mID.c_str()))
+			materialItem.mMaterial->mID.c_str()))
 			return nullptr;
 		return found_sampler;
 	}
 
 	void Canvas::videoChanged(VideoPlayer& player)
 	{
-		mYSampler->setTexture(player.getYTexture());
-		mUSampler->setTexture(player.getUTexture());
-		mVSampler->setTexture(player.getVTexture());
+		mCanvasMaterialItems["video"].mSamplers["YSampler"]->setTexture(player.getYTexture());
+		mCanvasMaterialItems["video"].mSamplers["USampler"]->setTexture(player.getUTexture());
+		mCanvasMaterialItems["video"].mSamplers["VSampler"]->setTexture(player.getVTexture());
 	}
 
 }

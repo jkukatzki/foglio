@@ -86,84 +86,27 @@ namespace nap
 		mTarget.mRequestedSamples = ERasterizationSamples::One;
 		if (!mTarget.init(errorState))
 			return false;
-		mMask = resource->mCanvas->mMaskImage.get();
-
-		
-		
 		// Extract render service
 		mRenderService = getEntityInstance()->getCore()->getService<RenderService>();
 		assert(mRenderService != nullptr);
 
-
-		// create canvas material
-		Material* canvas_material = mRenderService->getOrCreateMaterial<CanvasShader>(errorState);
-		if (!errorState.check(canvas_material != nullptr, "%s: unable to get or create canvas material", resource->mID.c_str()))
-			return false;
-		if (canvas_material == nullptr) {
-			return false;
-		}
-
-		canvas_material->mVertexAttributeBindings = mCanvas->mMaterialWithBindings->mVertexAttributeBindings;
-		
 		
 		
 
-		// Create resource for the final output canvas material instance
-		mOutputMaterialInstResource.mBlendMode = EBlendMode::AlphaBlend;
-		mOutputMaterialInstResource.mDepthMode = EDepthMode::NoReadWrite;
-		mOutputMaterialInstResource.mMaterial = canvas_material; //replace canvas material with new 
 
-		// Initialize canvas material instance, used for rendering canvas
-		if (!mOutputMaterialInstance.init(*mRenderService, mOutputMaterialInstResource, errorState))
-			return false;
-
-		// Ensure the mvp struct is available
-		mMVPStruct = mOutputMaterialInstance.getOrCreateUniform(uniform::mvpStruct);
-		if (!errorState.check(mMVPStruct != nullptr, "%s: Unable to find uniform MVP struct: %s in material: %s",
-			this->mID.c_str(), uniform::mvpStruct, mOutputMaterialInstance.getMaterial().mID.c_str()))
-			return false;
-
+		//canvas_material->mVertexAttributeBindings = mCanvas->mMaterialWithBindings->mVertexAttributeBindings;
 		
-
-		// Get all matrices
-		mModelMatrixUniform = ensureUniform(uniform::modelMatrix, errorState);
-		mProjectMatrixUniform = ensureUniform(uniform::projectionMatrix, errorState);
-		mViewMatrixUniform = ensureUniform(uniform::viewMatrix, errorState);
-
-		if (mModelMatrixUniform == nullptr || mProjectMatrixUniform == nullptr || mViewMatrixUniform == nullptr)
-			return false;
-
-		
-		
-
-		// Get sampler inputs to update from canvas material
-		mYSampler = ensureSampler(uniform::canvas::sampler::YSampler, errorState);
-		mUSampler = ensureSampler(uniform::canvas::sampler::USampler, errorState);
-		mVSampler = ensureSampler(uniform::canvas::sampler::VSampler, errorState);
-		mMaskSampler = ensureSampler(uniform::canvas::sampler::MaskSampler, errorState);
-		if (mMask != nullptr) {
-			
-			mMaskSampler->setTexture(*mMask);
-		}
-		else {
-			RenderTexture2D* blank = new RenderTexture2D(*getEntityInstance()->getCore());
-			blank->mClearColor = RGBAColor8(255, 255, 255, 255).convert<RGBAColorFloat>();
-			mMaskSampler->setTexture(*blank);
-		}
-		
-		
-		if (mYSampler == nullptr || mUSampler == nullptr || mVSampler == nullptr)
-			return false;
 
 		// Create the renderable mesh, which represents a valid mesh / material combination
-		mRenderableOutputMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh().get(), mCanvas->mVideoMaterialInstance, errorState);
+		mRenderableOutputMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh().get(), *mCanvas->mCanvasMaterialItems["video"].mMaterialInstance, errorState);
 		if (!mRenderableOutputMesh.isValid())
 			return false;
 
+		//TODO: put this in canvas resource
 		// Listen to video selection changes
-		mPlayer->VideoChanged.connect(mVideoChangedSlot);
+		//mPlayer->VideoChanged.connect(mVideoChangedSlot);
 
-		videoChanged(*mPlayer);
+		//videoChanged(*mPlayer);
 
 		return true;
 
@@ -191,14 +134,14 @@ namespace nap
 		// Update the model matrix so that the plane mesh is of the same size as the render target
 		// maybe do this only on update and store in member when window is resized for example to prevent unnecessary calculations
 		computeModelMatrixFullscreen(mModelMatrix);
-		mModelMatrixUniform->setValue(mModelMatrix);
+		mCanvas->mCanvasMaterialItems["video"].mModelMatrixUniform->setValue(mModelMatrix);
 
 		// Update matrices, projection and model are required
-		mProjectMatrixUniform->setValue(proj_matrix);
-		mViewMatrixUniform->setValue(glm::mat4());
+		mCanvas->mCanvasMaterialItems["video"].mProjectMatrixUniform->setValue(proj_matrix);
+		mCanvas->mCanvasMaterialItems["video"].mViewMatrixUniform->setValue(glm::mat4());
 
 		// Get valid descriptor set
-		const DescriptorSet& descriptor_set = mOutputMaterialInstance.update();
+		const DescriptorSet& descriptor_set = mCanvas->mCanvasMaterialItems["video"].mMaterialInstance->update();
 
 		// Gather draw info
 		MeshInstance& mesh_instance = mRenderableOutputMesh.getMesh().getMeshInstance();
@@ -206,7 +149,7 @@ namespace nap
 
 		// Get pipeline to to render with
 		utility::ErrorState error_state;
-		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(mTarget, mRenderableOutputMesh.getMesh(), mCanvas->mVideoMaterialInstance, error_state);
+		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(mTarget, mRenderableOutputMesh.getMesh(), *mCanvas->mCanvasMaterialItems["video"].mMaterialInstance, error_state);
 		vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mPipeline);
 		vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mLayout, 0, 1, &descriptor_set.mSet, 0, nullptr);
 
@@ -228,17 +171,17 @@ namespace nap
 
 	void RenderCanvasComponentInstance::onDraw(IRenderTarget& renderTarget, VkCommandBuffer commandBuffer, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 	{
-		
+		//TODO: change mCanvas->mCanvasMaterialItems["video"] "video" to "canvasoutput" later
 		// compute the model matrix with aspect ratio calculated with mOutputTexture and size and position with mTransformComponent
 		computeModelMatrix(renderTarget, mModelMatrix, mOutputTexture, mTransformComponent);
-		mModelMatrixUniform->setValue(mModelMatrix);
+		mCanvas->mCanvasMaterialItems["video"].mModelMatrixUniform->setValue(mModelMatrix);
 
 		// Update matrices, projection and model are required
-		mProjectMatrixUniform->setValue(projectionMatrix);
-		mViewMatrixUniform->setValue(viewMatrix);
+		mCanvas->mCanvasMaterialItems["video"].mProjectMatrixUniform->setValue(projectionMatrix);
+		mCanvas->mCanvasMaterialItems["video"].mViewMatrixUniform->setValue(viewMatrix);
 
 		// Get valid descriptor set
-		const DescriptorSet& descriptor_set = mOutputMaterialInstance.update();
+		const DescriptorSet& descriptor_set = mCanvas->mCanvasMaterialItems["video"].mMaterialInstance->update();
 
 		// Gather draw info
 		MeshInstance& mesh_instance = mRenderableOutputMesh.getMesh().getMeshInstance();
@@ -246,7 +189,7 @@ namespace nap
 
 		// Get pipeline to to render with
 		utility::ErrorState error_state;
-		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(renderTarget, mRenderableOutputMesh.getMesh(), mCanvas->mVideoMaterialInstance, error_state);
+		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(renderTarget, mRenderableOutputMesh.getMesh(), *mCanvas->mCanvasMaterialItems["video"].mMaterialInstance, error_state);
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mPipeline);
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mLayout, 0, 1, &descriptor_set.mSet, 0, nullptr);
 
@@ -334,10 +277,5 @@ namespace nap
 		return found_sampler;
 	}
 
-	void RenderCanvasComponentInstance::videoChanged(VideoPlayer& player)
-	{
-		mYSampler->setTexture(player.getYTexture());
-		mUSampler->setTexture(player.getUTexture());
-		mVSampler->setTexture(player.getVTexture());
-	}
+
 }
