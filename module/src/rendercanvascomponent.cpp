@@ -15,28 +15,28 @@
 
 // nap::rendercanvascomponent run time class definition
 RTTI_BEGIN_CLASS(nap::RenderCanvasComponent)
-	RTTI_PROPERTY("VideoPlayer", &nap::RenderCanvasComponent::mVideoPlayer, nap::rtti::EPropertyMetaData::Required)
-	RTTI_PROPERTY("MaskImage", &nap::RenderCanvasComponent::mMaskImage, nap::rtti::EPropertyMetaData::Default)
-	RTTI_PROPERTY("Index", &nap::RenderCanvasComponent::mVideoIndex, nap::rtti::EPropertyMetaData::Default)
-	RTTI_PROPERTY("Canvas", &nap::RenderCanvasComponent::mCanvas, nap::rtti::EPropertyMetaData::Default)
-	RTTI_PROPERTY("CornerOffsets", &nap::RenderCanvasComponent::mCornerOffsets, nap::rtti::EPropertyMetaData::Default)
+RTTI_PROPERTY("VideoPlayer", &nap::RenderCanvasComponent::mVideoPlayer, nap::rtti::EPropertyMetaData::Required)
+RTTI_PROPERTY("MaskImage", &nap::RenderCanvasComponent::mMaskImage, nap::rtti::EPropertyMetaData::Default)
+RTTI_PROPERTY("Index", &nap::RenderCanvasComponent::mVideoIndex, nap::rtti::EPropertyMetaData::Default)
+RTTI_PROPERTY("Canvas", &nap::RenderCanvasComponent::mCanvas, nap::rtti::EPropertyMetaData::Default)
+RTTI_PROPERTY("CornerOffsets", &nap::RenderCanvasComponent::mCornerOffsets, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::RenderCanvasComponentInstance)
-	RTTI_CONSTRUCTOR(nap::EntityInstance&, nap::Component&)
+RTTI_CONSTRUCTOR(nap::EntityInstance&, nap::Component&)
 RTTI_END_CLASS
 
 namespace nap
 {
-	
+
 	RenderCanvasComponentInstance::RenderCanvasComponentInstance(EntityInstance& entity, Component& resource) :
 		RenderableComponentInstance(entity, resource),
 		mTarget(*entity.getCore()),
 		mPlane(new PlaneMesh(*entity.getCore())),
 		mCanvasOutputMaterial(new Material(*entity.getCore()))
-		{ }
+	{ }
 
-	
+
 
 	nap::Texture2D& RenderCanvasComponentInstance::getOutputTexture()
 	{
@@ -57,29 +57,21 @@ namespace nap
 		// Get resource
 		RenderCanvasComponent* resource = getComponent<RenderCanvasComponent>();
 
-		
-		// T          O                D              O
-		// create new member plane that doesnt carry canvasshader, only use canvasshader in final output in ondraw()
-		
-
-		
-
 		// Now create a plane and initialize it
 		// The plane is positioned on update based on current texture output size and transform component
 		mCanvas = resource->mCanvas.get();
-		//if (errorState.check(mCanvas->init(errorState), "%s: unable to init canvas resource", resource->mID.c_str()))
-			//return false;
 		if (!errorState.check(mCanvas != nullptr, "unable to find canvas resource in: %s", getEntityInstance()->mID))
 			return false;
-		//TODO: add error check
-		mCanvas->init(errorState);
+		if (!errorState.check(mCanvas->init(errorState), "%s: unable to init canvas resource", resource->mID.c_str()))
+			return false;
+
 
 		// Extract player
 		mPlayer = resource->mCanvas->mVideoPlayer.get();
 		if (!errorState.check(mPlayer != nullptr, "%s: no video player", resource->mID.c_str()))
 			return false;
 		// Setup output texture
-		
+
 		mOutputTexture = mCanvas->getOutputTexture();
 		// Setup render target and initialize
 		mTarget.mClearColor = RGBAColor8(255, 255, 255, 255).convert<RGBAColorFloat>();
@@ -91,12 +83,12 @@ namespace nap
 		// Extract render service
 		mRenderService = getEntityInstance()->getCore()->getService<RenderService>();
 		assert(mRenderService != nullptr);
-		
-		
+
+
 
 
 		//canvas_material->mVertexAttributeBindings = mCanvas->mMaterialWithBindings->mVertexAttributeBindings;
-		
+
 		mHeadlessRenderableMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh().get(), *mCanvas->mCanvasMaterialItems["video"].mMaterialInstance, errorState);
 		if (!mHeadlessRenderableMesh.isValid())
 			return false;
@@ -105,7 +97,10 @@ namespace nap
 		if (!mRenderableOutputMesh.isValid())
 			return false;
 		mCanvas->mCanvasMaterialItems["warp"].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvaswarp::topLeft)->setValue(resource->mCornerOffsets[0]);
-		
+		mCanvas->mCanvasMaterialItems["warp"].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvaswarp::topRight)->setValue(resource->mCornerOffsets[1]);
+		mCanvas->mCanvasMaterialItems["warp"].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvaswarp::bottomLeft)->setValue(resource->mCornerOffsets[2]);
+		mCanvas->mCanvasMaterialItems["warp"].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvaswarp::bottomRight)->setValue(resource->mCornerOffsets[3]);
+
 		//TODO: put this in canvas resource or canvasgroup
 		// Listen to video selection changes
 		//mPlayer->VideoChanged.connect(mVideoChangedSlot);
@@ -118,9 +113,9 @@ namespace nap
 
 	}
 
-	
 
-	
+
+
 	void RenderCanvasComponentInstance::draw()
 	{
 		// Get current command buffer, should be headless.
@@ -134,7 +129,7 @@ namespace nap
 
 		// do onDraw() but headless
 		mTarget.beginRendering();
-		
+
 		// Update the model matrix so that the plane mesh is of the same size as the render target
 		// maybe do this only on update and store in member when window is resized for example to prevent unnecessary calculations
 		computeModelMatrixFullscreen(mModelMatrix);
@@ -263,7 +258,7 @@ namespace nap
 
 	}
 
-	
+
 
 	nap::UniformMat4Instance* RenderCanvasComponentInstance::ensureUniform(const std::string& uniformName, utility::ErrorState& error)
 	{

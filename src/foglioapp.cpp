@@ -161,8 +161,9 @@ namespace nap
 				quit();
 
 			// f is pressed, toggle full-screen
-			if (press_event->mKey == nap::EKeyCode::KEY_f)
+			if (press_event->mKey == nap::EKeyCode::KEY_f && press_event->mWindow == mMainWindow->getNumber()) {
 				mMainWindow->toggleFullscreen();
+			}
 		}
 		// Add event, so it can be forwarded on update
 		mInputService->addEvent(std::move(inputEvent));

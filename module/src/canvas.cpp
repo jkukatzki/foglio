@@ -53,8 +53,8 @@ namespace nap {
 		mPlane->mPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 		mPlane->mCullMode = ECullMode::Back;
 		mPlane->mUsage = EMemoryUsage::DynamicWrite;
-		mPlane->mColumns = 1;
-		mPlane->mRows = 1;
+		mPlane->mColumns = 10;
+		mPlane->mRows = 10;
 		if (!errorState.check(mPlane->setup(errorState), "Unable to setup canvas plane %s", mID.c_str()))
 			return false;
 		// add plane vertex attributes
