@@ -1,5 +1,5 @@
 #include "rendercanvascomponent.h"
-#include "canvasshader.h"
+#include "canvaswarpshader.h"
 
 #include <entity.h>
 #include <orthocameracomponent.h>
@@ -19,6 +19,7 @@ RTTI_BEGIN_CLASS(nap::RenderCanvasComponent)
 	RTTI_PROPERTY("MaskImage", &nap::RenderCanvasComponent::mMaskImage, nap::rtti::EPropertyMetaData::Default)
 	RTTI_PROPERTY("Index", &nap::RenderCanvasComponent::mVideoIndex, nap::rtti::EPropertyMetaData::Default)
 	RTTI_PROPERTY("Canvas", &nap::RenderCanvasComponent::mCanvas, nap::rtti::EPropertyMetaData::Default)
+	RTTI_PROPERTY("CornerOffsets", &nap::RenderCanvasComponent::mCornerOffsets, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::RenderCanvasComponentInstance)
@@ -49,6 +50,7 @@ namespace nap
 
 	bool RenderCanvasComponentInstance::init(utility::ErrorState& errorState)
 	{
+		mTransformComponent = getEntityInstance()->findComponent<TransformComponentInstance>();
 		mTransformComponent = getEntityInstance()->findComponent<TransformComponentInstance>();
 		if (!RenderableComponentInstance::init(errorState))
 			return false;
@@ -89,20 +91,22 @@ namespace nap
 		// Extract render service
 		mRenderService = getEntityInstance()->getCore()->getService<RenderService>();
 		assert(mRenderService != nullptr);
-
 		
 		
 
 
 		//canvas_material->mVertexAttributeBindings = mCanvas->mMaterialWithBindings->mVertexAttributeBindings;
 		
-
+		mHeadlessRenderableMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh().get(), *mCanvas->mCanvasMaterialItems["video"].mMaterialInstance, errorState);
+		if (!mHeadlessRenderableMesh.isValid())
+			return false;
 		// Create the renderable mesh, which represents a valid mesh / material combination
-		mRenderableOutputMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh().get(), *mCanvas->mCanvasMaterialItems["video"].mMaterialInstance, errorState);
+		mRenderableOutputMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh().get(), *mCanvas->mCanvasMaterialItems["warp"].mMaterialInstance, errorState);
 		if (!mRenderableOutputMesh.isValid())
 			return false;
-
-		//TODO: put this in canvas resource
+		mCanvas->mCanvasMaterialItems["warp"].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvaswarp::topLeft)->setValue(resource->mCornerOffsets[0]);
+		
+		//TODO: put this in canvas resource or canvasgroup
 		// Listen to video selection changes
 		//mPlayer->VideoChanged.connect(mVideoChangedSlot);
 
@@ -144,18 +148,18 @@ namespace nap
 		const DescriptorSet& descriptor_set = mCanvas->mCanvasMaterialItems["video"].mMaterialInstance->update();
 
 		// Gather draw info
-		MeshInstance& mesh_instance = mRenderableOutputMesh.getMesh().getMeshInstance();
+		MeshInstance& mesh_instance = mHeadlessRenderableMesh.getMesh().getMeshInstance();
 		GPUMesh& mesh = mesh_instance.getGPUMesh();
 
 		// Get pipeline to to render with
 		utility::ErrorState error_state;
-		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(mTarget, mRenderableOutputMesh.getMesh(), *mCanvas->mCanvasMaterialItems["video"].mMaterialInstance, error_state);
+		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(mTarget, mHeadlessRenderableMesh.getMesh(), *mCanvas->mCanvasMaterialItems["video"].mMaterialInstance, error_state);
 		vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mPipeline);
 		vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mLayout, 0, 1, &descriptor_set.mSet, 0, nullptr);
 
 		// Bind buffers and draw
-		const std::vector<VkBuffer>& vertexBuffers = mRenderableOutputMesh.getVertexBuffers();
-		const std::vector<VkDeviceSize>& vertexBufferOffsets = mRenderableOutputMesh.getVertexBufferOffsets();
+		const std::vector<VkBuffer>& vertexBuffers = mHeadlessRenderableMesh.getVertexBuffers();
+		const std::vector<VkDeviceSize>& vertexBufferOffsets = mHeadlessRenderableMesh.getVertexBufferOffsets();
 
 		vkCmdBindVertexBuffers(command_buffer, 0, vertexBuffers.size(), vertexBuffers.data(), vertexBufferOffsets.data());
 		for (int index = 0; index < mesh_instance.getNumShapes(); ++index)
@@ -168,20 +172,25 @@ namespace nap
 		mTarget.endRendering();
 	}
 
+	void RenderCanvasComponentInstance::drawInterface()
+	{
+
+	}
+
 
 	void RenderCanvasComponentInstance::onDraw(IRenderTarget& renderTarget, VkCommandBuffer commandBuffer, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 	{
 		//TODO: change mCanvas->mCanvasMaterialItems["video"] "video" to "canvasoutput" later
 		// compute the model matrix with aspect ratio calculated with mOutputTexture and size and position with mTransformComponent
 		computeModelMatrix(renderTarget, mModelMatrix, mOutputTexture, mTransformComponent);
-		mCanvas->mCanvasMaterialItems["video"].mModelMatrixUniform->setValue(mModelMatrix);
+		mCanvas->mCanvasMaterialItems["warp"].mModelMatrixUniform->setValue(mModelMatrix);
 
 		// Update matrices, projection and model are required
-		mCanvas->mCanvasMaterialItems["video"].mProjectMatrixUniform->setValue(projectionMatrix);
-		mCanvas->mCanvasMaterialItems["video"].mViewMatrixUniform->setValue(viewMatrix);
+		mCanvas->mCanvasMaterialItems["warp"].mProjectMatrixUniform->setValue(projectionMatrix);
+		mCanvas->mCanvasMaterialItems["warp"].mViewMatrixUniform->setValue(viewMatrix);
 
 		// Get valid descriptor set
-		const DescriptorSet& descriptor_set = mCanvas->mCanvasMaterialItems["video"].mMaterialInstance->update();
+		const DescriptorSet& descriptor_set = mCanvas->mCanvasMaterialItems["warp"].mMaterialInstance->update();
 
 		// Gather draw info
 		MeshInstance& mesh_instance = mRenderableOutputMesh.getMesh().getMeshInstance();
@@ -189,7 +198,7 @@ namespace nap
 
 		// Get pipeline to to render with
 		utility::ErrorState error_state;
-		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(renderTarget, mRenderableOutputMesh.getMesh(), *mCanvas->mCanvasMaterialItems["video"].mMaterialInstance, error_state);
+		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(renderTarget, mRenderableOutputMesh.getMesh(), *mCanvas->mCanvasMaterialItems["warp"].mMaterialInstance, error_state);
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mPipeline);
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mLayout, 0, 1, &descriptor_set.mSet, 0, nullptr);
 

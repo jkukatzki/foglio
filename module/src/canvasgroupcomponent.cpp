@@ -1,7 +1,6 @@
 
 #include "canvasgroupcomponent.h"
 #include "rendercanvascomponent.h"
-#include "canvasshader.h"
 #include "inputcomponent.h"
 
 #include <entity.h>

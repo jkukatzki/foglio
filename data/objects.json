@@ -1,10 +1,6 @@
 {
     "Objects": [
         {
-            "Type": "nap::CanvasShader",
-            "mID": "CanvasShader_1a91bda9"
-        },
-        {
             "Type": "nap::Entity",
             "mID": "BackgroundCanvasEntity",
             "Components": [
@@ -211,30 +207,6 @@
             ]
         },
         {
-            "Type": "nap::Material",
-            "mID": "DefaultCanvasBindings",
-            "Uniforms": [],
-            "Samplers": [],
-            "Buffers": [],
-            "Shader": "CanvasShader_1a91bda9",
-            "VertexAttributeBindings": [
-                {
-                    "MeshAttributeID": "CornerOffset",
-                    "ShaderAttributeID": "in_CornerOffset"
-                },
-                {
-                    "MeshAttributeID": "Position",
-                    "ShaderAttributeID": "in_Position"
-                },
-                {
-                    "MeshAttributeID": "UV0",
-                    "ShaderAttributeID": "in_UV0"
-                }
-            ],
-            "BlendMode": "Opaque",
-            "DepthMode": "InheritFromBlendMode"
-        },
-        {
             "Type": "nap::RenderWindow",
             "mID": "ControlsWindow",
             "Borderless": false,
@@ -290,30 +262,6 @@
                     "Type": "nap::Canvas",
                     "mID": "Background",
                     "VideoPlayer": "BackgroundVideoPlayer",
-                    "MaskImage": "",
-                    "DefaultVertexBinding": "DefaultCanvasBindings",
-                    "CornerOffsets": [
-                        {
-                            "x": 0.800000011920929,
-                            "y": 0.0,
-                            "z": 0.0
-                        },
-                        {
-                            "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
-                        },
-                        {
-                            "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
-                        },
-                        {
-                            "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
-                        }
-                    ],
                     "Name": "Background"
                 },
                 {
@@ -321,29 +269,6 @@
                     "mID": "Flower",
                     "VideoPlayer": "FlowerVideoPlayer",
                     "MaskImage": "FlowerMask",
-                    "DefaultVertexBinding": "DefaultCanvasBindings",
-                    "CornerOffsets": [
-                        {
-                            "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
-                        },
-                        {
-                            "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
-                        },
-                        {
-                            "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
-                        },
-                        {
-                            "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
-                        }
-                    ],
                     "Name": "Flower"
                 }
             ],

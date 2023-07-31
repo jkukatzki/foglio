@@ -10,16 +10,23 @@ uniform nap
 	mat4 modelMatrix;
 } mvp;
 
+uniform UBO
+{
+	vec3 topLeft;
+	vec3 topRight;
+	vec3 bottomLeft;
+	vec3 bottomRight;
+} ubo;
+
 in vec3	in_Position;
 in vec3	in_UV0;
-in vec3 in_CornerOffset;
 out vec3 pass_Uvs;
 
-vec3 new_pos = in_Position.xyz + in_CornerOffset.xyz;
+
 
 
 void main(void)
 {
-	gl_Position = mvp.projectionMatrix * mvp.viewMatrix * mvp.modelMatrix * vec4(new_pos, 1.0);
+	gl_Position = mvp.projectionMatrix * mvp.viewMatrix * mvp.modelMatrix * vec4(in_Position, 1.0);
 	pass_Uvs = in_UV0;
 }

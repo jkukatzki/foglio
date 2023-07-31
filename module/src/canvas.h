@@ -26,6 +26,7 @@ namespace nap
 			UniformMat4Instance*						mProjectMatrixUniform = nullptr;
 			UniformMat4Instance*						mViewMatrixUniform = nullptr;
 			std::map<std::string, Sampler2DInstance*>	mSamplers;
+			UniformStructInstance*						mUBO;
 	};
 
 	class Core;
@@ -51,11 +52,10 @@ namespace nap
 
 		ResourcePtr<VideoPlayer>		mVideoPlayer;
 		ResourcePtr<ImageFromFile>		mMaskImage;
-		ResourcePtr<Material>			mMaterialWithBindings;
 
 		std::map<std::string, CanvasMaterialItem> mCanvasMaterialItems;
 
-		std::vector<glm::vec3>			mCornerOffsets = std::vector<glm::vec3>(4);
+		
 
 	private:
 		ResourcePtr<RenderTexture2D>		mOutputTexture;
@@ -89,11 +89,13 @@ namespace nap
 		//CANVASUI: draws outline of plane onto texture //TODO: maybe add a new mOutputTexture for this?
 		enum class CanvasMaterialTypes
 		{
-			VIDEO = 0, CANVASMASK = 1, CANVASOUTPUT = 2, CANVASUI = 3
+			VIDEO = 0, MASK = 1, WARP = 2, INTERFACE = 3
 		};
 
 
-		UniformMat4Instance* ensureUniform(const std::string& uniformName, CanvasMaterialItem& materialItem, utility::ErrorState& error);
+		UniformMat4Instance* ensureUniformMat4(const std::string& uniformName, CanvasMaterialItem& materialItem, utility::ErrorState& error);
+
+		UniformVec3Instance* ensureUniformVec3(const std::string& uniformName, CanvasMaterialItem& materialItem, utility::ErrorState& error);
 
 		Sampler2DInstance* ensureSampler(const std::string& samplerName, CanvasMaterialItem& materialItem, utility::ErrorState& error);
 

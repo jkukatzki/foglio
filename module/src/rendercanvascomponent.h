@@ -32,6 +32,7 @@ namespace nap
 		ResourcePtr<VideoPlayer>		mVideoPlayer = nullptr;
 		ResourcePtr<ImageFromFile>		mMaskImage = nullptr;
 		int								mVideoIndex = 0;
+		std::vector<glm::vec3>			mCornerOffsets = std::vector<glm::vec3>(4);
 	};
 
 	class NAPAPI RenderCanvasComponentInstance : public RenderableComponentInstance
@@ -51,6 +52,9 @@ namespace nap
 		Canvas* getCanvas() { return mCanvas; };
 
 		void draw();
+
+		// draws interface on top of mTarget texture
+		void drawInterface();
 
 		void computeModelMatrix(const nap::IRenderTarget& target, glm::mat4& outMatrix, ResourcePtr<RenderTexture2D> canvas_output_texture, TransformComponentInstance* transform_comp);
 
@@ -73,6 +77,7 @@ namespace nap
 		MaterialInstance				mOutputMaterialInstance;
 		MaterialInstanceResource		mOutputMaterialInstResource;
 		RenderableMesh					mRenderableOutputMesh;
+		RenderableMesh					mHeadlessRenderableMesh;
 		
 		TransformComponentInstance*	mTransformComponent = nullptr;
 
