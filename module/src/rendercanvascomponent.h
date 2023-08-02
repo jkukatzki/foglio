@@ -51,10 +51,11 @@ namespace nap
 
 		Canvas* getCanvas() { return mCanvas; };
 
-		void draw();
+		void draw(RenderableMesh mesh, const DescriptorSet* descriptor_set);
 
-		// draws interface on top of mTarget texture
-		void drawInterface();
+		void drawHeadlessPass(Canvas::CanvasMaterialTypes type);
+
+		void drawAllHeadlessPasses();
 
 		void computeModelMatrix(const nap::IRenderTarget& target, glm::mat4& outMatrix, ResourcePtr<RenderTexture2D> canvas_output_texture, TransformComponentInstance* transform_comp);
 
@@ -77,7 +78,9 @@ namespace nap
 		MaterialInstance				mOutputMaterialInstance;
 		MaterialInstanceResource		mOutputMaterialInstResource;
 		RenderableMesh					mRenderableOutputMesh;
-		RenderableMesh					mHeadlessRenderableMesh;
+		RenderableMesh					mHeadlessVideoMesh;
+		RenderableMesh					mHeadlessInterfaceMesh;
+		RenderableMesh					mHeadlessMaskMesh;
 		
 		TransformComponentInstance*	mTransformComponent = nullptr;
 

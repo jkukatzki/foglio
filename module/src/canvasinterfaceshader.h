@@ -20,8 +20,14 @@ namespace nap
 	{
 		namespace canvasinterface
 		{
+			inline constexpr const char* uboStructInterface = "UBO";
 			inline constexpr const char* frameThickness = "frameThickness";	
 			inline constexpr const char* mousePos = "mousePos";
+
+			namespace sampler {
+				inline constexpr const char* inTexture = "inTexture";
+			}
+
 		}
 	}
 

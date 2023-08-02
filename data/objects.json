@@ -14,7 +14,7 @@
                     "Canvas": "Background",
                     "CornerOffsets": [
                         {
-                            "x": 0.10000000149011612,
+                            "x": 0.0,
                             "y": 0.0,
                             "z": 0.0
                         },
@@ -404,19 +404,6 @@
                                         "Type": "nap::FloatInstancePropertyValue",
                                         "mID": "override_37f8b8d7",
                                         "Value": 0.30000001192092898
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            "TargetComponent": "./FlowerCanvasEntity:0/FlowerCanvas",
-                            "TargetAttributes": [
-                                {
-                                    "Path": "CornerOffsets/0/x",
-                                    "Value": {
-                                        "Type": "nap::FloatInstancePropertyValue",
-                                        "mID": "override_6d069a7b",
-                                        "Value": 1.0
                                     }
                                 }
                             ]

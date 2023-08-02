@@ -5,6 +5,8 @@
 
 #include <entity.h>
 
+#include <imgui/imgui.h>
+#include <imguiutils.h>
 
 // nap::rendercanvascomponent run time class definition
 RTTI_BEGIN_CLASS(nap::CanvasGroupComponent)
@@ -33,7 +35,7 @@ namespace nap
 		for (EntityInstance* canvasEntity : getEntityInstance()->getChildren()) {
 			canvasEntity->getComponent<RenderCanvasComponentInstance>().getCanvas()->mVideoPlayer->play();
 		}
-
+		mSelected = getEntityInstance()->getChildren()[0];
 		
 	}
 
@@ -55,8 +57,41 @@ namespace nap
 	{
 		std::vector<EntityInstance*> mCanvasEntities = getEntityInstance()->getChildren(); //TODO: maybe set in init() and update() when entityinstance children update call?
 		for (EntityInstance* canvasEntity : mCanvasEntities) {
-			canvasEntity->getComponent<RenderCanvasComponentInstance>().draw();
+			canvasEntity->getComponent<RenderCanvasComponentInstance>().drawAllHeadlessPasses();
 		}
 	}
+
+	void CanvasGroupComponentInstance::drawOutliner() {
+		for (EntityInstance* canvasEntity : getEntityInstance()->getChildren()) {
+			ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+			if (mSelected == canvasEntity) {
+				node_flags |= ImGuiTreeNodeFlags_Selected;
+			}
+			ImGui::TreeNodeEx((EntityInstance*)canvasEntity, node_flags, "Canvas Entity %d", canvasEntity->getEntity()->mID);
+			if (ImGui::IsItemClicked())
+				mSelected = canvasEntity;
+		}
+		RenderCanvasComponentInstance& canvas_comp = mSelected->getComponent<RenderCanvasComponentInstance>();
+		TransformComponentInstance& canvas_transform_comp = mSelected->getComponent<TransformComponentInstance>();
+		
+		Texture2D& canvas_tex = canvas_comp.getOutputTexture();
+		float col_width = ImGui::GetContentRegionAvailWidth();
+		float ratio_canvas_tex = static_cast<float>(canvas_tex.getWidth()) / static_cast<float>(canvas_tex.getHeight());
+		ImGui::Image(canvas_tex, { col_width , col_width / ratio_canvas_tex });
+
+		float current_time = canvas_comp.getVideoPlayer()->getCurrentTime();
+		if (ImGui::SliderFloat("", &current_time, 0.0f, canvas_comp.getVideoPlayer()->getDuration(), "%.3fs", 1.0f))
+			canvas_comp.getVideoPlayer()->seek(current_time);
+		ImGui::Text("Total time: %fs", canvas_comp.getVideoPlayer()->getDuration());
+		
+		glm::vec3 translate = canvas_transform_comp.getTranslate();
+		float tempXTransl = translate.x;
+		float tempYTransl = translate.y;
+		ImGui::DragFloat("X", &tempXTransl, 0.01f, -1.0f, 1.0f, "%.3f", 1.0f);
+		ImGui::DragFloat("Y", &tempYTransl, 0.01f, -1.0f, 1.0f, "%.3f", 1.0f);
+		if (translate.x != tempXTransl || translate.y != tempYTransl) {
+			canvas_transform_comp.setTranslate(glm::vec3(tempXTransl, tempYTransl, translate.z));
+		}
+	}	
 
 }

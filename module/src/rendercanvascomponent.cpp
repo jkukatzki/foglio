@@ -89,8 +89,16 @@ namespace nap
 
 		//canvas_material->mVertexAttributeBindings = mCanvas->mMaterialWithBindings->mVertexAttributeBindings;
 
-		mHeadlessRenderableMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh().get(), *mCanvas->mCanvasMaterialItems["video"].mMaterialInstance, errorState);
-		if (!mHeadlessRenderableMesh.isValid())
+		mHeadlessVideoMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh().get(), *mCanvas->mCanvasMaterialItems["video"].mMaterialInstance, errorState);
+		mHeadlessInterfaceMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh().get(), *mCanvas->mCanvasMaterialItems["interface"].mMaterialInstance, errorState);
+		try {
+			mCanvas->mCanvasMaterialItems.at("mask");
+			mHeadlessMaskMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh().get(), *mCanvas->mCanvasMaterialItems["mask"].mMaterialInstance, errorState);
+		}
+		catch (const std::out_of_range& e) {
+			nap::Logger::info("no mask material item");
+		}
+		if (!mHeadlessVideoMesh.isValid() || !mHeadlessInterfaceMesh.isValid())
 			return false;
 		// Create the renderable mesh, which represents a valid mesh / material combination
 		mRenderableOutputMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh().get(), *mCanvas->mCanvasMaterialItems["warp"].mMaterialInstance, errorState);
@@ -113,48 +121,35 @@ namespace nap
 
 	}
 
+	void RenderCanvasComponentInstance::drawAllHeadlessPasses() {
+		drawHeadlessPass(Canvas::CanvasMaterialTypes::VIDEO);
+		if (mHeadlessMaskMesh.isValid()) {
+			drawHeadlessPass(Canvas::CanvasMaterialTypes::MASK);
+		}
+	}
 
 
-
-	void RenderCanvasComponentInstance::draw()
+	void RenderCanvasComponentInstance::draw(RenderableMesh renderableMesh, const DescriptorSet* descriptor_set)
 	{
 		// Get current command buffer, should be headless.
 		VkCommandBuffer command_buffer = mRenderService->getCurrentCommandBuffer();
 
-		// Create orthographic projection matrix
-		glm::ivec2 size = mTarget.getBufferSize();
-
-		// Create projection matrix
-		glm::mat4 proj_matrix = OrthoCameraComponentInstance::createRenderProjectionMatrix(0.0f, (float)size.x, 0.0f, (float)size.y);
-
-		// do onDraw() but headless
+		//begin headless rendering
 		mTarget.beginRendering();
 
-		// Update the model matrix so that the plane mesh is of the same size as the render target
-		// maybe do this only on update and store in member when window is resized for example to prevent unnecessary calculations
-		computeModelMatrixFullscreen(mModelMatrix);
-		mCanvas->mCanvasMaterialItems["video"].mModelMatrixUniform->setValue(mModelMatrix);
-
-		// Update matrices, projection and model are required
-		mCanvas->mCanvasMaterialItems["video"].mProjectMatrixUniform->setValue(proj_matrix);
-		mCanvas->mCanvasMaterialItems["video"].mViewMatrixUniform->setValue(glm::mat4());
-
-		// Get valid descriptor set
-		const DescriptorSet& descriptor_set = mCanvas->mCanvasMaterialItems["video"].mMaterialInstance->update();
-
 		// Gather draw info
-		MeshInstance& mesh_instance = mHeadlessRenderableMesh.getMesh().getMeshInstance();
+		MeshInstance& mesh_instance = renderableMesh.getMesh().getMeshInstance();
 		GPUMesh& mesh = mesh_instance.getGPUMesh();
 
 		// Get pipeline to to render with
 		utility::ErrorState error_state;
-		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(mTarget, mHeadlessRenderableMesh.getMesh(), *mCanvas->mCanvasMaterialItems["video"].mMaterialInstance, error_state);
+		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(mTarget, renderableMesh.getMesh(), renderableMesh.getMaterialInstance(), error_state);
 		vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mPipeline);
-		vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mLayout, 0, 1, &descriptor_set.mSet, 0, nullptr);
+		vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mLayout, 0, 1, &descriptor_set->mSet, 0, nullptr);
 
 		// Bind buffers and draw
-		const std::vector<VkBuffer>& vertexBuffers = mHeadlessRenderableMesh.getVertexBuffers();
-		const std::vector<VkDeviceSize>& vertexBufferOffsets = mHeadlessRenderableMesh.getVertexBufferOffsets();
+		const std::vector<VkBuffer>& vertexBuffers = renderableMesh.getVertexBuffers();
+		const std::vector<VkDeviceSize>& vertexBufferOffsets = renderableMesh.getVertexBufferOffsets();
 
 		vkCmdBindVertexBuffers(command_buffer, 0, vertexBuffers.size(), vertexBuffers.data(), vertexBufferOffsets.data());
 		for (int index = 0; index < mesh_instance.getNumShapes(); ++index)
@@ -167,15 +162,44 @@ namespace nap
 		mTarget.endRendering();
 	}
 
-	void RenderCanvasComponentInstance::drawInterface()
+	void RenderCanvasComponentInstance::drawHeadlessPass(Canvas::CanvasMaterialTypes type)
 	{
-
+		// Create orthographic projection matrix
+		glm::ivec2 size = mTarget.getBufferSize();
+		glm::mat4 proj_matrix = OrthoCameraComponentInstance::createRenderProjectionMatrix(0.0f, (float)size.x, 0.0f, (float)size.y);
+		// Update the model matrix so that the plane mesh is of the same size as the render target
+		// maybe do this only on update and store in member when window is resized for example to prevent unnecessary calculations
+		computeModelMatrixFullscreen(mModelMatrix);
+		switch (type) {
+			case Canvas::CanvasMaterialTypes::VIDEO: {
+				// Update matrices, projection and model are required
+				mCanvas->mCanvasMaterialItems["video"].mModelMatrixUniform->setValue(mModelMatrix);
+				mCanvas->mCanvasMaterialItems["video"].mProjectMatrixUniform->setValue(proj_matrix);
+				mCanvas->mCanvasMaterialItems["video"].mViewMatrixUniform->setValue(glm::mat4());
+				//get descriptor set
+				const DescriptorSet* descriptor_set = &mCanvas->mCanvasMaterialItems["video"].mMaterialInstance->update();
+				draw(mHeadlessVideoMesh, descriptor_set);
+				break;
+			}
+			case Canvas::CanvasMaterialTypes::MASK: {
+				// Update matrices, projection and model are required
+				mCanvas->mCanvasMaterialItems["mask"].mModelMatrixUniform->setValue(mModelMatrix);
+				mCanvas->mCanvasMaterialItems["mask"].mProjectMatrixUniform->setValue(proj_matrix);
+				mCanvas->mCanvasMaterialItems["mask"].mViewMatrixUniform->setValue(glm::mat4());
+				//get descriptor set
+				const DescriptorSet* descriptor_set = &mCanvas->mCanvasMaterialItems["mask"].mMaterialInstance->update();
+				draw(mHeadlessMaskMesh, descriptor_set);
+				break;
+			}
+			default: {
+				break;
+			}
+		}
 	}
 
 
 	void RenderCanvasComponentInstance::onDraw(IRenderTarget& renderTarget, VkCommandBuffer commandBuffer, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 	{
-		//TODO: change mCanvas->mCanvasMaterialItems["video"] "video" to "canvasoutput" later
 		// compute the model matrix with aspect ratio calculated with mOutputTexture and size and position with mTransformComponent
 		computeModelMatrix(renderTarget, mModelMatrix, mOutputTexture, mTransformComponent);
 		mCanvas->mCanvasMaterialItems["warp"].mModelMatrixUniform->setValue(mModelMatrix);
@@ -238,8 +262,8 @@ namespace nap
 		glm::ivec2 tex_size = target.getBufferSize();
 		glm::ivec2 new_size;
 		outMatrix = glm::translate(glm::mat4(), glm::vec3(
-			translate.x + tex_size.x / 2.0f,
-			translate.y + tex_size.y / 2.0f,
+			translate.x*tex_size.x + tex_size.x / 2.0f,
+			translate.y*tex_size.y + tex_size.y / 2.0f,
 			0.0f));
 		// Scale correlating to target
 		// Calculate ratio

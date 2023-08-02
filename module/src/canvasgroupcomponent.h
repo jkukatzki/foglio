@@ -35,6 +35,8 @@ namespace nap
 		
 		void drawAllHeadless();
 
+		void drawOutliner();
+
 	protected:
 		virtual void trigger(const nap::InputEvent& inEvent) override;
 
@@ -42,5 +44,6 @@ namespace nap
 		RenderService*								mRenderService = nullptr;
 		ComponentPtr<RenderCanvasComponent>			mSelectedCanvas = nullptr;
 		std::vector<RenderCanvasComponentInstance*> mCanvases;
+		EntityInstance*								mSelected;
 	};
 }

@@ -1,10 +1,12 @@
 #include "canvas.h"
-#include "canvaswarpshader.h"
 
 #include "videoshader.h"
+#include "canvasinterfaceshader.h"
+#include "canvaswarpshader.h"
+#include "maskshader.h"
+
 #include "nap/core.h"
 #include "renderservice.h"
-
 #include "renderglobals.h"
 
 
@@ -64,24 +66,19 @@ namespace nap {
 		mCornerOffsetAttribute->addData(mCornerOffsets[2]);
 		mCornerOffsetAttribute->addData(mCornerOffsets[3]);***/
 
+		// hint: insert could be operator[] for this map since we're using a default constructor for CanvasMaterialItem
 		mCanvasMaterialItems.insert(std::pair<std::string, CanvasMaterialItem>("video", CanvasMaterialItem()));
 		constructMaterialInstance(CanvasMaterialTypes::VIDEO, errorState);
 		mCanvasMaterialItems.insert(std::pair<std::string, CanvasMaterialItem>("warp", CanvasMaterialItem()));
 		constructMaterialInstance(CanvasMaterialTypes::WARP, errorState);
-
-		
-
-		
-			
-			
-		
-		
-		
-		/***mMaskSampler = ensureSampler(uniform::canvas::sampler::MaskSampler, errorState);
-		if (mMaskImage != nullptr) {
-
-			mMaskSampler->setTexture(*mMaskImage);
-		}***/
+		mCanvasMaterialItems.insert(std::pair<std::string, CanvasMaterialItem>("interface", CanvasMaterialItem()));
+		constructMaterialInstance(CanvasMaterialTypes::INTERFACE, errorState);
+		if (mMaskImage.get() != nullptr) {
+			mCanvasMaterialItems.insert(std::pair<std::string, CanvasMaterialItem>("mask", CanvasMaterialItem()));
+			constructMaterialInstance(CanvasMaterialTypes::MASK, errorState);
+			mCanvasMaterialItems["mask"].mSamplers["inTextureSampler"]->setTexture(*mOutputTexture.get());
+			mCanvasMaterialItems["mask"].mSamplers["maskSampler"]->setTexture(*mMaskImage.get());
+		}
 		
 		videoChanged(*mVideoPlayer);
 		mCanvasMaterialItems["warp"].mSamplers["inTextureSampler"]->setTexture(*mOutputTexture.get());
@@ -96,7 +93,6 @@ namespace nap {
 			case CanvasMaterialTypes::VIDEO : {
 				materialItem = &mCanvasMaterialItems["video"];
 				//create video material
-				//create material resource
 				materialItem->mMaterialInstResource = new MaterialInstanceResource();
 				materialItem->mMaterialInstResource->mBlendMode = EBlendMode::AlphaBlend;
 				materialItem->mMaterialInstResource->mDepthMode = EDepthMode::NoReadWrite;
@@ -106,11 +102,28 @@ namespace nap {
 			case CanvasMaterialTypes::WARP: {
 				materialItem = &mCanvasMaterialItems["warp"];
 				//create canvas warp material
-				//create material resource
 				materialItem->mMaterialInstResource = new MaterialInstanceResource();
 				materialItem->mMaterialInstResource->mBlendMode = EBlendMode::AlphaBlend;
 				materialItem->mMaterialInstResource->mDepthMode = EDepthMode::NoReadWrite;
 				materialItem->mMaterial = mRenderService->getOrCreateMaterial<CanvasWarpShader>(error);
+				break;
+			}
+			case CanvasMaterialTypes::INTERFACE: {
+				materialItem = &mCanvasMaterialItems["interface"];
+				//create canvas mask material
+				materialItem->mMaterialInstResource = new MaterialInstanceResource();
+				materialItem->mMaterialInstResource->mBlendMode = EBlendMode::AlphaBlend;
+				materialItem->mMaterialInstResource->mDepthMode = EDepthMode::NoReadWrite;
+				materialItem->mMaterial = mRenderService->getOrCreateMaterial<CanvasInterfaceShader>(error);
+				break;
+			}
+			case CanvasMaterialTypes::MASK: {
+				materialItem = &mCanvasMaterialItems["mask"];
+				//create canvas mask material
+				materialItem->mMaterialInstResource = new MaterialInstanceResource();
+				materialItem->mMaterialInstResource->mBlendMode = EBlendMode::AlphaBlend;
+				materialItem->mMaterialInstResource->mDepthMode = EDepthMode::NoReadWrite;
+				materialItem->mMaterial = mRenderService->getOrCreateMaterial<MaskShader>(error);
 				break;
 			}
 			default:
@@ -135,15 +148,15 @@ namespace nap {
 			this->mID.c_str(), uniform::mvpStruct, materialItem->mMaterial->mID.c_str()))
 			return false;
 		// Get all matrices
-		materialItem->mModelMatrixUniform = ensureUniformMat4(uniform::modelMatrix, *materialItem, error);
-		materialItem->mProjectMatrixUniform = ensureUniformMat4(uniform::projectionMatrix, *materialItem, error);
-		materialItem->mViewMatrixUniform = ensureUniformMat4(uniform::viewMatrix, *materialItem, error);
+		materialItem->mModelMatrixUniform = ensureUniformMat4InMvpStruct(uniform::modelMatrix, *materialItem, error);
+		materialItem->mProjectMatrixUniform = ensureUniformMat4InMvpStruct(uniform::projectionMatrix, *materialItem, error);
+		materialItem->mViewMatrixUniform = ensureUniformMat4InMvpStruct(uniform::viewMatrix, *materialItem, error);
 
 		if (materialItem->mModelMatrixUniform == nullptr || materialItem->mProjectMatrixUniform == nullptr || materialItem->mViewMatrixUniform == nullptr) {
 			return false;
 		}
 
-		//sampler definitions
+		//sampler and uniform definitions
 		switch (type) {
 			case CanvasMaterialTypes::VIDEO: {
 				materialItem->mSamplers["YSampler"] = ensureSampler(uniform::video::sampler::YSampler, *materialItem, error);
@@ -169,6 +182,26 @@ namespace nap {
 				ensureUniformVec3(uniform::canvaswarp::bottomRight, *materialItem, error);
 				break;
 			}
+			case CanvasMaterialTypes::INTERFACE: {
+				materialItem->mSamplers["inTextureSampler"] = ensureSampler(uniform::canvasinterface::sampler::inTexture, *materialItem, error);
+				if (materialItem->mSamplers["inTextureSampler"] == nullptr)
+					return false;
+				materialItem->mUBO = materialItem->mMaterialInstance->getOrCreateUniform(uniform::canvasinterface::uboStructInterface);
+				if (!error.check(materialItem->mUBO != nullptr, "%s: Unable to find UBO struct: %s in material: %s",
+					this->mID.c_str(), uniform::canvaswarp::uboStructWarp, materialItem->mMaterial->mID.c_str()))
+					return false;
+				// create all offset uniforms
+				ensureUniformFloat(uniform::canvasinterface::frameThickness, *materialItem, error);
+				ensureUniformVec3(uniform::canvasinterface::mousePos, *materialItem, error);
+				break;
+			}
+			case CanvasMaterialTypes::MASK: {
+				materialItem->mSamplers["inTextureSampler"] = ensureSampler(uniform::mask::sampler::inTexture, *materialItem, error);
+				materialItem->mSamplers["maskSampler"] = ensureSampler(uniform::mask::sampler::maskTexture, *materialItem, error);
+				if (materialItem->mSamplers["inTextureSampler"] == nullptr || materialItem->mSamplers["maskSampler"] == nullptr)
+					return false;
+				break;
+			}
 			default:
 			{
 				nap::Logger::info("Unspecified shader in Canvas::constructMaterialInstance");
@@ -178,7 +211,7 @@ namespace nap {
 
 	}
 
-	nap::UniformMat4Instance* Canvas::ensureUniformMat4(const std::string& uniformName, CanvasMaterialItem& materialItem, utility::ErrorState& error)
+	nap::UniformMat4Instance* Canvas::ensureUniformMat4InMvpStruct(const std::string& uniformName, CanvasMaterialItem& materialItem, utility::ErrorState& error)
 	{
 		assert(mMVPStruct != nullptr);
 		UniformMat4Instance* found_uniform = materialItem.mMVPStruct->getOrCreateUniform<UniformMat4Instance>(uniformName);
@@ -193,6 +226,17 @@ namespace nap {
 	{
 		assert(mUBO != nullptr);
 		UniformVec3Instance* found_uniform = materialItem.mUBO->getOrCreateUniform<UniformVec3Instance>(uniformName);
+		if (!error.check(found_uniform != nullptr,
+			"%s: unable to find uniform: %s in material: %s", this->mID.c_str(), uniformName.c_str(),
+			materialItem.mMaterial->mID.c_str()))
+			return nullptr;
+		return found_uniform;
+	}
+
+	nap::UniformFloatInstance* Canvas::ensureUniformFloat(const std::string& uniformName, CanvasMaterialItem& materialItem, utility::ErrorState& error)
+	{
+		assert(mUBO != nullptr);
+		UniformFloatInstance* found_uniform = materialItem.mUBO->getOrCreateUniform<UniformFloatInstance>(uniformName);
 		if (!error.check(found_uniform != nullptr,
 			"%s: unable to find uniform: %s in material: %s", this->mID.c_str(), uniformName.c_str(),
 			materialItem.mMaterial->mID.c_str()))

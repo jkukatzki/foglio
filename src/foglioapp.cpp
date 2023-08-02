@@ -184,30 +184,9 @@ namespace nap
 		ImGui::Text(getCurrentDateTime().toString().c_str());
 		ImGui::Text(utility::stringFormat("Framerate: %.02f", getCore().getFramerate()).c_str());
 
-		if (ImGui::CollapsingHeader("Canvas Overview"))
-		{
-			for (EntityInstance* canvasEntity : mVideoWallEntity->getChildren()) {
-				ImGui::Text("canvas!");
-				RenderCanvasComponentInstance& canvas_comp = canvasEntity->getComponent<RenderCanvasComponentInstance>();
-				TransformComponentInstance& canvas_transform_comp = canvasEntity->getComponent<TransformComponentInstance>();
-				Texture2D& canvas_tex = canvas_comp.getOutputTexture();
-				float col_width = ImGui::GetContentRegionAvailWidth();
-				float ratio_canvas_tex = static_cast<float>(canvas_tex.getWidth()) / static_cast<float>(canvas_tex.getHeight());
-				ImGui::Image(canvas_tex, { col_width , col_width / ratio_canvas_tex });
-				ImGui::Text(std::to_string(canvas_tex.getHeight()).c_str());
-				if (ImGui::CollapsingHeader("Playback"))
-				{
-					float current_time = canvas_comp.getVideoPlayer()->getCurrentTime();
-					if (ImGui::SliderFloat("Current Time", &current_time, 0.0f, canvas_comp.getVideoPlayer()->getDuration(), "%.3fs", 1.0f))
-						canvas_comp.getVideoPlayer()->seek(current_time);
-					ImGui::Text("Total time: %fs", canvas_comp.getVideoPlayer()->getDuration());
-
-					float current_pos_x = canvas_transform_comp.getTranslate().x;
-					if (ImGui::SliderFloat("offset x"+*canvasEntity->mID.c_str(), &current_pos_x, 0.0f, 100, "%.3fs", 1.0f))
-						canvas_transform_comp.setTranslate(glm::vec3(current_pos_x, 0.0f, 0.0f));
-				}
-			}
-		}
+		mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawOutliner();
+		
+		
 		ImGui::End();
 	}
 }

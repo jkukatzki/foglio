@@ -46,7 +46,7 @@ namespace nap
 
 		// Read vert shader file
 		std::string vert_source;
-		if (!errorState.check(utility::readFileToString(vertex_shader_path, vert_source, errorState), "Unable to read %s vertex shader file", "canvas"))
+		if (!errorState.check(utility::readFileToString(vertex_shader_path, vert_source, errorState), "Unable to read %s vertex shader file", shader::canvasinterface))
 			return false;
 
 		// Read frag shader file

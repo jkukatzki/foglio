@@ -21,7 +21,8 @@ namespace nap
 		{
 			namespace sampler
 			{
-				inline constexpr const char* MaskSampler = "maskTexture";	///< canvas shader mask sampler name
+				inline constexpr const char* maskTexture = "maskTexture";	///< canvas shader mask sampler name
+				inline constexpr const char* inTexture = "inTexture";
 			}
 
 
