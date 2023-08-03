@@ -112,10 +112,10 @@ namespace nap
 		if (mRenderService->beginRecording(*mMainWindow)) {
 			// Begin render pass
 			mMainWindow->beginRendering();
-			
-			
+
 			mRenderService->renderObjects(*mMainWindow, ortho_cam, canvas_mesh_components_to_render);
 			mGuiService->draw();
+
 			// End render pass
 			mMainWindow->endRendering();
 

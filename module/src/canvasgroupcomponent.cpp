@@ -80,10 +80,11 @@ namespace nap
 		ImGui::Image(canvas_tex, { col_width , col_width / ratio_canvas_tex });
 
 		float current_time = canvas_comp.getVideoPlayer()->getCurrentTime();
-		if (ImGui::SliderFloat("", &current_time, 0.0f, canvas_comp.getVideoPlayer()->getDuration(), "%.3fs", 1.0f))
+		if (ImGui::SliderFloat("", &current_time, 0.0f, canvas_comp.getCanvas()->mVideoPlayer->getDuration(), "%.3fs", 1.0f))
 			canvas_comp.getVideoPlayer()->seek(current_time);
 		ImGui::Text("Total time: %fs", canvas_comp.getVideoPlayer()->getDuration());
 		
+		ImGui::Text("Position");
 		glm::vec3 translate = canvas_transform_comp.getTranslate();
 		float tempXTransl = translate.x;
 		float tempYTransl = translate.y;
@@ -91,6 +92,22 @@ namespace nap
 		ImGui::DragFloat("Y", &tempYTransl, 0.01f, -1.0f, 1.0f, "%.3f", 1.0f);
 		if (translate.x != tempXTransl || translate.y != tempYTransl) {
 			canvas_transform_comp.setTranslate(glm::vec3(tempXTransl, tempYTransl, translate.z));
+		}
+		ImGui::Text("Scale");
+		glm::vec3 scale = canvas_transform_comp.getScale();
+		float tempXScale = scale.x;
+		float tempYScale = scale.y;
+		ImGui::DragFloat("X", &tempXTransl, 0.01f, 0.0f, 1.0f, "%.3f", 1.0f);
+		ImGui::DragFloat("Y", &tempYTransl, 0.01f, 0.0f, 1.0f, "%.3f", 1.0f);
+		if (scale.x != tempXScale || scale.y != tempYScale) {
+			canvas_transform_comp.setScale(glm::vec3(tempXScale, tempYScale, scale.z));
+		}
+		ImGui::Text("Rotation");
+		glm::quat rotation = canvas_transform_comp.getRotate();
+		float tempRot = rotation.z;
+		ImGui::DragFloat("Degrees", &tempRot, 0.01f, 0.0f, 360.0f, "%.3f", 1.0f);
+		if (rotation.z != tempRot) {
+			canvas_transform_comp.setRotate(glm::quat(rotation.x, rotation.y, 1.0, rotation.w));
 		}
 	}	
 

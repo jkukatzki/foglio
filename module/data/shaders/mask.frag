@@ -11,5 +11,6 @@ out vec4 out_Color;
 
 void main() 
 {
-	out_Color = vec4(texture(inTexture, pass_Uvs.xy).xyz, texture(maskTexture, vec2(pass_Uvs.x, pass_Uvs.y)).w);
+	vec4 myTexture = texture(inTexture, vec2(pass_Uvs.x, pass_Uvs.y));
+	out_Color = vec4(myTexture.xyz, texture(maskTexture, vec2(pass_Uvs.x, pass_Uvs.y)).w);
 }

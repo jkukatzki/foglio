@@ -24,7 +24,8 @@ namespace nap {
 	Canvas::Canvas(Core& core) :
 		mRenderService(core.getService<RenderService>()),
 		mPlane(new PlaneMesh(core)),
-		mOutputTexture(new RenderTexture2D(core))
+		mOutputTexture(new RenderTexture2D(core)),
+		mOutputRenderTarget(new RenderTarget(core))
 	{
 	}
 
@@ -49,6 +50,12 @@ namespace nap {
 		mOutputTexture->mFormat = RenderTexture2D::EFormat::RGBA8;
 		if (!mOutputTexture->init(errorState))
 			return false;
+		mOutputRenderTarget->mClearColor = RGBAColor8(255, 255, 255, 0).convert<RGBAColorFloat>();
+		mOutputRenderTarget->mColorTexture = mOutputTexture;
+		mOutputRenderTarget->mSampleShading = true;
+		mOutputRenderTarget->mRequestedSamples = ERasterizationSamples::One;
+		if (!mOutputRenderTarget->init(errorState))
+			return false;
 		// Now create a plane and initialize it
 		// The plane is positioned on update based on current texture output size and transform component
 		mPlane->mSize = glm::vec2(1.0f, 1.0f);
@@ -65,7 +72,7 @@ namespace nap {
 		mCornerOffsetAttribute->addData(mCornerOffsets[1]);
 		mCornerOffsetAttribute->addData(mCornerOffsets[2]);
 		mCornerOffsetAttribute->addData(mCornerOffsets[3]);***/
-
+		
 		// hint: insert could be operator[] for this map since we're using a default constructor for CanvasMaterialItem
 		mCanvasMaterialItems.insert(std::pair<std::string, CanvasMaterialItem>("video", CanvasMaterialItem()));
 		constructMaterialInstance(CanvasMaterialTypes::VIDEO, errorState);
@@ -74,6 +81,7 @@ namespace nap {
 		mCanvasMaterialItems.insert(std::pair<std::string, CanvasMaterialItem>("interface", CanvasMaterialItem()));
 		constructMaterialInstance(CanvasMaterialTypes::INTERFACE, errorState);
 		if (mMaskImage.get() != nullptr) {
+			mMaskImage.get()->init(errorState);
 			mCanvasMaterialItems.insert(std::pair<std::string, CanvasMaterialItem>("mask", CanvasMaterialItem()));
 			constructMaterialInstance(CanvasMaterialTypes::MASK, errorState);
 			mCanvasMaterialItems["mask"].mSamplers["inTextureSampler"]->setTexture(*mOutputTexture.get());
@@ -158,6 +166,7 @@ namespace nap {
 
 		//sampler and uniform definitions
 		switch (type) {
+
 			case CanvasMaterialTypes::VIDEO: {
 				materialItem->mSamplers["YSampler"] = ensureSampler(uniform::video::sampler::YSampler, *materialItem, error);
 				materialItem->mSamplers["USampler"] = ensureSampler(uniform::video::sampler::USampler, *materialItem, error);
@@ -166,6 +175,7 @@ namespace nap {
 					return false;
 				break;
 			}
+
 			case CanvasMaterialTypes::WARP: {
 				materialItem->mSamplers["inTextureSampler"] = ensureSampler(uniform::canvaswarp::sampler::inTexture, *materialItem, error);
 				if (materialItem->mSamplers["inTextureSampler"] == nullptr)
@@ -182,6 +192,7 @@ namespace nap {
 				ensureUniformVec3(uniform::canvaswarp::bottomRight, *materialItem, error);
 				break;
 			}
+
 			case CanvasMaterialTypes::INTERFACE: {
 				materialItem->mSamplers["inTextureSampler"] = ensureSampler(uniform::canvasinterface::sampler::inTexture, *materialItem, error);
 				if (materialItem->mSamplers["inTextureSampler"] == nullptr)
@@ -195,6 +206,7 @@ namespace nap {
 				ensureUniformVec3(uniform::canvasinterface::mousePos, *materialItem, error);
 				break;
 			}
+
 			case CanvasMaterialTypes::MASK: {
 				materialItem->mSamplers["inTextureSampler"] = ensureSampler(uniform::mask::sampler::inTexture, *materialItem, error);
 				materialItem->mSamplers["maskSampler"] = ensureSampler(uniform::mask::sampler::maskTexture, *materialItem, error);
@@ -202,6 +214,7 @@ namespace nap {
 					return false;
 				break;
 			}
+
 			default:
 			{
 				nap::Logger::info("Unspecified shader in Canvas::constructMaterialInstance");

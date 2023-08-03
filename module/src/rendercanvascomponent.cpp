@@ -1,5 +1,6 @@
 #include "rendercanvascomponent.h"
 #include "canvaswarpshader.h"
+#include "canvasinterfaceshader.h"
 
 #include <entity.h>
 #include <orthocameracomponent.h>
@@ -31,72 +32,82 @@ namespace nap
 
 	RenderCanvasComponentInstance::RenderCanvasComponentInstance(EntityInstance& entity, Component& resource) :
 		RenderableComponentInstance(entity, resource),
-		mTarget(*entity.getCore()),
-		mPlane(new PlaneMesh(*entity.getCore())),
-		mCanvasOutputMaterial(new Material(*entity.getCore()))
+		mPlane(new PlaneMesh(*entity.getCore()))
 	{ }
 
 
 
 	nap::Texture2D& RenderCanvasComponentInstance::getOutputTexture()
 	{
-		return mTarget.getColorTexture();
+		return *mCanvas->getOutputTexture();
 	}
 
 	nap::VideoPlayer* RenderCanvasComponentInstance::getVideoPlayer()
 	{
-		return mPlayer;
+		return mCanvas->mVideoPlayer.get();
 	}
 
 	bool RenderCanvasComponentInstance::init(utility::ErrorState& errorState)
 	{
-		mTransformComponent = getEntityInstance()->findComponent<TransformComponentInstance>();
-		mTransformComponent = getEntityInstance()->findComponent<TransformComponentInstance>();
 		if (!RenderableComponentInstance::init(errorState))
 			return false;
 		// Get resource
 		RenderCanvasComponent* resource = getComponent<RenderCanvasComponent>();
-
+		mTransformComponent = getEntityInstance()->findComponent<TransformComponentInstance>();
 		// Now create a plane and initialize it
 		// The plane is positioned on update based on current texture output size and transform component
 		mCanvas = resource->mCanvas.get();
 		if (!errorState.check(mCanvas != nullptr, "unable to find canvas resource in: %s", getEntityInstance()->mID))
 			return false;
+		//TODO: can this canvas init be removed?
 		if (!errorState.check(mCanvas->init(errorState), "%s: unable to init canvas resource", resource->mID.c_str()))
 			return false;
 
+		// Setup double buffer target for internal render
+		for (int target_idx = 0; target_idx < 2; target_idx++)
+		{
+			auto tex = getEntityInstance()->getCore()->getResourceManager()->createObject<RenderTexture2D>();
+			ResourcePtr<RenderTexture2D> outputTexRef = mCanvas->getOutputTexture();
+			tex->mWidth = outputTexRef->mWidth;
+			tex->mHeight = outputTexRef->mHeight;
+			tex->mFormat = outputTexRef->mFormat;
+			tex->mUsage = ETextureUsage::Static;
+			if (!tex->init(errorState))
+			{
+				errorState.fail("%s: Failed to initialize internal render texture", tex->mID.c_str());
+				return false;
+			}
 
-		// Extract player
-		mPlayer = resource->mCanvas->mVideoPlayer.get();
-		if (!errorState.check(mPlayer != nullptr, "%s: no video player", resource->mID.c_str()))
-			return false;
-		// Setup output texture
+			auto target = getEntityInstance()->getCore()->getResourceManager()->createObject<RenderTarget>();
+			target->mColorTexture = tex;
+			target->mClearColor = RGBAColor8(255, 0, 0, 255).convert<RGBAColorFloat>();
+			target->mSampleShading = false;
+			target->mRequestedSamples = ERasterizationSamples::One;
+			if (!target->init(errorState))
+			{
+				errorState.fail("%s: Failed to initialize internal render target", target->mID.c_str());
+				return false;
+			}
 
-		mOutputTexture = mCanvas->getOutputTexture();
-		// Setup render target and initialize
-		mTarget.mClearColor = RGBAColor8(255, 255, 255, 255).convert<RGBAColorFloat>();
-		mTarget.mColorTexture = mOutputTexture;
-		mTarget.mSampleShading = true;
-		mTarget.mRequestedSamples = ERasterizationSamples::One;
-		if (!mTarget.init(errorState))
-			return false;
+			mDoubleBufferTarget[target_idx] = target;
+		}
+
 		// Extract render service
 		mRenderService = getEntityInstance()->getCore()->getService<RenderService>();
 		assert(mRenderService != nullptr);
 
-
-
-
 		//canvas_material->mVertexAttributeBindings = mCanvas->mMaterialWithBindings->mVertexAttributeBindings;
-
+		
+		// TODO: move these renderable mesh creations into canvas resource?
 		mHeadlessVideoMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh().get(), *mCanvas->mCanvasMaterialItems["video"].mMaterialInstance, errorState);
 		mHeadlessInterfaceMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh().get(), *mCanvas->mCanvasMaterialItems["interface"].mMaterialInstance, errorState);
 		try {
 			mCanvas->mCanvasMaterialItems.at("mask");
 			mHeadlessMaskMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh().get(), *mCanvas->mCanvasMaterialItems["mask"].mMaterialInstance, errorState);
+			if (!mHeadlessMaskMesh.isValid())
+				return false;
 		}
 		catch (const std::out_of_range& e) {
-			nap::Logger::info("no mask material item");
 		}
 		if (!mHeadlessVideoMesh.isValid() || !mHeadlessInterfaceMesh.isValid())
 			return false;
@@ -108,7 +119,8 @@ namespace nap
 		mCanvas->mCanvasMaterialItems["warp"].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvaswarp::topRight)->setValue(resource->mCornerOffsets[1]);
 		mCanvas->mCanvasMaterialItems["warp"].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvaswarp::bottomLeft)->setValue(resource->mCornerOffsets[2]);
 		mCanvas->mCanvasMaterialItems["warp"].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvaswarp::bottomRight)->setValue(resource->mCornerOffsets[3]);
-
+		mCanvas->mCanvasMaterialItems["interface"].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvasinterface::mousePos)->setValue(glm::vec3());
+		mCanvas->mCanvasMaterialItems["interface"].mUBO->getOrCreateUniform<UniformFloatInstance>(uniform::canvasinterface::frameThickness)->setValue(0.05);
 		//TODO: put this in canvas resource or canvasgroup
 		// Listen to video selection changes
 		//mPlayer->VideoChanged.connect(mVideoChangedSlot);
@@ -122,12 +134,27 @@ namespace nap
 	}
 
 	void RenderCanvasComponentInstance::drawAllHeadlessPasses() {
+		if (mHeadlessMaskMesh.isValid()) {
+			mCurrentInternalRT = mDoubleBufferTarget[0];
+		}
+		else {
+			mCurrentInternalRT = mCanvas->mOutputRenderTarget;
+		}	
 		drawHeadlessPass(Canvas::CanvasMaterialTypes::VIDEO);
 		if (mHeadlessMaskMesh.isValid()) {
+			mCanvas->mCanvasMaterialItems["mask"].mSamplers["inTextureSampler"]->setTexture(*mCurrentInternalRT->mColorTexture);
+			mCurrentInternalRT = mCanvas->mOutputRenderTarget;
 			drawHeadlessPass(Canvas::CanvasMaterialTypes::MASK);
 		}
+		mCanvas->mCanvasMaterialItems["warp"].mSamplers["inTextureSampler"]->setTexture(*mCanvas->getOutputTexture());
 	}
 
+	void RenderCanvasComponentInstance::drawAndSetTextureInterface() {
+		mCanvas->mCanvasMaterialItems["interface"].mSamplers["inTextureSampler"]->setTexture(*mCanvas->mOutputRenderTarget->mColorTexture);
+		mCurrentInternalRT = mDoubleBufferTarget[0];
+		drawHeadlessPass(Canvas::CanvasMaterialTypes::INTERFACE);
+		mCanvas->mCanvasMaterialItems["warp"].mSamplers["inTextureSampler"]->setTexture(*mCurrentInternalRT->mColorTexture);
+	}
 
 	void RenderCanvasComponentInstance::draw(RenderableMesh renderableMesh, const DescriptorSet* descriptor_set)
 	{
@@ -135,7 +162,7 @@ namespace nap
 		VkCommandBuffer command_buffer = mRenderService->getCurrentCommandBuffer();
 
 		//begin headless rendering
-		mTarget.beginRendering();
+		mCurrentInternalRT->beginRendering();
 
 		// Gather draw info
 		MeshInstance& mesh_instance = renderableMesh.getMesh().getMeshInstance();
@@ -143,7 +170,7 @@ namespace nap
 
 		// Get pipeline to to render with
 		utility::ErrorState error_state;
-		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(mTarget, renderableMesh.getMesh(), renderableMesh.getMaterialInstance(), error_state);
+		RenderService::Pipeline pipeline = mRenderService->getOrCreatePipeline(*mCurrentInternalRT, renderableMesh.getMesh(), renderableMesh.getMaterialInstance(), error_state);
 		vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mPipeline);
 		vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.mLayout, 0, 1, &descriptor_set->mSet, 0, nullptr);
 
@@ -159,13 +186,13 @@ namespace nap
 			vkCmdDrawIndexed(command_buffer, index_buffer.getCount(), 1, 0, 0, 0);
 		}
 
-		mTarget.endRendering();
+		mCurrentInternalRT->endRendering();
 	}
 
 	void RenderCanvasComponentInstance::drawHeadlessPass(Canvas::CanvasMaterialTypes type)
 	{
 		// Create orthographic projection matrix
-		glm::ivec2 size = mTarget.getBufferSize();
+		glm::ivec2 size = mCurrentInternalRT->getBufferSize();
 		glm::mat4 proj_matrix = OrthoCameraComponentInstance::createRenderProjectionMatrix(0.0f, (float)size.x, 0.0f, (float)size.y);
 		// Update the model matrix so that the plane mesh is of the same size as the render target
 		// maybe do this only on update and store in member when window is resized for example to prevent unnecessary calculations
@@ -191,6 +218,16 @@ namespace nap
 				draw(mHeadlessMaskMesh, descriptor_set);
 				break;
 			}
+			case Canvas::CanvasMaterialTypes::INTERFACE: {
+				// Update matrices, projection and model are required
+				mCanvas->mCanvasMaterialItems["interface"].mModelMatrixUniform->setValue(mModelMatrix);
+				mCanvas->mCanvasMaterialItems["interface"].mProjectMatrixUniform->setValue(proj_matrix);
+				mCanvas->mCanvasMaterialItems["interface"].mViewMatrixUniform->setValue(glm::mat4());
+				//get descriptor set
+				const DescriptorSet* descriptor_set = &mCanvas->mCanvasMaterialItems["interface"].mMaterialInstance->update();
+				draw(mHeadlessInterfaceMesh, descriptor_set);
+				break;
+			}
 			default: {
 				break;
 			}
@@ -200,8 +237,8 @@ namespace nap
 
 	void RenderCanvasComponentInstance::onDraw(IRenderTarget& renderTarget, VkCommandBuffer commandBuffer, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 	{
-		// compute the model matrix with aspect ratio calculated with mOutputTexture and size and position with mTransformComponent
-		computeModelMatrix(renderTarget, mModelMatrix, mOutputTexture, mTransformComponent);
+		// compute the model matrix with aspect ratio calculated with outputTexture and size and position with mTransformComponent
+		computeModelMatrix(renderTarget, mModelMatrix, mCanvas->getOutputTexture(), mTransformComponent);
 		mCanvas->mCanvasMaterialItems["warp"].mModelMatrixUniform->setValue(mModelMatrix);
 
 		// Update matrices, projection and model are required
@@ -242,7 +279,7 @@ namespace nap
 	void RenderCanvasComponentInstance::computeModelMatrixFullscreen(glm::mat4& outMatrix) {
 		//aspect ratio should be right because we set mTarget textures height and width to video players?
 		// Transform to middle of target
-		glm::ivec2 tex_size = mTarget.getBufferSize();
+		glm::ivec2 tex_size = mCurrentInternalRT->getBufferSize();
 		outMatrix = glm::translate(glm::mat4(), glm::vec3(
 			tex_size.x / 2.0f,
 			tex_size.y / 2.0f,
@@ -277,33 +314,9 @@ namespace nap
 			tex_size.y = tex_size.x / canvas_ratio;
 		}
 
-
 		outMatrix = glm::scale(outMatrix, glm::vec3(tex_size.x * scale.x, tex_size.y * scale.y, 1.0f));
+		//outMatrix = glm::rotate(outMatrix, transform_comp->getRotate());
 
 	}
-
-
-
-	nap::UniformMat4Instance* RenderCanvasComponentInstance::ensureUniform(const std::string& uniformName, utility::ErrorState& error)
-	{
-		assert(mMVPStruct != nullptr);
-		UniformMat4Instance* found_uniform = mMVPStruct->getOrCreateUniform<UniformMat4Instance>(uniformName);
-		if (!error.check(found_uniform != nullptr,
-			"%s: unable to find uniform: %s in material: %s", this->mID.c_str(), uniformName.c_str(),
-			mOutputMaterialInstance.getMaterial().mID.c_str()))
-			return nullptr;
-		return found_uniform;
-	}
-
-	nap::Sampler2DInstance* RenderCanvasComponentInstance::ensureSampler(const std::string& samplerName, utility::ErrorState& error)
-	{
-		Sampler2DInstance* found_sampler = mOutputMaterialInstance.getOrCreateSampler<Sampler2DInstance>(samplerName);
-		if (!error.check(found_sampler != nullptr,
-			"%s: unable to find sampler: %s in material: %s", this->mID.c_str(), samplerName.c_str(),
-			mOutputMaterialInstance.getMaterial().mID.c_str()))
-			return nullptr;
-		return found_sampler;
-	}
-
 
 }

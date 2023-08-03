@@ -57,6 +57,8 @@ namespace nap
 
 		void drawAllHeadlessPasses();
 
+		void drawAndSetTextureInterface();
+
 		void computeModelMatrix(const nap::IRenderTarget& target, glm::mat4& outMatrix, ResourcePtr<RenderTexture2D> canvas_output_texture, TransformComponentInstance* transform_comp);
 
 		void computeModelMatrixFullscreen(glm::mat4& outMatrix);
@@ -66,17 +68,14 @@ namespace nap
 		virtual void onDraw(IRenderTarget& renderTarget, VkCommandBuffer commandBuffer, const glm::mat4& viewmatrix, const glm::mat4& projectionMatrix) override;
 
 	private:
+		using DoubleBufferedRenderTarget = std::array<rtti::ObjectPtr<RenderTarget>, 2>;
+
 		Canvas*							mCanvas = nullptr;
-		VideoPlayer*					mPlayer = nullptr;
-		Texture2D*						mMask = nullptr;
-		RenderTarget					mTarget;
-		ResourcePtr<RenderTexture2D>	mOutputTexture = nullptr;
 		
+		DoubleBufferedRenderTarget		mDoubleBufferTarget;
+		rtti::ObjectPtr<RenderTarget>	mCurrentInternalRT;
 		PlaneMesh*						mCanvasPlane;
 		PlaneMesh*						mPlane;
-		Material*						mCanvasOutputMaterial;
-		MaterialInstance				mOutputMaterialInstance;
-		MaterialInstanceResource		mOutputMaterialInstResource;
 		RenderableMesh					mRenderableOutputMesh;
 		RenderableMesh					mHeadlessVideoMesh;
 		RenderableMesh					mHeadlessInterfaceMesh;
@@ -88,24 +87,7 @@ namespace nap
 
 		Vec3VertexAttribute*		mOffsetVec3Uniform = nullptr;
 
-		UniformMat4Instance*		mModelMatrixUniform = nullptr;
-		UniformMat4Instance*		mProjectMatrixUniform = nullptr;
-		UniformMat4Instance*		mViewMatrixUniform = nullptr;
-		UniformStructInstance*		mMVPStruct = nullptr;
-
-		Sampler2DInstance*			mYSampler = nullptr;
-		Sampler2DInstance*			mUSampler = nullptr;
-		Sampler2DInstance*			mVSampler = nullptr;
-
-		Sampler2DInstance*			mMaskSampler = nullptr;
 		glm::mat4x4					mModelMatrix;
-
-
-
-		UniformMat4Instance* ensureUniform(const std::string& uniformName, utility::ErrorState& error);
-
-		Sampler2DInstance* ensureSampler(const std::string& samplerName, utility::ErrorState& error);
-
 
 		//nap::Slot<VideoPlayer&> mVideoChangedSlot = { this, &RenderCanvasComponentInstance::videoChanged };
 

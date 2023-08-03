@@ -53,11 +53,12 @@ namespace nap
 		ResourcePtr<VideoPlayer>		mVideoPlayer;
 		ResourcePtr<ImageFromFile>		mMaskImage;
 
+		ResourcePtr<RenderTarget>		mOutputRenderTarget;
 		std::map<std::string, CanvasMaterialItem> mCanvasMaterialItems;
 
 		//VIDEO: handles video texture and converts yuv color to rgb
-		//CANVASMASK: sets mMaskImage as sample texture and sets textures transparency corresponding to image
-		//CANVASOUTPUT: this renders the canvas for the main output window, holds vertex shader that offsets corners
+		//MASK: sets mMaskImage as sample texture and sets textures transparency corresponding to image
+		//WARP: this renders the canvas for the main output window, holds vertex shader that offsets corners
 		//CANVASUI: draws outline of plane onto texture //TODO: maybe add a new mOutputTexture for this?
 		enum class CanvasMaterialTypes
 		{
@@ -68,9 +69,6 @@ namespace nap
 		ResourcePtr<RenderTexture2D>		mOutputTexture;
 		ResourcePtr<PlaneMesh>				mPlane;
 		RenderService*						mRenderService;
-
-		//nap::VertexAttribute<glm::vec3>*	mCornerOffsetAttribute;
-
 
 		UniformMat4Instance* ensureUniformMat4InMvpStruct(const std::string& uniformName, CanvasMaterialItem& materialItem, utility::ErrorState& error);
 
