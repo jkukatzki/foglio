@@ -97,8 +97,8 @@ namespace nap
 		glm::vec3 scale = canvas_transform_comp.getScale();
 		float tempXScale = scale.x;
 		float tempYScale = scale.y;
-		ImGui::DragFloat("X", &tempXTransl, 0.01f, 0.0f, 1.0f, "%.3f", 1.0f);
-		ImGui::DragFloat("Y", &tempYTransl, 0.01f, 0.0f, 1.0f, "%.3f", 1.0f);
+		ImGui::DragFloat("X##scale", &tempXScale, 0.01f, 0.0f, 1.0f, "%.3f", 1.0f);
+		ImGui::DragFloat("Y##scale", &tempYScale, 0.01f, 0.0f, 1.0f, "%.3f", 1.0f);
 		if (scale.x != tempXScale || scale.y != tempYScale) {
 			canvas_transform_comp.setScale(glm::vec3(tempXScale, tempYScale, scale.z));
 		}
