@@ -1,5 +1,5 @@
 # foglio
-foglio is a solution for arranging and manipulating multiple planes playing videos or shaders.
+foglio is a solution for arranging and manipulating multiple planes playing videos or drawing GLSL shaders.
 
 It is based on the [NAP Framework](https://github.com/napframework/nap). A platform for visualization.
 
