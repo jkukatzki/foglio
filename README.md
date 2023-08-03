@@ -1,5 +1,6 @@
 # foglio
 foglio is a solution for arranging and manipulating multiple planes playing videos or shaders.
+
 It is based on the [NAP Framework](https://github.com/napframework/nap)
 The advantages compared to doing this in a game engine such as Unity or a streaming software like OBS are:
   - low overhead
