@@ -16,9 +16,6 @@
 
 // nap::rendercanvascomponent run time class definition
 RTTI_BEGIN_CLASS(nap::RenderCanvasComponent)
-RTTI_PROPERTY("VideoPlayer", &nap::RenderCanvasComponent::mVideoPlayer, nap::rtti::EPropertyMetaData::Required)
-RTTI_PROPERTY("MaskImage", &nap::RenderCanvasComponent::mMaskImage, nap::rtti::EPropertyMetaData::Default)
-RTTI_PROPERTY("Index", &nap::RenderCanvasComponent::mVideoIndex, nap::rtti::EPropertyMetaData::Default)
 RTTI_PROPERTY("Canvas", &nap::RenderCanvasComponent::mCanvas, nap::rtti::EPropertyMetaData::Default)
 RTTI_PROPERTY("CornerOffsets", &nap::RenderCanvasComponent::mCornerOffsets, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
@@ -80,7 +77,7 @@ namespace nap
 
 			auto target = getEntityInstance()->getCore()->getResourceManager()->createObject<RenderTarget>();
 			target->mColorTexture = tex;
-			target->mClearColor = RGBAColor8(255, 0, 0, 255).convert<RGBAColorFloat>();
+			target->mClearColor = RGBAColor8(255, 255, 255, 0).convert<RGBAColorFloat>();
 			target->mSampleShading = false;
 			target->mRequestedSamples = ERasterizationSamples::One;
 			if (!target->init(errorState))
@@ -101,6 +98,8 @@ namespace nap
 		// TODO: move these renderable mesh creations into canvas resource?
 		mHeadlessVideoMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh().get(), *mCanvas->mCanvasMaterialItems["video"].mMaterialInstance, errorState);
 		mHeadlessInterfaceMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh().get(), *mCanvas->mCanvasMaterialItems["interface"].mMaterialInstance, errorState);
+		if (!mHeadlessVideoMesh.isValid() || !mHeadlessInterfaceMesh.isValid())
+			return false;
 		try {
 			mCanvas->mCanvasMaterialItems.at("mask");
 			mHeadlessMaskMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh().get(), *mCanvas->mCanvasMaterialItems["mask"].mMaterialInstance, errorState);
@@ -109,27 +108,21 @@ namespace nap
 		}
 		catch (const std::out_of_range& e) {
 		}
-		if (!mHeadlessVideoMesh.isValid() || !mHeadlessInterfaceMesh.isValid())
-			return false;
-		// Create the renderable mesh, which represents a valid mesh / material combination
+		
+		// Create the renderable for the final headless material output
 		mRenderableOutputMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh().get(), *mCanvas->mCanvasMaterialItems["warp"].mMaterialInstance, errorState);
 		if (!mRenderableOutputMesh.isValid())
 			return false;
-		mCanvas->mCanvasMaterialItems["warp"].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvaswarp::topLeft)->setValue(resource->mCornerOffsets[0]);
-		mCanvas->mCanvasMaterialItems["warp"].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvaswarp::topRight)->setValue(resource->mCornerOffsets[1]);
-		mCanvas->mCanvasMaterialItems["warp"].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvaswarp::bottomLeft)->setValue(resource->mCornerOffsets[2]);
-		mCanvas->mCanvasMaterialItems["warp"].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvaswarp::bottomRight)->setValue(resource->mCornerOffsets[3]);
+		mCornerOffsets = resource->mCornerOffsets;
+		setWarpCornerUniforms();
 		mCanvas->mCanvasMaterialItems["interface"].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvasinterface::mousePos)->setValue(glm::vec3());
-		mCanvas->mCanvasMaterialItems["interface"].mUBO->getOrCreateUniform<UniformFloatInstance>(uniform::canvasinterface::frameThickness)->setValue(0.05);
+		mCanvas->mCanvasMaterialItems["interface"].mUBO->getOrCreateUniform<UniformFloatInstance>(uniform::canvasinterface::frameThickness)->setValue(0.01);
 		//TODO: put this in canvas resource or canvasgroup
 		// Listen to video selection changes
 		//mPlayer->VideoChanged.connect(mVideoChangedSlot);
-
 		//videoChanged(*mPlayer);
 
 		return true;
-
-
 
 	}
 
@@ -149,7 +142,8 @@ namespace nap
 		mCanvas->mCanvasMaterialItems["warp"].mSamplers["inTextureSampler"]->setTexture(*mCanvas->getOutputTexture());
 	}
 
-	void RenderCanvasComponentInstance::drawAndSetTextureInterface() {
+	void RenderCanvasComponentInstance::drawAndSetTextureInterface()
+	{
 		mCanvas->mCanvasMaterialItems["interface"].mSamplers["inTextureSampler"]->setTexture(*mCanvas->mOutputRenderTarget->mColorTexture);
 		mCurrentInternalRT = mDoubleBufferTarget[0];
 		drawHeadlessPass(Canvas::CanvasMaterialTypes::INTERFACE);
@@ -317,6 +311,21 @@ namespace nap
 		outMatrix = glm::scale(outMatrix, glm::vec3(tex_size.x * scale.x, tex_size.y * scale.y, 1.0f));
 		//outMatrix = glm::rotate(outMatrix, transform_comp->getRotate());
 
+	}
+
+	void RenderCanvasComponentInstance::setCornerOffsets(std::vector<glm::vec2> offsets) {
+		mCornerOffsets[0] = offsets[0];
+		mCornerOffsets[1] = offsets[1];
+		mCornerOffsets[2] = offsets[2];
+		mCornerOffsets[2] = offsets[3];
+		setWarpCornerUniforms();
+	}
+
+	void RenderCanvasComponentInstance::setWarpCornerUniforms() {
+		mCanvas->mCanvasMaterialItems["warp"].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvaswarp::topLeft)->setValue(glm::vec3(mCornerOffsets[0].x, mCornerOffsets[0].y*(-1), 0));
+		mCanvas->mCanvasMaterialItems["warp"].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvaswarp::topRight)->setValue(glm::vec3(mCornerOffsets[1].x*(-1), mCornerOffsets[1].y*(-1), 0));
+		mCanvas->mCanvasMaterialItems["warp"].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvaswarp::bottomLeft)->setValue(glm::vec3(mCornerOffsets[2].x, mCornerOffsets[2].y, 0));
+		mCanvas->mCanvasMaterialItems["warp"].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvaswarp::bottomRight)->setValue(glm::vec3(mCornerOffsets[3].x*(-1), mCornerOffsets[3].y, 0));
 	}
 
 }

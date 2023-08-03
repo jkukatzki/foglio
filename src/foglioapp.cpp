@@ -123,7 +123,17 @@ namespace nap
 			mRenderService->endRecording();
 		}
 	
-		// for canvas in canvas_mesh_components: canvas.mRenderUITexture = true
+		if (mRenderService->beginHeadlessRecording())
+		{
+			EntityInstance* selected_canvas = canvasGroupComponent->getSelected();
+			if (selected_canvas != nullptr) {
+				selected_canvas->getComponent<RenderCanvasComponentInstance>().drawAndSetTextureInterface();
+			}
+			mRenderService->endHeadlessRecording();
+		}
+		
+		
+
 
 		if (mRenderService->beginRecording(*mControlsWindow)) {
 			// Begin render pass
@@ -162,7 +172,21 @@ namespace nap
 
 			// f is pressed, toggle full-screen
 			if (press_event->mKey == nap::EKeyCode::KEY_f && press_event->mWindow == mMainWindow->getNumber()) {
-				mMainWindow->toggleFullscreen();
+				if (!mFullscreen) {
+					mMainWindow->mBorderless = !&mMainWindow->mBorderless;
+					mMainWindow->setWidth(mRenderService->getDisplays()[0].getMax()[0]);
+					mMainWindow->setHeight(mRenderService->getDisplays()[0].getMax()[1]);
+					mMainWindow->setPosition(glm::vec2(0, 0));
+					mFullscreen = true;
+				}
+				else {
+					mMainWindow->mBorderless = !&mMainWindow->mBorderless;
+					mMainWindow->setWidth(mRenderService->getDisplays()[0].getMax()[0]/2);
+					mMainWindow->setHeight(mRenderService->getDisplays()[0].getMax()[1]/2);
+					mMainWindow->setPosition(glm::vec2(mRenderService->getDisplays()[0].getMax()[0] / 4, mRenderService->getDisplays()[0].getMax()[1] / 4));
+					mFullscreen = false;
+				}
+				
 			}
 		}
 		// Add event, so it can be forwarded on update

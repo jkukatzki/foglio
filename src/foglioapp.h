@@ -85,7 +85,8 @@ namespace nap
 		ObjectPtr<EntityInstance>	mOrthoCameraEntity = nullptr;
 		ObjectPtr<EntityInstance>	mGnomonEntity = nullptr;		///< Pointer to the entity that can render the gnomon
 		ObjectPtr<EntityInstance>	mVideoWallEntity = nullptr;
-
+		
+		bool						mFullscreen = false;
 
 		/**
 		 * Sets up the GUI every frame

@@ -29,10 +29,7 @@ namespace nap
 
 	public:
 		ResourcePtr<Canvas>				mCanvas = nullptr;
-		ResourcePtr<VideoPlayer>		mVideoPlayer = nullptr;
-		ResourcePtr<ImageFromFile>		mMaskImage = nullptr;
-		int								mVideoIndex = 0;
-		std::vector<glm::vec3>			mCornerOffsets = std::vector<glm::vec3>(4);
+		std::vector<glm::vec2>			mCornerOffsets = std::vector<glm::vec2>(4);
 	};
 
 	class NAPAPI RenderCanvasComponentInstance : public RenderableComponentInstance
@@ -50,6 +47,10 @@ namespace nap
 		VideoPlayer* getVideoPlayer();
 
 		Canvas* getCanvas() { return mCanvas; };
+
+		std::vector<glm::vec2>	getCornerOffsets() { return mCornerOffsets; }
+
+		void setCornerOffsets(std::vector<glm::vec2> offsets);
 
 		void draw(RenderableMesh mesh, const DescriptorSet* descriptor_set);
 
@@ -81,6 +82,8 @@ namespace nap
 		RenderableMesh					mHeadlessInterfaceMesh;
 		RenderableMesh					mHeadlessMaskMesh;
 		
+		std::vector<glm::vec2>			mCornerOffsets;
+
 		TransformComponentInstance*	mTransformComponent = nullptr;
 
 		RenderService*				mRenderService = nullptr;
@@ -88,6 +91,8 @@ namespace nap
 		Vec3VertexAttribute*		mOffsetVec3Uniform = nullptr;
 
 		glm::mat4x4					mModelMatrix;
+
+		void setWarpCornerUniforms();
 
 		//nap::Slot<VideoPlayer&> mVideoChangedSlot = { this, &RenderCanvasComponentInstance::videoChanged };
 

@@ -8,9 +8,6 @@
                     "Type": "nap::RenderCanvasComponent",
                     "mID": "Canvas",
                     "Visible": true,
-                    "VideoPlayer": "BackgroundVideoPlayer",
-                    "MaskImage": "FlowerMask",
-                    "Index": 0,
                     "Canvas": "Background",
                     "CornerOffsets": [
                         {
@@ -126,15 +123,69 @@
         },
         {
             "Type": "nap::Entity",
+            "mID": "ExamplePlaneEntity",
+            "Components": [
+                {
+                    "Type": "nap::RenderCanvasComponent",
+                    "mID": "ExamplePlaneCanvas",
+                    "Visible": true,
+                    "Canvas": "ExamplePlane",
+                    "CornerOffsets": [
+                        {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        }
+                    ]
+                },
+                {
+                    "Type": "nap::TransformComponent",
+                    "mID": "ExamplePlaneTransform",
+                    "Properties": {
+                        "Translate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Rotate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        },
+                        "UniformScale": 1.0
+                    }
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::Entity",
             "mID": "FlowerCanvasEntity",
             "Components": [
                 {
                     "Type": "nap::RenderCanvasComponent",
                     "mID": "FlowerCanvas",
                     "Visible": true,
-                    "VideoPlayer": "FlowerVideoPlayer",
-                    "MaskImage": "FlowerMask",
-                    "Index": 0,
                     "Canvas": "Flower",
                     "CornerOffsets": [
                         {
@@ -247,7 +298,8 @@
             ],
             "Children": [
                 "BackgroundCanvasEntity",
-                "FlowerCanvasEntity"
+                "FlowerCanvasEntity",
+                "ExamplePlaneEntity"
             ]
         },
         {
@@ -282,8 +334,8 @@
             "Visible": true,
             "SampleShading": true,
             "Title": "foglio",
-            "Width": 1280,
-            "Height": 720,
+            "Width": 1920,
+            "Height": 1080,
             "Mode": "Immediate",
             "ClearColor": {
                 "Values": [
@@ -315,6 +367,13 @@
                     "VideoPlayer": "FlowerVideoPlayer",
                     "MaskImage": "FlowerMask",
                     "Name": "Flower"
+                },
+                {
+                    "Type": "nap::Canvas",
+                    "mID": "ExamplePlane",
+                    "VideoPlayer": "ExamplePlaneVideoPlayer",
+                    "MaskImage": "",
+                    "Name": "ExamplePlane"
                 }
             ],
             "Children": []
@@ -360,6 +419,20 @@
                             "Type": "nap::VideoFile",
                             "mID": "uv_sphere",
                             "Path": "videos/flower/flower_uv_sphere_sine_1.1.mp4"
+                        }
+                    ],
+                    "VideoIndex": 0,
+                    "Speed": 1.0
+                },
+                {
+                    "Type": "nap::VideoPlayer",
+                    "mID": "ExamplePlaneVideoPlayer",
+                    "Loop": true,
+                    "VideoFiles": [
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "horse",
+                            "Path": "videos/some_plane/horse.mp4"
                         }
                     ],
                     "VideoIndex": 0,

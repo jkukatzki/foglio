@@ -84,12 +84,10 @@ namespace nap {
 			mMaskImage.get()->init(errorState);
 			mCanvasMaterialItems.insert(std::pair<std::string, CanvasMaterialItem>("mask", CanvasMaterialItem()));
 			constructMaterialInstance(CanvasMaterialTypes::MASK, errorState);
-			mCanvasMaterialItems["mask"].mSamplers["inTextureSampler"]->setTexture(*mOutputTexture.get());
 			mCanvasMaterialItems["mask"].mSamplers["maskSampler"]->setTexture(*mMaskImage.get());
 		}
 		
 		videoChanged(*mVideoPlayer);
-		mCanvasMaterialItems["warp"].mSamplers["inTextureSampler"]->setTexture(*mOutputTexture.get());
 
 		// init mPlane.mMeshInstance
 		return errorState.check(mPlane->getMeshInstance().init(errorState), "Unable to initialize canvas plane %s", mID.c_str());
@@ -102,7 +100,7 @@ namespace nap {
 				materialItem = &mCanvasMaterialItems["video"];
 				//create video material
 				materialItem->mMaterialInstResource = new MaterialInstanceResource();
-				materialItem->mMaterialInstResource->mBlendMode = EBlendMode::AlphaBlend;
+				materialItem->mMaterialInstResource->mBlendMode = EBlendMode::Opaque;
 				materialItem->mMaterialInstResource->mDepthMode = EDepthMode::NoReadWrite;
 				materialItem->mMaterial = mRenderService->getOrCreateMaterial<VideoShader>(error);
 				break;
@@ -201,7 +199,7 @@ namespace nap {
 				if (!error.check(materialItem->mUBO != nullptr, "%s: Unable to find UBO struct: %s in material: %s",
 					this->mID.c_str(), uniform::canvaswarp::uboStructWarp, materialItem->mMaterial->mID.c_str()))
 					return false;
-				// create all offset uniforms
+				// create uniforms
 				ensureUniformFloat(uniform::canvasinterface::frameThickness, *materialItem, error);
 				ensureUniformVec3(uniform::canvasinterface::mousePos, *materialItem, error);
 				break;

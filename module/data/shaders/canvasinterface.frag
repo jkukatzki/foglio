@@ -17,5 +17,7 @@ out vec4 out_Color;
 
 void main() 
 {
-	out_Color = texture(inTexture, vec2(pass_Uvs.x, pass_Uvs.y));
+	//out_Color = texture(inTexture, vec2(pass_Uvs.x, pass_Uvs.y));
+	out_Color = mix(texture(inTexture, vec2(pass_Uvs.x, pass_Uvs.y)), vec4(0, 255, 150, 255), (pass_Uvs.x < ubo.frameThickness || 1.0-pass_Uvs.x < ubo.frameThickness || pass_Uvs.y < ubo.frameThickness || 1.0-pass_Uvs.y < ubo.frameThickness) ? 1 : 0);
+
 }

@@ -37,13 +37,14 @@ namespace nap
 
 		void drawOutliner();
 
+		EntityInstance* getSelected() { return mSelected; }
+
 	protected:
 		virtual void trigger(const nap::InputEvent& inEvent) override;
 
 	private:
 		RenderService*								mRenderService = nullptr;
-		ComponentPtr<RenderCanvasComponent>			mSelectedCanvas = nullptr;
 		std::vector<RenderCanvasComponentInstance*> mCanvases;
-		EntityInstance*								mSelected;
+		EntityInstance*								mSelected = nullptr;
 	};
 }

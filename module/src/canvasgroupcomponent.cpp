@@ -4,7 +4,7 @@
 #include "inputcomponent.h"
 
 #include <entity.h>
-
+#include <glm/gtc/type_ptr.hpp>
 #include <imgui/imgui.h>
 #include <imguiutils.h>
 
@@ -88,8 +88,8 @@ namespace nap
 		glm::vec3 translate = canvas_transform_comp.getTranslate();
 		float tempXTransl = translate.x;
 		float tempYTransl = translate.y;
-		ImGui::DragFloat("X", &tempXTransl, 0.01f, -1.0f, 1.0f, "%.3f", 1.0f);
-		ImGui::DragFloat("Y", &tempYTransl, 0.01f, -1.0f, 1.0f, "%.3f", 1.0f);
+		ImGui::DragFloat("X##position", &tempXTransl, 0.01f, -1.0f, 1.0f, "%.3f", 1.0f);
+		ImGui::DragFloat("Y##position", &tempYTransl, 0.01f, -1.0f, 1.0f, "%.3f", 1.0f);
 		if (translate.x != tempXTransl || translate.y != tempYTransl) {
 			canvas_transform_comp.setTranslate(glm::vec3(tempXTransl, tempYTransl, translate.z));
 		}
@@ -109,6 +109,20 @@ namespace nap
 		if (rotation.z != tempRot) {
 			canvas_transform_comp.setRotate(glm::quat(rotation.x, rotation.y, 1.0, rotation.w));
 		}
+		ImGui::Text("Corner Offsets");
+		std::vector<glm::vec2> offsets = canvas_comp.getCornerOffsets();
+		ImGui::DragFloat("Top Left X", &offsets[0].x, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Top Left Y", &offsets[0].y, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Top Right X", &offsets[1].x, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Top Right Y", &offsets[1].y, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Bottom Left X", &offsets[2].x, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Bottom Left Y", &offsets[2].y, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Bottom Right X", &offsets[3].x, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Bottom Right Y", &offsets[3].y, 0.01f, 0.0f, 1.0f);
+		if (offsets != canvas_comp.getCornerOffsets()) {
+			canvas_comp.setCornerOffsets(offsets);
+		}
+
 	}	
 
 }
