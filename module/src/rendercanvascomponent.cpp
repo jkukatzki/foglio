@@ -317,7 +317,7 @@ namespace nap
 		mCornerOffsets[0] = offsets[0];
 		mCornerOffsets[1] = offsets[1];
 		mCornerOffsets[2] = offsets[2];
-		mCornerOffsets[3] = offsets[3];
+		mCornerOffsets[2] = offsets[3];
 		setWarpCornerUniforms();
 	}
 
