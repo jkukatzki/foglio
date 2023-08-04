@@ -5,7 +5,8 @@ It is based on the [NAP Framework](https://github.com/napframework/nap). A platf
 
 The advantages compared to doing this in a game engine such as Unity or a software vision mixer like OBS are:
   - low overhead
-  - freedom of extending functionality in C++
+  - freedom of extending functionality in C++ and lower level control of graphics API
+  - run time resource management
 
 It is still in its early stages but features so far are:
   - a separate window to set variables and have an overview
