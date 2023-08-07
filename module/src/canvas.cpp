@@ -224,7 +224,7 @@ namespace nap {
 
 	nap::UniformMat4Instance* Canvas::ensureUniformMat4InMvpStruct(const std::string& uniformName, CanvasMaterialItem& materialItem, utility::ErrorState& error)
 	{
-		assert(mMVPStruct != nullptr);
+		assert(materialItem.mMVPStruct != nullptr);
 		UniformMat4Instance* found_uniform = materialItem.mMVPStruct->getOrCreateUniform<UniformMat4Instance>(uniformName);
 		if (!error.check(found_uniform != nullptr,
 			"%s: unable to find uniform: %s in material: %s", this->mID.c_str(), uniformName.c_str(),
@@ -235,7 +235,7 @@ namespace nap {
 
 	nap::UniformVec3Instance* Canvas::ensureUniformVec3(const std::string& uniformName, CanvasMaterialItem& materialItem, utility::ErrorState& error)
 	{
-		assert(mUBO != nullptr);
+		assert(materialItem.mUBO != nullptr);
 		UniformVec3Instance* found_uniform = materialItem.mUBO->getOrCreateUniform<UniformVec3Instance>(uniformName);
 		if (!error.check(found_uniform != nullptr,
 			"%s: unable to find uniform: %s in material: %s", this->mID.c_str(), uniformName.c_str(),
@@ -246,7 +246,7 @@ namespace nap {
 
 	nap::UniformFloatInstance* Canvas::ensureUniformFloat(const std::string& uniformName, CanvasMaterialItem& materialItem, utility::ErrorState& error)
 	{
-		assert(mUBO != nullptr);
+		assert(materialItem.mUBO != nullptr);
 		UniformFloatInstance* found_uniform = materialItem.mUBO->getOrCreateUniform<UniformFloatInstance>(uniformName);
 		if (!error.check(found_uniform != nullptr,
 			"%s: unable to find uniform: %s in material: %s", this->mID.c_str(), uniformName.c_str(),

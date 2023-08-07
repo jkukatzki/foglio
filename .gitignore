@@ -364,4 +364,4 @@ MigrationBackup/
 FodyWeavers.xsd
 
 /msvc64
-/.ini
+.ini/

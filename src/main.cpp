@@ -4,7 +4,6 @@
 #include "foglioapp.h"
 
 // Nap includes
-#include <nap/core.h>
 #include <nap/logger.h>
 #include <apprunner.h>
 #include <guiappeventhandler.h>
