@@ -65,6 +65,8 @@ namespace nap
 			VIDEO = 0, MASK = 1, WARP = 2, INTERFACE = 3
 		};
 
+		void onDestroy();
+
 	private:
 		ResourcePtr<RenderTexture2D>		mOutputTexture;
 		ResourcePtr<PlaneMesh>				mPlane;
