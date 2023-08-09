@@ -4,6 +4,7 @@
 
 #include <utility/fileutils.h>
 #include <nap/logger.h>
+#include <nap/core.h>
 #include <imgui/imgui.h>
 #include <inputrouter.h>
 #include <rendercanvascomponent.h>
