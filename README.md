@@ -15,9 +15,3 @@ It is still in its early stages but features so far are:
 
 # Demo
 https://github.com/jkukatzki/foglio/assets/77100166/042294dd-37f2-46c5-b853-674a5a679c6c
-
-# How to build
-Run the build.bat file to create a release executable.
-To generate a Visual Studio solution run the generate.bat file.
-For more information refer to the [NAP Framework documentation](https://docs.nap.tech/).
-
