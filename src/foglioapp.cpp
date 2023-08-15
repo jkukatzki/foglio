@@ -97,7 +97,6 @@ namespace nap
 		// Start recording into the headless recording buffer.
 		if (mRenderService->beginHeadlessRecording())
 		{
-			
 			canvasGroupComponent->drawAllHeadless();
 			// Tell the render service we are done rendering into render-targets.
 			// The queue is submitted and executed.

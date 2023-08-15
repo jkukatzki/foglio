@@ -9,5 +9,8 @@
         "napvideo"
     ], 
     "WindowsDllSearchPaths": [],
-    "DataSearchPaths": ["{PROJECT_DIR}/module/data"]
+    "DataSearchPaths": [
+        "{PROJECT_DIR}/module/data",
+        "{ROOT}/modules/{MODULE_NAME}/data"
+    ]
 }

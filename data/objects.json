@@ -6,35 +6,31 @@
             "Components": [
                 {
                     "Type": "nap::RenderCanvasComponent",
-                    "mID": "Canvas",
+                    "mID": "BackgroundCanvas",
                     "Visible": true,
                     "Canvas": "Background",
                     "CornerOffsets": [
                         {
                             "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
+                            "y": 0.0
                         },
                         {
                             "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
+                            "y": 0.0
                         },
                         {
                             "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
+                            "y": 0.0
                         },
                         {
                             "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
+                            "y": 0.0
                         }
                     ]
                 },
                 {
                     "Type": "nap::TransformComponent",
-                    "mID": "Transform",
+                    "mID": "TransformBackgroundCanvas",
                     "Properties": {
                         "Translate": {
                             "x": 0.0,
@@ -133,23 +129,19 @@
                     "CornerOffsets": [
                         {
                             "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
+                            "y": 0.0
                         },
                         {
                             "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
+                            "y": 0.0
                         },
                         {
                             "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
+                            "y": 0.0
                         },
                         {
                             "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
+                            "y": 0.0
                         }
                     ]
                 },
@@ -168,8 +160,8 @@
                             "z": 0.0
                         },
                         "Scale": {
-                            "x": 0.2,
-                            "y": 0.2,
+                            "x": 0.20000000298023225,
+                            "y": 0.20000000298023225,
                             "z": 1.0
                         },
                         "UniformScale": 1.0
@@ -190,23 +182,19 @@
                     "CornerOffsets": [
                         {
                             "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
+                            "y": 0.0
                         },
                         {
                             "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
+                            "y": 0.0
                         },
                         {
                             "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
+                            "y": 0.0
                         },
                         {
                             "x": 0.0,
-                            "y": 0.0,
-                            "z": 0.0
+                            "y": 0.0
                         }
                     ]
                 },
@@ -460,7 +448,7 @@
                                     "Value": {
                                         "Type": "nap::FloatInstancePropertyValue",
                                         "mID": "override_ca1c0551",
-                                        "Value": 0.30000001192092898
+                                        "Value": 0.5
                                     }
                                 },
                                 {
@@ -468,7 +456,7 @@
                                     "Value": {
                                         "Type": "nap::FloatInstancePropertyValue",
                                         "mID": "override_bf12e9f8",
-                                        "Value": 0.30000001192092898
+                                        "Value": 0.5
                                     }
                                 },
                                 {
@@ -476,6 +464,80 @@
                                     "Value": {
                                         "Type": "nap::FloatInstancePropertyValue",
                                         "mID": "override_37f8b8d7",
+                                        "Value": 0.5
+                                    }
+                                },
+                                {
+                                    "Path": "Properties/Translate/x",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_3bde7cc3",
+                                        "Value": 0.20000000298023225
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "TargetComponent": "./ExamplePlaneEntity:0/ExamplePlaneTransform",
+                            "TargetAttributes": [
+                                {
+                                    "Path": "Properties/Translate/x",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_a8365d8d",
+                                        "Value": -0.25
+                                    }
+                                },
+                                {
+                                    "Path": "Properties/Scale/x",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_a7485f78",
+                                        "Value": 0.5
+                                    }
+                                },
+                                {
+                                    "Path": "Properties/Scale/y",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_774feb2f",
+                                        "Value": 0.5
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "TargetComponent": "./ExamplePlaneEntity:0/ExamplePlaneCanvas",
+                            "TargetAttributes": [
+                                {
+                                    "Path": "CornerOffsets/0/x",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_84703e9f",
+                                        "Value": 0.30000001192092898
+                                    }
+                                },
+                                {
+                                    "Path": "CornerOffsets/0/y",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_4b763bad",
+                                        "Value": 0.30000001192092898
+                                    }
+                                },
+                                {
+                                    "Path": "CornerOffsets/3/x",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_2c0e910e",
+                                        "Value": 0.30000001192092898
+                                    }
+                                },
+                                {
+                                    "Path": "CornerOffsets/3/y",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_fc4c89d8",
                                         "Value": 0.30000001192092898
                                     }
                                 }
