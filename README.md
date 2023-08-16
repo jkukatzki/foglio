@@ -15,3 +15,12 @@ It is still in its early stages but features so far are:
 
 # Demo
 https://github.com/jkukatzki/foglio/assets/77100166/042294dd-37f2-46c5-b853-674a5a679c6c
+
+# Build
+You can download a built Windows binary release or build it yourself by downloading the NAP Framework release and cloning the foglio repository into the apps folder and then running the build script.
+
+To generate a Visual Studio solution run the regenerate script.
+
+Note that macOS targets are not actively supported anymore.
+
+For more information refer to the [NAP Documentation](https://docs.nap.tech/).
