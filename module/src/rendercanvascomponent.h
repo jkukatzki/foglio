@@ -58,7 +58,9 @@ namespace nap
 
 		void drawAllHeadlessPasses();
 
-		void drawAndSetTextureInterface();
+		void drawInterface(rtti::ObjectPtr<RenderTarget> interfaceTarget);
+
+		void setFinalSampler(bool isInterface);
 
 		void computeModelMatrix(const nap::IRenderTarget& target, glm::mat4& outMatrix, ResourcePtr<RenderTexture2D> canvas_output_texture, TransformComponentInstance* transform_comp);
 

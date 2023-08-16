@@ -4,6 +4,7 @@
 #include "inputcomponent.h"
 
 #include <entity.h>
+#include <nap/core.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui/imgui.h>
 #include <imguiutils.h>
@@ -35,7 +36,11 @@ namespace nap
 		for (EntityInstance* canvasEntity : getEntityInstance()->getChildren()) {
 			canvasEntity->getComponent<RenderCanvasComponentInstance>().getCanvas()->mVideoPlayer->play();
 		}
+		
 		mSelected = getEntityInstance()->getChildren()[0];
+		if (!initSelectedRenderTarget()) {
+			return false;
+		}
 		
 	}
 
@@ -53,12 +58,46 @@ namespace nap
 
 	}
 
+	bool CanvasGroupComponentInstance::initSelectedRenderTarget()
+	{
+		mSelectedOutputTexture = getEntityInstance()->getCore()->getResourceManager()->createObject<RenderTexture2D>();
+		ResourcePtr<RenderTexture2D> outputTexRef = mSelected->getComponent<RenderCanvasComponentInstance>().getCanvas()->getOutputTexture();
+		mSelectedOutputTexture->mWidth = outputTexRef->mWidth;
+		mSelectedOutputTexture->mHeight = outputTexRef->mHeight;
+		mSelectedOutputTexture->mFormat = outputTexRef->mFormat;
+		mSelectedOutputTexture->mUsage = ETextureUsage::Static;
+		nap::utility::ErrorState error;
+		if (!mSelectedOutputTexture->init(error))
+		{
+			error.fail("%s: Failed to initialize selected output texture", mSelectedOutputTexture->mID.c_str());
+			return false;
+		}
+		mSelectedRenderTarget = getEntityInstance()->getCore()->getResourceManager()->createObject<RenderTarget>();
+		mSelectedRenderTarget->mColorTexture = mSelectedOutputTexture;
+		mSelectedRenderTarget->mClearColor = RGBAColor8(255, 255, 255, 0).convert<RGBAColorFloat>();
+		mSelectedRenderTarget->mSampleShading = false;
+		mSelectedRenderTarget->mRequestedSamples = ERasterizationSamples::One;
+		if (!mSelectedRenderTarget->init(error))
+		{
+			error.fail("%s: Failed to initialize internal render target", mSelectedRenderTarget->mID.c_str());
+			return false;
+		}
+	}
+
 	void CanvasGroupComponentInstance::drawAllHeadless()
 	{
 		std::vector<EntityInstance*> mCanvasEntities = getEntityInstance()->getChildren(); //TODO: maybe set in init() and update() when entityinstance children update call?
 		for (EntityInstance* canvasEntity : mCanvasEntities) {
 			canvasEntity->getComponent<RenderCanvasComponentInstance>().drawAllHeadlessPasses();
 		}
+	}
+
+	void CanvasGroupComponentInstance::drawSelectedInterface()
+	{
+		if (mSelected != nullptr) {
+			mSelected->getComponent<RenderCanvasComponentInstance>().drawInterface(mSelectedRenderTarget);
+		}
+		
 	}
 
 	void CanvasGroupComponentInstance::drawOutliner() {
@@ -69,7 +108,12 @@ namespace nap
 			}
 			ImGui::TreeNodeEx((EntityInstance*)canvasEntity, node_flags, "Canvas Entity %d", canvasEntity->getEntity()->mID);
 			if (ImGui::IsItemClicked())
+			{
+				mSelected->getComponent<RenderCanvasComponentInstance>().setFinalSampler(false);
 				mSelected = canvasEntity;
+				initSelectedRenderTarget();
+			}
+				
 		}
 		RenderCanvasComponentInstance& canvas_comp = mSelected->getComponent<RenderCanvasComponentInstance>();
 		TransformComponentInstance& canvas_transform_comp = mSelected->getComponent<TransformComponentInstance>();

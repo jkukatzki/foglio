@@ -35,9 +35,16 @@ namespace nap
 		
 		void drawAllHeadless();
 
+		void drawSelectedInterface();
+
 		void drawOutliner();
 
+		bool initSelectedRenderTarget();
+
 		EntityInstance* getSelected() { return mSelected; }
+
+		ResourcePtr<RenderTarget>					mSelectedRenderTarget;
+		ResourcePtr<RenderTexture2D>				mSelectedOutputTexture;
 
 	protected:
 		virtual void trigger(const nap::InputEvent& inEvent) override;

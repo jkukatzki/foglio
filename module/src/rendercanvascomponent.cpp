@@ -117,6 +117,8 @@ namespace nap
 		setWarpCornerUniforms();
 		mCanvas->mCanvasMaterialItems["interface"].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvasinterface::mousePos)->setValue(glm::vec3());
 		mCanvas->mCanvasMaterialItems["interface"].mUBO->getOrCreateUniform<UniformFloatInstance>(uniform::canvasinterface::frameThickness)->setValue(0.01);
+		mCanvas->mCanvasMaterialItems["interface"].mSamplers["inTextureSampler"]->setTexture(*mCanvas->mOutputRenderTarget->mColorTexture);
+		mCanvas->mCanvasMaterialItems["warp"].mSamplers["inTextureSampler"]->setTexture(*mCanvas->mOutputRenderTarget->mColorTexture);
 		//TODO: put this in canvas resource or canvasgroup
 		// Listen to video selection changes
 		//mPlayer->VideoChanged.connect(mVideoChangedSlot);
@@ -139,16 +141,9 @@ namespace nap
 			mCurrentInternalRT = mCanvas->mOutputRenderTarget;
 			drawHeadlessPass(Canvas::CanvasMaterialTypes::MASK);
 		}
-		mCanvas->mCanvasMaterialItems["warp"].mSamplers["inTextureSampler"]->setTexture(*mCanvas->getOutputTexture());
 	}
 
-	void RenderCanvasComponentInstance::drawAndSetTextureInterface()
-	{
-		mCanvas->mCanvasMaterialItems["interface"].mSamplers["inTextureSampler"]->setTexture(*mCanvas->mOutputRenderTarget->mColorTexture);
-		mCurrentInternalRT = mDoubleBufferTarget[0];
-		drawHeadlessPass(Canvas::CanvasMaterialTypes::INTERFACE);
-		mCanvas->mCanvasMaterialItems["warp"].mSamplers["inTextureSampler"]->setTexture(*mCurrentInternalRT->mColorTexture);
-	}
+
 
 	void RenderCanvasComponentInstance::draw(RenderableMesh renderableMesh, const DescriptorSet* descriptor_set)
 	{
@@ -181,6 +176,22 @@ namespace nap
 		}
 
 		mCurrentInternalRT->endRendering();
+	}
+
+	void RenderCanvasComponentInstance::drawInterface(rtti::ObjectPtr<RenderTarget> interfaceTarget)
+	{
+		mCurrentInternalRT = interfaceTarget;
+		drawHeadlessPass(Canvas::CanvasMaterialTypes::INTERFACE);
+	}
+
+	void RenderCanvasComponentInstance::setFinalSampler(bool isInterface) 
+	{
+		if (isInterface) {
+			mCanvas->mCanvasMaterialItems["warp"].mSamplers["inTextureSampler"]->setTexture(*mCurrentInternalRT->mColorTexture);
+		}
+		else {
+			mCanvas->mCanvasMaterialItems["warp"].mSamplers["inTextureSampler"]->setTexture(*mCanvas->mOutputRenderTarget->mColorTexture);
+		}
 	}
 
 	void RenderCanvasComponentInstance::drawHeadlessPass(Canvas::CanvasMaterialTypes type)

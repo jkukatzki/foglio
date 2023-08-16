@@ -88,32 +88,30 @@ namespace nap
 
 		// Find the orthographic camera component
 		nap::OrthoCameraComponentInstance& ortho_cam = mOrthoCameraEntity->getComponent<OrthoCameraComponentInstance>();
-
-		std::vector<nap::RenderCanvasComponentInstance*> canvas_components_to_render;
+		//get canvases once again for the render service
+		std::vector<nap::RenderableComponentInstance*> canvas_components_to_render;
 		for (nap::EntityInstance* canvasEntity : mVideoWallEntity->getChildren()) {
-			canvas_components_to_render.emplace_back(&canvasEntity->getComponent<RenderCanvasComponentInstance>());
-		}
+			canvas_components_to_render.emplace_back(&canvasEntity->getComponent<RenderableComponentInstance>());
+		};
+
 		CanvasGroupComponentInstance* canvasGroupComponent = &mVideoWallEntity->getComponent<CanvasGroupComponentInstance>();
 		// Start recording into the headless recording buffer.
 		if (mRenderService->beginHeadlessRecording())
 		{
 			canvasGroupComponent->drawAllHeadless();
+			canvasGroupComponent->drawSelectedInterface();
 			// Tell the render service we are done rendering into render-targets.
 			// The queue is submitted and executed.
 			mRenderService->endHeadlessRecording();
 		}
 
-		//get canvases once again for the render service
-		std::vector<nap::RenderableComponentInstance*> canvas_mesh_components_to_render;
-		for (nap::EntityInstance* canvasEntity : mVideoWallEntity->getChildren()) {
-			canvas_mesh_components_to_render.emplace_back(&canvasEntity->getComponent<RenderableComponentInstance>());
-		};
+		canvasGroupComponent->getSelected()->getComponent<RenderCanvasComponentInstance>().setFinalSampler(false);
 
 		if (mRenderService->beginRecording(*mMainWindow)) {
 			// Begin render pass
 			mMainWindow->beginRendering();
 
-			mRenderService->renderObjects(*mMainWindow, ortho_cam, canvas_mesh_components_to_render);
+			mRenderService->renderObjects(*mMainWindow, ortho_cam, canvas_components_to_render);
 			mGuiService->draw();
 
 			// End render pass
@@ -122,24 +120,14 @@ namespace nap
 			// End recording
 			mRenderService->endRecording();
 		}
-	
-		if (mRenderService->beginHeadlessRecording())
-		{
-			EntityInstance* selected_canvas = canvasGroupComponent->getSelected();
-			if (selected_canvas != nullptr) {
-				selected_canvas->getComponent<RenderCanvasComponentInstance>().drawAndSetTextureInterface();
-			}
-			mRenderService->endHeadlessRecording();
-		}
 		
-		
-
+		canvasGroupComponent->getSelected()->getComponent<RenderCanvasComponentInstance>().setFinalSampler(true);
 
 		if (mRenderService->beginRecording(*mControlsWindow)) {
 			// Begin render pass
 			mControlsWindow->beginRendering();
 			// render canvases
-			mRenderService->renderObjects(*mControlsWindow, ortho_cam, canvas_mesh_components_to_render);
+			mRenderService->renderObjects(*mControlsWindow, ortho_cam, canvas_components_to_render);
 			// Render GUI elements
 			mGuiService->draw();
 			
