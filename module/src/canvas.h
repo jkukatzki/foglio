@@ -18,15 +18,15 @@ namespace nap
 	class CanvasMaterialItem {
 		public:
 			CanvasMaterialItem();
-			Material*									mMaterial = nullptr;
-			MaterialInstanceResource*					mMaterialInstResource = nullptr;
-			MaterialInstance*							mMaterialInstance;
-			UniformStructInstance*						mMVPStruct = nullptr;
-			UniformMat4Instance*						mModelMatrixUniform = nullptr;
-			UniformMat4Instance*						mProjectMatrixUniform = nullptr;
-			UniformMat4Instance*						mViewMatrixUniform = nullptr;
-			std::map<std::string, Sampler2DInstance*>	mSamplers;
-			UniformStructInstance*						mUBO;
+			std::unique_ptr<Material>									mMaterial = nullptr;
+			std::unique_ptr<MaterialInstanceResource>					mMaterialInstResource = nullptr;
+			std::unique_ptr<MaterialInstance>							mMaterialInstance;
+			std::unique_ptr<UniformStructInstance>						mMVPStruct = nullptr;
+			std::unique_ptr<UniformMat4Instance>						mModelMatrixUniform = nullptr;
+			std::unique_ptr<UniformMat4Instance>						mProjectMatrixUniform = nullptr;
+			std::unique_ptr<UniformMat4Instance>						mViewMatrixUniform = nullptr;
+			std::map<std::string, std::unique_ptr<Sampler2DInstance>>	mSamplers;
+			std::unique_ptr<UniformStructInstance>						mUBO;
 	};
 
 	class Core;
@@ -65,7 +65,6 @@ namespace nap
 			VIDEO = 0, MASK = 1, WARP = 2, INTERFACE = 3
 		};
 
-		void onDestroy();
 
 	private:
 		ResourcePtr<RenderTexture2D>		mOutputTexture;

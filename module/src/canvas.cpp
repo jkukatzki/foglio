@@ -93,22 +93,6 @@ namespace nap {
 		return errorState.check(mPlane->getMeshInstance().init(errorState), "Unable to initialize canvas plane %s", mID.c_str());
 	}
 
-	void Canvas::onDestroy() {
-		for (auto const& [key, val] : mCanvasMaterialItems) {
-			delete val.mMaterial;
-			delete val.mMaterialInstResource;
-			delete val.mMaterialInstance;
-			delete val.mMVPStruct;
-			delete val.mModelMatrixUniform;
-			delete val.mProjectMatrixUniform;
-			delete val.mViewMatrixUniform;
-			delete val.mUBO;
-			for (auto const& [samplerKey, samplerVal] : val.mSamplers) {
-				delete samplerVal;
-			}
-		}
-	}
-
 	bool Canvas::constructMaterialInstance(CanvasMaterialTypes type, utility::ErrorState& error) {
 		CanvasMaterialItem* materialItem = nullptr;
 		switch (type) {
@@ -118,34 +102,34 @@ namespace nap {
 				materialItem->mMaterialInstResource = new MaterialInstanceResource();
 				materialItem->mMaterialInstResource->mBlendMode = EBlendMode::Opaque;
 				materialItem->mMaterialInstResource->mDepthMode = EDepthMode::NoReadWrite;
-				materialItem->mMaterial = mRenderService->getOrCreateMaterial<VideoShader>(error);
+				materialItem->mMaterial = std::unique_ptr<Material>(mRenderService->getOrCreateMaterial<VideoShader>(error));
 				break;
 			}
 			case CanvasMaterialTypes::WARP: {
 				materialItem = &mCanvasMaterialItems["warp"];
 				//create canvas warp material
-				materialItem->mMaterialInstResource = new MaterialInstanceResource();
+				materialItem->mMaterialInstResource = std::unique_ptr<MaterialInstanceResource>(new MaterialInstanceResource());
 				materialItem->mMaterialInstResource->mBlendMode = EBlendMode::AlphaBlend;
 				materialItem->mMaterialInstResource->mDepthMode = EDepthMode::NoReadWrite;
-				materialItem->mMaterial = mRenderService->getOrCreateMaterial<CanvasWarpShader>(error);
+				materialItem->mMaterial = std::unique_ptr<Material>(mRenderService->getOrCreateMaterial<CanvasWarpShader>(error));
 				break;
 			}
 			case CanvasMaterialTypes::INTERFACE: {
 				materialItem = &mCanvasMaterialItems["interface"];
 				//create canvas mask material
-				materialItem->mMaterialInstResource = new MaterialInstanceResource();
+				materialItem->mMaterialInstResource = std::unique_ptr<MaterialInstanceResource>(new MaterialInstanceResource());
 				materialItem->mMaterialInstResource->mBlendMode = EBlendMode::AlphaBlend;
 				materialItem->mMaterialInstResource->mDepthMode = EDepthMode::NoReadWrite;
-				materialItem->mMaterial = mRenderService->getOrCreateMaterial<CanvasInterfaceShader>(error);
+				materialItem->mMaterial = std::unique_ptr<Material>(mRenderService->getOrCreateMaterial<CanvasInterfaceShader>(error));
 				break;
 			}
 			case CanvasMaterialTypes::MASK: {
 				materialItem = &mCanvasMaterialItems["mask"];
 				//create canvas mask material
-				materialItem->mMaterialInstResource = new MaterialInstanceResource();
+				materialItem->mMaterialInstResource = std::unique_ptr<MaterialInstanceResource>(new MaterialInstanceResource());
 				materialItem->mMaterialInstResource->mBlendMode = EBlendMode::AlphaBlend;
 				materialItem->mMaterialInstResource->mDepthMode = EDepthMode::NoReadWrite;
-				materialItem->mMaterial = mRenderService->getOrCreateMaterial<MaskShader>(error);
+				materialItem->mMaterial = std::unique_ptr<Material>(mRenderService->getOrCreateMaterial<MaskShader>(error));
 				break;
 			}
 			default:
@@ -159,8 +143,8 @@ namespace nap {
 			return false;
 		if (!error.check(materialItem->mMaterial != nullptr, "%s: unable to get or create material", mID.c_str()))
 			return false;
-		materialItem->mMaterialInstance = new MaterialInstance();
-		materialItem->mMaterialInstResource->mMaterial = materialItem->mMaterial;
+		materialItem->mMaterialInstance = std::unique_ptr<MaterialInstance>(new MaterialInstance());
+		materialItem->mMaterialInstResource->mMaterial = materialItem->mMaterial.get();
 		if (!error.check(materialItem->mMaterialInstance->init(*mRenderService, *materialItem->mMaterialInstResource, error), "%s: unable to instance material", this->mID.c_str())) {
 			return false;
 		}
@@ -170,9 +154,9 @@ namespace nap {
 			this->mID.c_str(), uniform::mvpStruct, materialItem->mMaterial->mID.c_str()))
 			return false;
 		// Get all matrices
-		materialItem->mModelMatrixUniform = ensureUniformMat4InMvpStruct(uniform::modelMatrix, *materialItem, error);
-		materialItem->mProjectMatrixUniform = ensureUniformMat4InMvpStruct(uniform::projectionMatrix, *materialItem, error);
-		materialItem->mViewMatrixUniform = ensureUniformMat4InMvpStruct(uniform::viewMatrix, *materialItem, error);
+		materialItem->mModelMatrixUniform = std::unique_ptr<UniformMat4Instance>(ensureUniformMat4InMvpStruct(uniform::modelMatrix, *materialItem, error));
+		materialItem->mProjectMatrixUniform = std::unique_ptr<UniformMat4Instance>(ensureUniformMat4InMvpStruct(uniform::projectionMatrix, *materialItem, error));
+		materialItem->mViewMatrixUniform = std::unique_ptr<UniformMat4Instance>(ensureUniformMat4InMvpStruct(uniform::viewMatrix, *materialItem, error));
 
 		if (materialItem->mModelMatrixUniform == nullptr || materialItem->mProjectMatrixUniform == nullptr || materialItem->mViewMatrixUniform == nullptr) {
 			return false;
@@ -182,20 +166,20 @@ namespace nap {
 		switch (type) {
 
 			case CanvasMaterialTypes::VIDEO: {
-				materialItem->mSamplers["YSampler"] = ensureSampler(uniform::video::sampler::YSampler, *materialItem, error);
-				materialItem->mSamplers["USampler"] = ensureSampler(uniform::video::sampler::USampler, *materialItem, error);
-				materialItem->mSamplers["VSampler"] = ensureSampler(uniform::video::sampler::VSampler, *materialItem, error);
+				materialItem->mSamplers["YSampler"] = std::unique_ptr<Sampler2DInstance>(ensureSampler(uniform::video::sampler::YSampler, *materialItem, error));
+				materialItem->mSamplers["USampler"] = std::unique_ptr<Sampler2DInstance>(ensureSampler(uniform::video::sampler::USampler, *materialItem, error));
+				materialItem->mSamplers["VSampler"] = std::unique_ptr<Sampler2DInstance>(ensureSampler(uniform::video::sampler::VSampler, *materialItem, error));
 				if (materialItem->mSamplers["YSampler"] == nullptr || materialItem->mSamplers["USampler"] == nullptr || materialItem->mSamplers["VSampler"] == nullptr)
 					return false;
 				break;
 			}
 
 			case CanvasMaterialTypes::WARP: {
-				materialItem->mSamplers["inTextureSampler"] = ensureSampler(uniform::canvaswarp::sampler::inTexture, *materialItem, error);
+				materialItem->mSamplers["inTextureSampler"] = std::unique_ptr<Sampler2DInstance>(ensureSampler(uniform::canvaswarp::sampler::inTexture, *materialItem, error));
 				if (materialItem->mSamplers["inTextureSampler"] == nullptr)
 					return false;
 
-				materialItem->mUBO = materialItem->mMaterialInstance->getOrCreateUniform(uniform::canvaswarp::uboStructWarp);
+				materialItem->mUBO = std::unique_ptr<UniformStructInstance>(materialItem->mMaterialInstance->getOrCreateUniform(uniform::canvaswarp::uboStructWarp));
 				if (!error.check(materialItem->mUBO != nullptr, "%s: Unable to find UBO struct: %s in material: %s",
 					this->mID.c_str(), uniform::canvaswarp::uboStructWarp, materialItem->mMaterial->mID.c_str()))
 					return false;
@@ -208,10 +192,10 @@ namespace nap {
 			}
 
 			case CanvasMaterialTypes::INTERFACE: {
-				materialItem->mSamplers["inTextureSampler"] = ensureSampler(uniform::canvasinterface::sampler::inTexture, *materialItem, error);
+				materialItem->mSamplers["inTextureSampler"] = std::unique_ptr<Sampler2DInstance>(ensureSampler(uniform::canvasinterface::sampler::inTexture, *materialItem, error));
 				if (materialItem->mSamplers["inTextureSampler"] == nullptr)
 					return false;
-				materialItem->mUBO = materialItem->mMaterialInstance->getOrCreateUniform(uniform::canvasinterface::uboStructInterface);
+				materialItem->mUBO = std::unique_ptr<UniformStructInstance>(materialItem->mMaterialInstance->getOrCreateUniform(uniform::canvasinterface::uboStructInterface));
 				if (!error.check(materialItem->mUBO != nullptr, "%s: Unable to find UBO struct: %s in material: %s",
 					this->mID.c_str(), uniform::canvaswarp::uboStructWarp, materialItem->mMaterial->mID.c_str()))
 					return false;
@@ -222,8 +206,8 @@ namespace nap {
 			}
 
 			case CanvasMaterialTypes::MASK: {
-				materialItem->mSamplers["inTextureSampler"] = ensureSampler(uniform::mask::sampler::inTexture, *materialItem, error);
-				materialItem->mSamplers["maskSampler"] = ensureSampler(uniform::mask::sampler::maskTexture, *materialItem, error);
+				materialItem->mSamplers["inTextureSampler"] = std::unique_ptr<Sampler2DInstance>(ensureSampler(uniform::mask::sampler::inTexture, *materialItem, error));
+				materialItem->mSamplers["maskSampler"] = std::unique_ptr<Sampler2DInstance>(ensureSampler(uniform::mask::sampler::maskTexture, *materialItem, error));
 				if (materialItem->mSamplers["inTextureSampler"] == nullptr || materialItem->mSamplers["maskSampler"] == nullptr)
 					return false;
 				break;
