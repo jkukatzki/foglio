@@ -15,18 +15,17 @@
 namespace nap
 {	
 	
-	class CanvasMaterialItem {
-		public:
-			CanvasMaterialItem();
-			Material*									mMaterial = nullptr;
-			MaterialInstanceResource*					mMaterialInstResource = nullptr;
-			MaterialInstance*							mMaterialInstance;
-			UniformStructInstance*						mMVPStruct = nullptr;
-			UniformMat4Instance*						mModelMatrixUniform = nullptr;
-			UniformMat4Instance*						mProjectMatrixUniform = nullptr;
-			UniformMat4Instance*						mViewMatrixUniform = nullptr;
-			std::map<std::string, Sampler2DInstance*>	mSamplers;
-			UniformStructInstance*						mUBO;
+	struct CanvasMaterialItem {
+		ResourcePtr<Material>						mMaterial = nullptr;
+		std::unique_ptr<MaterialInstanceResource>	mMaterialInstResource = nullptr;
+		//instances shouldnt need to be smart pointers here cause they're already unique_ptrs on creation
+		MaterialInstance*							mMaterialInstance;
+		UniformStructInstance*						mMVPStruct = nullptr;
+		UniformMat4Instance*						mModelMatrixUniform = nullptr;
+		UniformMat4Instance*						mProjectMatrixUniform = nullptr;
+		UniformMat4Instance*						mViewMatrixUniform = nullptr;
+		std::map<std::string, Sampler2DInstance*>	mSamplers;
+		UniformStructInstance*						mUBO;
 	};
 
 	class Core;

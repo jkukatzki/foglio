@@ -19,7 +19,6 @@ RTTI_CONSTRUCTOR(nap::Core&)
 RTTI_END_CLASS
 
 namespace nap {
-	CanvasMaterialItem::CanvasMaterialItem() {}
 
 	Canvas::Canvas(Core& core) :
 		mRenderService(core.getService<RenderService>()),
@@ -95,9 +94,9 @@ namespace nap {
 
 	void Canvas::onDestroy() {
 		for (auto const& [key, val] : mCanvasMaterialItems) {
-			delete val.mMaterial;
-			delete val.mMaterialInstResource;
-			delete val.mMaterialInstance;
+			//delete val.mMaterial;
+			//delete val.mMaterialInstResource;
+			//delete val.mMaterialInstance;
 			delete val.mMVPStruct;
 			delete val.mModelMatrixUniform;
 			delete val.mProjectMatrixUniform;
@@ -115,7 +114,7 @@ namespace nap {
 			case CanvasMaterialTypes::VIDEO : {
 				materialItem = &mCanvasMaterialItems["video"];
 				//create video material
-				materialItem->mMaterialInstResource = new MaterialInstanceResource();
+				materialItem->mMaterialInstResource = std::make_unique<MaterialInstanceResource>(MaterialInstanceResource());
 				materialItem->mMaterialInstResource->mBlendMode = EBlendMode::Opaque;
 				materialItem->mMaterialInstResource->mDepthMode = EDepthMode::NoReadWrite;
 				materialItem->mMaterial = mRenderService->getOrCreateMaterial<VideoShader>(error);
@@ -124,7 +123,7 @@ namespace nap {
 			case CanvasMaterialTypes::WARP: {
 				materialItem = &mCanvasMaterialItems["warp"];
 				//create canvas warp material
-				materialItem->mMaterialInstResource = new MaterialInstanceResource();
+				materialItem->mMaterialInstResource = std::make_unique<MaterialInstanceResource>(MaterialInstanceResource());
 				materialItem->mMaterialInstResource->mBlendMode = EBlendMode::AlphaBlend;
 				materialItem->mMaterialInstResource->mDepthMode = EDepthMode::NoReadWrite;
 				materialItem->mMaterial = mRenderService->getOrCreateMaterial<CanvasWarpShader>(error);
@@ -133,7 +132,7 @@ namespace nap {
 			case CanvasMaterialTypes::INTERFACE: {
 				materialItem = &mCanvasMaterialItems["interface"];
 				//create canvas mask material
-				materialItem->mMaterialInstResource = new MaterialInstanceResource();
+				materialItem->mMaterialInstResource = std::make_unique<MaterialInstanceResource>(MaterialInstanceResource());
 				materialItem->mMaterialInstResource->mBlendMode = EBlendMode::AlphaBlend;
 				materialItem->mMaterialInstResource->mDepthMode = EDepthMode::NoReadWrite;
 				materialItem->mMaterial = mRenderService->getOrCreateMaterial<CanvasInterfaceShader>(error);
@@ -142,7 +141,7 @@ namespace nap {
 			case CanvasMaterialTypes::MASK: {
 				materialItem = &mCanvasMaterialItems["mask"];
 				//create canvas mask material
-				materialItem->mMaterialInstResource = new MaterialInstanceResource();
+				materialItem->mMaterialInstResource = std::make_unique<MaterialInstanceResource>(MaterialInstanceResource());
 				materialItem->mMaterialInstResource->mBlendMode = EBlendMode::AlphaBlend;
 				materialItem->mMaterialInstResource->mDepthMode = EDepthMode::NoReadWrite;
 				materialItem->mMaterial = mRenderService->getOrCreateMaterial<MaskShader>(error);
@@ -160,7 +159,7 @@ namespace nap {
 		if (!error.check(materialItem->mMaterial != nullptr, "%s: unable to get or create material", mID.c_str()))
 			return false;
 		materialItem->mMaterialInstance = new MaterialInstance();
-		materialItem->mMaterialInstResource->mMaterial = materialItem->mMaterial;
+		materialItem->mMaterialInstResource->mMaterial = materialItem->mMaterial; //TODO: remove get?
 		if (!error.check(materialItem->mMaterialInstance->init(*mRenderService, *materialItem->mMaterialInstResource, error), "%s: unable to instance material", this->mID.c_str())) {
 			return false;
 		}
