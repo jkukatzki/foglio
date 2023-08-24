@@ -92,22 +92,6 @@ namespace nap {
 		return errorState.check(mPlane->getMeshInstance().init(errorState), "Unable to initialize canvas plane %s", mID.c_str());
 	}
 
-	void Canvas::onDestroy() {
-		for (auto const& [key, val] : mCanvasMaterialItems) {
-			//delete val.mMaterial;
-			//delete val.mMaterialInstResource;
-			//delete val.mMaterialInstance;
-			delete val.mMVPStruct;
-			delete val.mModelMatrixUniform;
-			delete val.mProjectMatrixUniform;
-			delete val.mViewMatrixUniform;
-			delete val.mUBO;
-			for (auto const& [samplerKey, samplerVal] : val.mSamplers) {
-				delete samplerVal;
-			}
-		}
-	}
-
 	bool Canvas::constructMaterialInstance(CanvasMaterialTypes type, utility::ErrorState& error) {
 		CanvasMaterialItem* materialItem = nullptr;
 		switch (type) {
