@@ -72,11 +72,11 @@ namespace nap
 
 	private:
 		using DoubleBufferedRenderTarget = std::array<rtti::ObjectPtr<RenderTarget>, 2>;
-
+		//TODO: make this a ResourcePtr<Canvas>?
 		Canvas*							mCanvas = nullptr;
 		
 		DoubleBufferedRenderTarget		mDoubleBufferTarget;
-		rtti::ObjectPtr<RenderTarget>	mCurrentInternalRT;
+		ResourcePtr<RenderTarget>	mCurrentInternalRT;
 		PlaneMesh*						mCanvasPlane;
 		PlaneMesh*						mPlane;
 		RenderableMesh					mRenderableOutputMesh;

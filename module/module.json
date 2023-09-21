@@ -3,6 +3,8 @@
     "mID": "ModuleInfo", 
     "RequiredModules": [
         "naprender",
+        "napsequence",
+        "napsequencegui",
         "napscene",
         "napparameter",
         "napimgui",

@@ -7,6 +7,10 @@
 #include <nap/group.h>
 
 // Module includes
+#include <sequenceeditorgui.h>
+#include <sequenceplayereventoutput.h>
+#include <sequenceevent.h>
+#include <sequence.h>
 #include <renderservice.h>
 #include <imguiservice.h>
 #include <sceneservice.h>
@@ -77,9 +81,12 @@ namespace nap
 		SceneService*				mSceneService = nullptr;		///< Manages all the objects in the scene
 		InputService*				mInputService = nullptr;		///< Input service for processing input
 		IMGuiService*				mGuiService = nullptr;			///< Manages GUI related update / draw calls
-		ObjectPtr<RenderWindow>		mMainWindow;					///< Pointer to the main render window
-		ObjectPtr<RenderWindow>		mControlsWindow;					///< Pointer to the controls window	
+		ObjectPtr<RenderWindow>		mMainWindow = nullptr;					///< Pointer to the main render window
+		ObjectPtr<RenderWindow>		mControlsWindow = nullptr;					///< Pointer to the controls window	
+		ObjectPtr<RenderWindow>		mCanvasSequenceWindow = nullptr;
 		ObjectPtr<Scene>			mScene = nullptr;				///< Pointer to the main scene
+
+		ObjectPtr<SequenceEditorGUI>mCanvasSequenceEditorGUI = nullptr;
 
 		ObjectPtr<EntityInstance>	mCameraEntity = nullptr;		///< Pointer to the entity that holds the perspective camera
 		ObjectPtr<EntityInstance>	mOrthoCameraEntity = nullptr;
@@ -87,7 +94,6 @@ namespace nap
 		ObjectPtr<EntityInstance>	mVideoWallEntity = nullptr;
 		
 		bool						mFullscreen = false;
-
 		/**
 		 * Sets up the GUI every frame
 		 */

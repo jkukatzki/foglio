@@ -5,6 +5,8 @@
     "Version": "0.1.0",
     "RequiredModules": [
         "napfoglio",
+        "napsequence",
+        "napsequencegui",
         "napapp",
         "napimgui",
         "napcameracontrol"

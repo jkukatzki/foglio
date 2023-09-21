@@ -14,6 +14,11 @@
 #include <orthocameracomponent.h>
 #include <imguiutils.h>
 
+#include <sequenceplayereventoutput.h>
+#include <sequenceevent.h>
+
+
+
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::foglioApp)
 	RTTI_CONSTRUCTOR(nap::Core&)
 RTTI_END_CLASS
@@ -27,10 +32,10 @@ namespace nap
 	bool foglioApp::init(utility::ErrorState& error)
 	{
 		// Retrieve services
-		mRenderService	= getCore().getService<nap::RenderService>();
-		mSceneService	= getCore().getService<nap::SceneService>();
-		mInputService	= getCore().getService<nap::InputService>();
-		mGuiService		= getCore().getService<nap::IMGuiService>();
+		mRenderService = getCore().getService<nap::RenderService>();
+		mSceneService = getCore().getService<nap::SceneService>();
+		mInputService = getCore().getService<nap::InputService>();
+		mGuiService = getCore().getService<nap::IMGuiService>();
 
 		// Fetch the resource manager
 		mResourceManager = getCore().getResourceManager();
@@ -44,11 +49,13 @@ namespace nap
 		mControlsWindow = mResourceManager->findObject<nap::RenderWindow>("ControlsWindow");
 		if (!error.check(mControlsWindow != nullptr, "unable to find render window with name: %s", "ControlsWindow"))
 			return false;
+		mCanvasSequenceWindow = mResourceManager->findObject<nap::RenderWindow>("CanvasSequenceWindow");
+		mCanvasSequenceEditorGUI = mResourceManager->findObject<nap::SequenceEditorGUI>("CanvasSequenceEditorGUI");
 		// Get the scene that contains our entities and components
 		mScene = mResourceManager->findObject<Scene>("Scene");
 		if (!error.check(mScene != nullptr, "unable to find scene with name: %s", "Scene"))
 			return false;
-		
+
 
 		// Get the camera entity
 		mCameraEntity = mScene->findEntity("CameraEntity");
@@ -60,7 +67,6 @@ namespace nap
 		mVideoWallEntity = mScene->findEntity("VideoWallEntity");
 		if (!error.check(mVideoWallEntity != nullptr, "unable to find video wall entity with name: %s", "VideoWallEntity"))
 			return false;
-		
 
 		// All done!
 		return true;
@@ -138,8 +144,25 @@ namespace nap
 			mRenderService->endRecording();
 		}
 
+		if (mRenderService->beginRecording(*mCanvasSequenceWindow)) {
+			// Begin render pass
+			mCanvasSequenceWindow->beginRendering();
+			// render canvases
+			// Render GUI elements
+			mGuiService->draw();
+
+			// End render pass
+			mCanvasSequenceWindow->endRendering();
+
+			// End recording
+			mRenderService->endRecording();
+		}
+
 		// Proceed to next frame
 		mRenderService->endFrame();
+
+
+
 	}
 	
 
@@ -195,10 +218,11 @@ namespace nap
 		ImGui::Begin("Controls");
 		ImGui::Text(getCurrentDateTime().toString().c_str());
 		ImGui::Text(utility::stringFormat("Framerate: %.02f", getCore().getFramerate()).c_str());
-
 		mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawOutliner();
-		
-		
 		ImGui::End();
+		
+		
+		mGuiService->selectWindow(mCanvasSequenceWindow);
+		mCanvasSequenceEditorGUI->show();
 	}
 }

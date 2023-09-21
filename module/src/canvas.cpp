@@ -85,7 +85,7 @@ namespace nap {
 			constructMaterialInstance(CanvasMaterialTypes::MASK, errorState);
 			mCanvasMaterialItems["mask"].mSamplers["maskSampler"]->setTexture(*mMaskImage.get());
 		}
-		
+		mVideoPlayer->VideoChanged.connect(mVideoChangedSlot);
 		videoChanged(*mVideoPlayer);
 
 		// init mPlane.mMeshInstance
@@ -266,6 +266,7 @@ namespace nap {
 
 	void Canvas::videoChanged(VideoPlayer& player)
 	{
+		nap::Logger::info("Video Changed for Canvas XXXXXXXXXXXXXXXXXXXXXX");
 		mCanvasMaterialItems["video"].mSamplers["YSampler"]->setTexture(player.getYTexture());
 		mCanvasMaterialItems["video"].mSamplers["USampler"]->setTexture(player.getUTexture());
 		mCanvasMaterialItems["video"].mSamplers["VSampler"]->setTexture(player.getVTexture());

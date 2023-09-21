@@ -3,6 +3,7 @@
 #include "rendercanvascomponent.h"
 #include "inputcomponent.h"
 
+#include <sequencecanvascomponent.h>
 #include <entity.h>
 #include <nap/core.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -41,6 +42,11 @@ namespace nap
 		if (!initSelectedRenderTarget()) {
 			return false;
 		}
+		/***mSequenceEditor = getEntityInstance()->getCore()->getResourceManager()->createObject<SequenceEditor>();
+		mSequenceEditorGUI = getEntityInstance()->getCore()->getResourceManager()->createObject<SequenceEditorGUI>();
+		mSequenceEditorGUI->mRenderWindow = getEntityInstance()->getCore()->getResourceManager()->findObject<nap::RenderWindow>("ControlsWindow");
+		mSequenceEditorGUI->mSequenceEditor = mSequenceEditor;
+		setSequencePlayer();***/
 		
 	}
 
@@ -57,6 +63,7 @@ namespace nap
 		}
 
 	}
+
 
 	bool CanvasGroupComponentInstance::initSelectedRenderTarget()
 	{
@@ -100,6 +107,10 @@ namespace nap
 		
 	}
 
+	void CanvasGroupComponentInstance::setSequencePlayer() {
+		mSequenceEditor->mSequencePlayer = mSelected->findComponent<SequenceCanvasComponent>()->mSequencePlayer;
+	}
+
 	void CanvasGroupComponentInstance::drawOutliner() {
 		for (EntityInstance* canvasEntity : getEntityInstance()->getChildren()) {
 			ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
@@ -112,6 +123,7 @@ namespace nap
 				mSelected->getComponent<RenderCanvasComponentInstance>().setFinalSampler(false);
 				mSelected = canvasEntity;
 				initSelectedRenderTarget();
+				setSequencePlayer();
 			}
 				
 		}
@@ -166,7 +178,7 @@ namespace nap
 		if (offsets != canvas_comp.getCornerOffsets()) {
 			canvas_comp.setCornerOffsets(offsets);
 		}
-
+		
 	}	
 
 }

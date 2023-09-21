@@ -8,6 +8,7 @@
 #include <material.h>
 #include <materialinstance.h>
 #include <vertexattribute.h>
+#include <sequenceplayer.h>
 
 
 
@@ -66,6 +67,7 @@ namespace nap
 
 
 	private:
+		ResourcePtr<SequencePlayer>			mSequencePlayer;
 		ResourcePtr<RenderTexture2D>		mOutputTexture;
 		ResourcePtr<PlaneMesh>				mPlane;
 		RenderService*						mRenderService;
@@ -80,7 +82,10 @@ namespace nap
 
 		void videoChanged(VideoPlayer& player);
 
+		nap::Slot<VideoPlayer&> mVideoChangedSlot = { this, &Canvas::videoChanged };
+
 		bool constructMaterialInstance(CanvasMaterialTypes type, utility::ErrorState& error);
+
 
 	};
 }

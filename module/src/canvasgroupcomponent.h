@@ -6,7 +6,9 @@
 #include <component.h>
 #include <inputcomponent.h>
 #include <componentptr.h>
-
+#include <sequenceeditorgui.h>
+#include <sequence.h>
+#include <sequenceevent.h>
 #include <renderservice.h>
 
 
@@ -39,6 +41,8 @@ namespace nap
 
 		void drawOutliner();
 
+		void setSequencePlayer(); // for editor gui
+
 		bool initSelectedRenderTarget();
 
 		EntityInstance* getSelected() { return mSelected; }
@@ -51,7 +55,10 @@ namespace nap
 
 	private:
 		RenderService*								mRenderService = nullptr;
+		ResourcePtr<SequenceEditorGUI>				mSequenceEditorGUI = nullptr;
+		ResourcePtr<SequenceEditor>					mSequenceEditor = nullptr;
 		std::vector<RenderCanvasComponentInstance*> mCanvases;
 		EntityInstance*								mSelected = nullptr;
+		
 	};
 }
