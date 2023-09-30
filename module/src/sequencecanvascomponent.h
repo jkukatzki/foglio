@@ -42,9 +42,15 @@ namespace nap
 
 		virtual bool init(utility::ErrorState& errorState) override;
 
+		ResourcePtr<SequencePlayer> getSequencePlayer() { return mSequencePlayer; };
+		ResourcePtr<SequencePlayer> mSequencePlayer = nullptr;
+
 	private:
+
 		RenderCanvasComponentInstance* mRenderCanvasComponent;
+		
 		ResourcePtr<Canvas> mCanvas = nullptr;
+		void drawSequenceControls(utility::ErrorState& errorState);
 		void selectVideo(const SequenceEventBase& sequenceEvent);
 		nap::Slot<const SequenceEventBase&>		mSelectVideoSlot = { this, &SequenceCanvasComponentInstance::selectVideo };
 	};

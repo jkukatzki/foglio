@@ -12,7 +12,7 @@
 
 // nap::rendercanvascomponent run time class definition
 RTTI_BEGIN_CLASS(nap::SequenceCanvasComponent)
-	RTTI_PROPERTY("Sequence", &nap::SequenceCanvasComponent::mSequencePlayer, nap::rtti::EPropertyMetaData::Default)
+	RTTI_PROPERTY("Sequence", &nap::SequenceCanvasComponent::mSequencePlayer, nap::rtti::EPropertyMetaData::Required)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::SequenceCanvasComponentInstance)
@@ -39,8 +39,10 @@ namespace nap
 		const ResourcePtr<SequencePlayerEventOutput> canvasEventOutput = resource->mSequencePlayer->mOutputs[0];
 		if (!errorState.check(canvasEventOutput != nullptr, "unable to find CanvasSequenceEventReceiver with index: %s", 0))
 			return false;
-
+		mSequencePlayer = resource->mSequencePlayer;
 		canvasEventOutput->mSignal.connect(mSelectVideoSlot);
+		mSequencePlayer->setIsLooping(true);
+		mSequencePlayer->setIsPlaying(true);
 		return true;
 
 	}
@@ -55,4 +57,7 @@ namespace nap
 		player->play();
 	}
 
+	void SequenceCanvasComponentInstance::drawSequenceControls(utility::ErrorState& errorState) {
+
+	}
 }

@@ -7,6 +7,7 @@
 #include <inputcomponent.h>
 #include <componentptr.h>
 #include <sequenceeditorgui.h>
+#include <sequenceeditor.h>
 #include <sequence.h>
 #include <sequenceevent.h>
 #include <renderservice.h>
@@ -24,7 +25,8 @@ namespace nap
 		DECLARE_COMPONENT(CanvasGroupComponent, CanvasGroupComponentInstance)
 
 	public:
-		
+		ResourcePtr<SequenceEditor> mSequencePlayerEditor = nullptr;
+		ResourcePtr<SequenceEditorGUI>	mSequencePlayerEditorGUI = nullptr;
 	};
 
 	class NAPAPI CanvasGroupComponentInstance : public InputComponentInstance
@@ -41,6 +43,8 @@ namespace nap
 
 		void drawOutliner();
 
+		void drawSequenceEditor();
+
 		void setSequencePlayer(); // for editor gui
 
 		bool initSelectedRenderTarget();
@@ -49,6 +53,7 @@ namespace nap
 
 		ResourcePtr<RenderTarget>					mSelectedRenderTarget;
 		ResourcePtr<RenderTexture2D>				mSelectedOutputTexture;
+		
 
 	protected:
 		virtual void trigger(const nap::InputEvent& inEvent) override;

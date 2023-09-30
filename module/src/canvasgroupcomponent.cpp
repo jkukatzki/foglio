@@ -12,6 +12,8 @@
 
 // nap::rendercanvascomponent run time class definition
 RTTI_BEGIN_CLASS(nap::CanvasGroupComponent)
+	RTTI_PROPERTY("SequencePlayerEditor", &nap::CanvasGroupComponent::mSequencePlayerEditor, nap::rtti::EPropertyMetaData::Required)
+	RTTI_PROPERTY("SequencePlayerEditorGUI", &nap::CanvasGroupComponent::mSequencePlayerEditorGUI, nap::rtti::EPropertyMetaData::Required)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::CanvasGroupComponentInstance)
@@ -42,12 +44,13 @@ namespace nap
 		if (!initSelectedRenderTarget()) {
 			return false;
 		}
-		/***mSequenceEditor = getEntityInstance()->getCore()->getResourceManager()->createObject<SequenceEditor>();
-		mSequenceEditorGUI = getEntityInstance()->getCore()->getResourceManager()->createObject<SequenceEditorGUI>();
-		mSequenceEditorGUI->mRenderWindow = getEntityInstance()->getCore()->getResourceManager()->findObject<nap::RenderWindow>("ControlsWindow");
-		mSequenceEditorGUI->mSequenceEditor = mSequenceEditor;
-		setSequencePlayer();***/
-		
+		mSequenceEditor = resource->mSequencePlayerEditor.get();
+		if (!errorState.check(mSequenceEditor->init(errorState), "%s: unable to init sequence editor", resource->mID.c_str()))
+			return false;
+		mSequenceEditorGUI = resource->mSequencePlayerEditorGUI.get();
+		if (!errorState.check(mSequenceEditorGUI->init(errorState), "%s: unable to init sequence editor GUI", resource->mID.c_str()))
+			return false;
+		//setSequencePlayer();
 	}
 
 	void CanvasGroupComponentInstance::trigger(const nap::InputEvent& inEvent) {
@@ -64,6 +67,18 @@ namespace nap
 
 	}
 
+	void CanvasGroupComponentInstance::drawSequenceEditor() {
+		mSequenceEditorGUI->show();
+	}
+
+	void CanvasGroupComponentInstance::setSequencePlayer() {
+		if (mSelected->hasComponent<SequenceCanvasComponent>()) {
+			mSequenceEditor->mSequencePlayer = mSelected->getComponent<SequenceCanvasComponentInstance>().mSequencePlayer;
+			nap::utility::ErrorState error;
+			mSequenceEditor->init(error);
+			mSequenceEditorGUI->init(error);
+		}
+	}
 
 	bool CanvasGroupComponentInstance::initSelectedRenderTarget()
 	{
@@ -107,9 +122,6 @@ namespace nap
 		
 	}
 
-	void CanvasGroupComponentInstance::setSequencePlayer() {
-		mSequenceEditor->mSequencePlayer = mSelected->findComponent<SequenceCanvasComponent>()->mSequencePlayer;
-	}
 
 	void CanvasGroupComponentInstance::drawOutliner() {
 		for (EntityInstance* canvasEntity : getEntityInstance()->getChildren()) {
@@ -178,6 +190,21 @@ namespace nap
 		if (offsets != canvas_comp.getCornerOffsets()) {
 			canvas_comp.setCornerOffsets(offsets);
 		}
+		
+		if (mSelected->hasComponent<SequenceCanvasComponentInstance>()) {
+			SequenceCanvasComponentInstance& seq_canvas_comp = mSelected->getComponent<SequenceCanvasComponentInstance>();
+			ResourcePtr<SequencePlayer> seq_player = seq_canvas_comp.getSequencePlayer();
+			ImGui::Text("Sequence %s", seq_player->getSequenceFilename());
+			float playbackSpeed = seq_player->getPlaybackSpeed();
+			float tempPlaybackSpeed = playbackSpeed;
+			ImGui::DragFloat("Sequence Speed", &playbackSpeed, 0.01f, 0.0f, 100.0f);
+			if (tempPlaybackSpeed != playbackSpeed) {
+				nap::Logger::info("set playback speed for sequence");
+				seq_player->setPlaybackSpeed(playbackSpeed);
+			}
+
+		}
+		
 		
 	}	
 

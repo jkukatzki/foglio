@@ -197,7 +197,13 @@ namespace nap
 					mMainWindow->setPosition(glm::vec2(mRenderService->getDisplays()[0].getMax()[0] / 4, mRenderService->getDisplays()[0].getMax()[1] / 4));
 					mFullscreen = false;
 				}
-				
+			}
+
+			if (press_event->mKey == nap::EKeyCode::KEY_l && press_event->mWindow == mControlsWindow->getNumber()) {
+				ResourcePtr<VideoPlayer> player = mScene->findEntity("ExamplePlaneEntity")->findComponent<RenderCanvasComponentInstance>()->getCanvas()->mVideoPlayer;
+				nap::utility::ErrorState error;
+				player->selectVideo((player->getIndex() + 1) % player->getCount(), error);
+				player->play();
 			}
 		}
 		// Add event, so it can be forwarded on update
@@ -214,15 +220,19 @@ namespace nap
 	void foglioApp::updateGUI()
 	{
 		mGuiService->selectWindow(mControlsWindow);
-
 		ImGui::Begin("Controls");
 		ImGui::Text(getCurrentDateTime().toString().c_str());
 		ImGui::Text(utility::stringFormat("Framerate: %.02f", getCore().getFramerate()).c_str());
-		mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawOutliner();
+		if (mVideoWallEntity->hasComponent<CanvasGroupComponentInstance>()) {
+			mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawOutliner();
+		}
+		
+		//mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawSequenceEditor();
 		ImGui::End();
 		
 		
 		mGuiService->selectWindow(mCanvasSequenceWindow);
-		mCanvasSequenceEditorGUI->show();
+		mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawSequenceEditor();
+		//mCanvasSequenceEditorGUI->show();
 	}
 }
