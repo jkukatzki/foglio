@@ -29,7 +29,9 @@ namespace nap
 
 	public:
 		ResourcePtr<Canvas>				mCanvas = nullptr;
+		ResourcePtr<Material>			mPostShader;
 		std::vector<glm::vec2>			mCornerOffsets = std::vector<glm::vec2>(4);
+		ResourcePtr<ImageFromFile>		mMask;
 	};
 
 	class NAPAPI RenderCanvasComponentInstance : public RenderableComponentInstance
@@ -50,11 +52,28 @@ namespace nap
 
 		std::vector<glm::vec2>	getCornerOffsets() { return mCornerOffsets; }
 
+		enum class CanvasMaterialType
+		{
+			VIDEO = 0, MASK = 1, WARP = 2, INTERFACE = 3
+		};
+		struct CanvasPass {
+			ResourcePtr<Material>						mMaterial = nullptr;
+			std::unique_ptr<MaterialInstanceResource>	mMaterialInstResource = nullptr;
+			//instances shouldnt need to be smart pointers here cause they're already unique_ptrs on creation
+			MaterialInstance* mMaterialInstance;
+			UniformStructInstance* mMVPStruct = nullptr;
+			UniformMat4Instance* mModelMatrixUniform = nullptr;
+			UniformMat4Instance* mProjectMatrixUniform = nullptr;
+			UniformMat4Instance* mViewMatrixUniform = nullptr;
+			std::map<std::string, Sampler2DInstance*>	mSamplers;
+			UniformStructInstance* mUBO;
+			RenderableMesh mRenderableMesh;
+		};
 		void setCornerOffsets(std::vector<glm::vec2> offsets);
 
 		void draw(RenderableMesh mesh, const DescriptorSet* descriptor_set);
 
-		void drawHeadlessPass(Canvas::CanvasMaterialTypes type);
+		void drawHeadlessPass(CanvasPass& pass);
 
 		void drawAllHeadlessPasses();
 
@@ -66,6 +85,20 @@ namespace nap
 
 		void computeModelMatrixFullscreen(glm::mat4& outMatrix);
 
+		
+
+		
+		std::unordered_map<CanvasMaterialType, CanvasPass> mStockCanvasPasses;
+
+		bool constructCanvasPassItem(CanvasMaterialType type, utility::ErrorState error);
+		UniformMat4Instance* ensureUniformMat4(const std::string& uniformName, UniformStructInstance* structInstance, utility::ErrorState& error);
+		UniformVec3Instance* ensureUniformVec3(const std::string& uniformName, UniformStructInstance* structInstance, utility::ErrorState& error);
+		UniformFloatInstance* ensureUniformFloat(const std::string& uniformName, UniformStructInstance* structInstance, utility::ErrorState& error);
+		Sampler2DInstance* ensureSampler(const std::string& samplerName, MaterialInstance* materialInstance, utility::ErrorState& error);
+
+		void videoChanged(VideoPlayer& player);
+		nap::Slot<VideoPlayer&> mVideoChangedSlot = { this, &RenderCanvasComponentInstance::videoChanged };
+
 	protected:
 
 		virtual void onDraw(IRenderTarget& renderTarget, VkCommandBuffer commandBuffer, const glm::mat4& viewmatrix, const glm::mat4& projectionMatrix) override;
@@ -74,9 +107,10 @@ namespace nap
 		using DoubleBufferedRenderTarget = std::array<rtti::ObjectPtr<RenderTarget>, 2>;
 		//TODO: make this a ResourcePtr<Canvas>?
 		Canvas*							mCanvas = nullptr;
-		
+		std::unique_ptr<CanvasPass>		mCustomPostPass = nullptr;
 		DoubleBufferedRenderTarget		mDoubleBufferTarget;
-		ResourcePtr<RenderTarget>	mCurrentInternalRT;
+		ResourcePtr<RenderTarget>		mCurrentInternalRT;
+		ResourcePtr<ImageFromFile>		mMask;
 		PlaneMesh*						mCanvasPlane;
 		PlaneMesh*						mPlane;
 		RenderableMesh					mRenderableOutputMesh;

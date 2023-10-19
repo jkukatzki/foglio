@@ -49,7 +49,6 @@ namespace nap
 		mControlsWindow = mResourceManager->findObject<nap::RenderWindow>("ControlsWindow");
 		if (!error.check(mControlsWindow != nullptr, "unable to find render window with name: %s", "ControlsWindow"))
 			return false;
-		mCanvasSequenceWindow = mResourceManager->findObject<nap::RenderWindow>("CanvasSequenceWindow");
 		mCanvasSequenceEditorGUI = mResourceManager->findObject<nap::SequenceEditorGUI>("CanvasSequenceEditorGUI");
 		// Get the scene that contains our entities and components
 		mScene = mResourceManager->findObject<Scene>("Scene");
@@ -143,21 +142,6 @@ namespace nap
 			// End recording
 			mRenderService->endRecording();
 		}
-
-		if (mRenderService->beginRecording(*mCanvasSequenceWindow)) {
-			// Begin render pass
-			mCanvasSequenceWindow->beginRendering();
-			// render canvases
-			// Render GUI elements
-			mGuiService->draw();
-
-			// End render pass
-			mCanvasSequenceWindow->endRendering();
-
-			// End recording
-			mRenderService->endRecording();
-		}
-
 		// Proceed to next frame
 		mRenderService->endFrame();
 
@@ -200,8 +184,11 @@ namespace nap
 			}
 
 			if (press_event->mKey == nap::EKeyCode::KEY_l && press_event->mWindow == mControlsWindow->getNumber()) {
-				ResourcePtr<VideoPlayer> player = mScene->findEntity("ExamplePlaneEntity")->findComponent<RenderCanvasComponentInstance>()->getCanvas()->mVideoPlayer;
+				ResourcePtr<VideoPlayer> player = mScene->findEntity("BigCircleCanvasEntity")->findComponent<RenderCanvasComponentInstance>()->getCanvas()->mVideoPlayer;
 				nap::utility::ErrorState error;
+				player->selectVideo((player->getIndex() + 1) % player->getCount(), error);
+				player->play();
+				player = mScene->findEntity("SmallCircle1CanvasEntity")->findComponent<RenderCanvasComponentInstance>()->getCanvas()->mVideoPlayer;
 				player->selectVideo((player->getIndex() + 1) % player->getCount(), error);
 				player->play();
 			}
@@ -231,8 +218,7 @@ namespace nap
 		ImGui::End();
 		
 		
-		mGuiService->selectWindow(mCanvasSequenceWindow);
+
 		mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawSequenceEditor();
-		//mCanvasSequenceEditorGUI->show();
 	}
 }

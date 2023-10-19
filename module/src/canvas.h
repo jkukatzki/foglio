@@ -54,7 +54,7 @@ namespace nap
 		ResourcePtr<ImageFromFile>		mMaskImage;
 
 		ResourcePtr<RenderTarget>		mOutputRenderTarget;
-		std::map<std::string, CanvasMaterialItem> mCanvasMaterialItems;
+		std::map<std::string, CanvasMaterialItem> mCanvasMaterialItems; //TODO: could be unordered_map?
 
 		//VIDEO: handles video texture and converts yuv color to rgb
 		//MASK: sets mMaskImage as sample texture and sets textures transparency corresponding to image

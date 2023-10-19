@@ -83,7 +83,6 @@ namespace nap
 		IMGuiService*				mGuiService = nullptr;			///< Manages GUI related update / draw calls
 		ObjectPtr<RenderWindow>		mMainWindow = nullptr;					///< Pointer to the main render window
 		ObjectPtr<RenderWindow>		mControlsWindow = nullptr;					///< Pointer to the controls window	
-		ObjectPtr<RenderWindow>		mCanvasSequenceWindow = nullptr;
 		ObjectPtr<Scene>			mScene = nullptr;				///< Pointer to the main scene
 
 		ObjectPtr<SequenceEditorGUI>mCanvasSequenceEditorGUI = nullptr;

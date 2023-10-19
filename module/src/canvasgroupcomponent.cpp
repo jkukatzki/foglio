@@ -129,12 +129,11 @@ namespace nap
 			if (mSelected == canvasEntity) {
 				node_flags |= ImGuiTreeNodeFlags_Selected;
 			}
-			ImGui::TreeNodeEx((EntityInstance*)canvasEntity, node_flags, "Canvas Entity %s", canvasEntity->getEntity()->mID.c_str());
+			ImGui::TreeNodeEx((EntityInstance*)canvasEntity, node_flags, canvasEntity->getEntity()->mID.c_str());
 			if (ImGui::IsItemClicked())
 			{
 				mSelected->getComponent<RenderCanvasComponentInstance>().setFinalSampler(false);
 				mSelected = canvasEntity;
-				initSelectedRenderTarget();
 				setSequencePlayer();
 			}
 				
