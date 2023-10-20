@@ -29,9 +29,11 @@ namespace nap
 
 	public:
 		ResourcePtr<Canvas>				mCanvas = nullptr;
-		ResourcePtr<Material>			mPostShader;
+		ResourcePtr<VideoPlayer>		mVideoPlayer = nullptr;
+		ResourcePtr<Material>			mPostShader = nullptr;
 		std::vector<glm::vec2>			mCornerOffsets = std::vector<glm::vec2>(4);
-		ResourcePtr<ImageFromFile>		mMask;
+		ResourcePtr<ImageFromFile>		mMask = nullptr;
+		
 	};
 
 	class NAPAPI RenderCanvasComponentInstance : public RenderableComponentInstance
@@ -96,8 +98,7 @@ namespace nap
 		UniformFloatInstance* ensureUniformFloat(const std::string& uniformName, UniformStructInstance* structInstance, utility::ErrorState& error);
 		Sampler2DInstance* ensureSampler(const std::string& samplerName, MaterialInstance* materialInstance, utility::ErrorState& error);
 
-		void videoChanged(VideoPlayer& player);
-		nap::Slot<VideoPlayer&> mVideoChangedSlot = { this, &RenderCanvasComponentInstance::videoChanged };
+		
 
 	protected:
 
@@ -113,10 +114,7 @@ namespace nap
 		ResourcePtr<ImageFromFile>		mMask;
 		PlaneMesh*						mCanvasPlane;
 		PlaneMesh*						mPlane;
-		RenderableMesh					mRenderableOutputMesh;
-		RenderableMesh					mHeadlessVideoMesh;
-		RenderableMesh					mHeadlessInterfaceMesh;
-		RenderableMesh					mHeadlessMaskMesh;
+		VideoPlayer*					mVideoPlayer = nullptr;
 		
 		std::vector<glm::vec2>			mCornerOffsets;
 
@@ -130,7 +128,7 @@ namespace nap
 
 		void setWarpCornerUniforms();
 
-		//nap::Slot<VideoPlayer&> mVideoChangedSlot = { this, &RenderCanvasComponentInstance::videoChanged };
-
+		void videoChanged(VideoPlayer& player);
+		nap::Slot<VideoPlayer&> mVideoChangedSlot = { this, &RenderCanvasComponentInstance::videoChanged };
 	};
 }

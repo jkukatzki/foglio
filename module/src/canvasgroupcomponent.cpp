@@ -1,4 +1,4 @@
-
+﻿
 #include "canvasgroupcomponent.h"
 #include "rendercanvascomponent.h"
 #include "inputcomponent.h"
@@ -146,11 +146,22 @@ namespace nap
 		float ratio_canvas_tex = static_cast<float>(canvas_tex.getWidth()) / static_cast<float>(canvas_tex.getHeight());
 		ImGui::Image(canvas_tex, { col_width , col_width / ratio_canvas_tex });
 
-		float current_time = canvas_comp.getVideoPlayer()->getCurrentTime();
-		if (ImGui::SliderFloat("", &current_time, 0.0f, canvas_comp.getCanvas()->mVideoPlayer->getDuration(), "%.3fs", 1.0f))
-			canvas_comp.getVideoPlayer()->seek(current_time);
-		ImGui::Text("Total time: %fs", canvas_comp.getVideoPlayer()->getDuration());
-		
+		utility::ErrorState errorState;
+		if (canvas_comp.getVideoPlayer() != nullptr) {
+			VideoPlayer* video_player = canvas_comp.getVideoPlayer();
+			float current_time = canvas_comp.getVideoPlayer()->getCurrentTime();
+			if (ImGui::SliderFloat("", &current_time, 0.0f, canvas_comp.getCanvas()->mVideoPlayer->getDuration(), "%.3fs", 1.0f))
+				canvas_comp.getVideoPlayer()->seek(current_time);
+			ImGui::Text("Total time: %fs", canvas_comp.getVideoPlayer()->getDuration());
+			ImGui::BeginGroup();
+			std::string mediaControlSymbol = video_player->isPlaying() ? "⏸" : "▶";
+			if (ImGui::Button(mediaControlSymbol.c_str())) {
+				video_player->isPlaying() ? video_player->stopPlayback() : video_player->play();
+			}
+			if (ImGui::ArrowButton("##left", ImGuiDir_Left)) { }
+			ImGui::EndGroup();
+
+		}
 		ImGui::Text("Position");
 		glm::vec3 translate = canvas_transform_comp.getTranslate();
 		float tempXTransl = translate.x;

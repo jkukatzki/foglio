@@ -19,9 +19,12 @@
 // nap::rendercanvascomponent run time class definition
 RTTI_BEGIN_CLASS(nap::RenderCanvasComponent)
 RTTI_PROPERTY("Canvas", &nap::RenderCanvasComponent::mCanvas, nap::rtti::EPropertyMetaData::Default)
+RTTI_PROPERTY("VideoPlayer", &nap::RenderCanvasComponent::mVideoPlayer, nap::rtti::EPropertyMetaData::Default)
 RTTI_PROPERTY("CornerOffsets", &nap::RenderCanvasComponent::mCornerOffsets, nap::rtti::EPropertyMetaData::Default)
 RTTI_PROPERTY("PostShader", &nap::RenderCanvasComponent::mPostShader, nap::rtti::EPropertyMetaData::Default)
 RTTI_PROPERTY("Mask", &nap::RenderCanvasComponent::mMask, nap::rtti::EPropertyMetaData::Default)
+
+
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::RenderCanvasComponentInstance)
@@ -45,7 +48,7 @@ namespace nap
 
 	nap::VideoPlayer* RenderCanvasComponentInstance::getVideoPlayer()
 	{
-		return mCanvas->mVideoPlayer.get();
+		return mVideoPlayer;
 	}
 
 	bool RenderCanvasComponentInstance::init(utility::ErrorState& errorState)
@@ -157,9 +160,12 @@ namespace nap
 			if (!errorState.check(mCustomPostPass->mRenderableMesh.isValid(), "%s: unable to construct renderable mesh for custom pass", getEntityInstance()->mID.c_str()))
 				return false;
 		}
-
-		mCanvas->mVideoPlayer->VideoChanged.connect(mVideoChangedSlot);
-		videoChanged(*mCanvas->mVideoPlayer);
+		mVideoPlayer = resource->mVideoPlayer.get();
+		if (mVideoPlayer != nullptr) {
+			mVideoPlayer->play();
+			mVideoPlayer->VideoChanged.connect(mVideoChangedSlot);
+			videoChanged(*mVideoPlayer);
+		}
 		return true;
 
 	}
