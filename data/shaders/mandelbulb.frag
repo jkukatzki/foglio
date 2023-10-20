@@ -32,7 +32,7 @@ float map(in vec3 pos, out vec3 orbit_trap)
     
     // Zn <- Zn^8 + c
     // Zn' <- 8*Zn^7 + 1    
-    const float power = 8.0;
+    const float power = 2.0;
     vec3 z = pos;
     vec3 c = pos;
     
@@ -128,11 +128,11 @@ float castRay(vec3 ro, vec3 rd, out vec3 trap)
 
 void main()
 {
-	vec2 iResolution = vec2(1920, 1080);
-	vec2 fragCoord = vec2(pass_Uvs.x*iResolution.x, pass_Uvs.y*iResolution.y);
+	vec2 iResolution = vec2(1000, 1000);
+	vec2 fragCoord = vec2(pass_Uvs.x*1920, pass_Uvs.y*1080);
 	float iTime = ubo.iTime;
     float freq = 80.0 + iTime;
-    vec3 cam_pos = vec3(3.0 * cos(0.1 * 0.125 * freq) * sin(0.1 * 0.5*freq), sin(0.1 * freq), 2.0 * cos(0.1 * 0.5 * freq));
+    vec3 cam_pos = vec3(20.0 * cos(0.1 * 0.125 * freq) * sin(0.1 * 0.5*freq), sin(0.1 * freq), 2.0 * cos(0.1 * 0.5 * freq));
     const vec3 cam_target = vec3(0);
     
     const float fov = 90.0 * 3.141592 / 180.0;
@@ -187,7 +187,7 @@ void main()
 	}
     else
     {
-    	col = texture(inTexture, vec2(pass_Uvs.x, pass_Uvs.y)).xyz;
+    	col = vec3(0,0,0); //texture(inTexture, vec2(pass_Uvs.x, pass_Uvs.y)).xyz;
 	}
 #if AA
     final_col += col;

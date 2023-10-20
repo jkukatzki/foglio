@@ -580,3 +580,746 @@
         }
     ]
 }
+
+{
+    "Objects": [
+        {
+            "Type": "nap::Entity",
+            "mID": "BackgroundCanvasEntity",
+            "Components": [
+                {
+                    "Type": "nap::RenderCanvasComponent",
+                    "mID": "BackgroundCanvas",
+                    "Visible": true,
+                    "Canvas": "Background",
+                    "VideoPlayer": "BackgroundVideoPlayer",
+                    "CornerOffsets": [
+                        {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0
+                        }
+                    ],
+                    "PostShader": "FractalMaterial",
+                    "Mask": ""
+                },
+                {
+                    "Type": "nap::TransformComponent",
+                    "mID": "TransformBackgroundCanvas",
+                    "Properties": {
+                        "Translate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Rotate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        },
+                        "UniformScale": 1.0
+                    }
+                },
+                {
+                    "Type": "nap::SequenceCanvasComponent",
+                    "mID": "nap::SequenceCanvasComponent_4c9e78de",
+                    "Sequence": "BackgroundHourSequence"
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::Entity",
+            "mID": "BigCircleCanvasEntity",
+            "Components": [
+                {
+                    "Type": "nap::RenderCanvasComponent",
+                    "mID": "BigCircleCanvasComponent",
+                    "Visible": false,
+                    "Canvas": "BigCircle",
+                    "VideoPlayer": "",
+                    "CornerOffsets": [
+                        {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0
+                        }
+                    ],
+                    "PostShader": "",
+                    "Mask": "CircleMask"
+                },
+                {
+                    "Type": "nap::TransformComponent",
+                    "mID": "nap::TransformComponent_e306f071",
+                    "Properties": {
+                        "Translate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Rotate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Scale": {
+                            "x": 0.30000001192092898,
+                            "y": 0.30000001192092898,
+                            "z": 0.30000001192092898
+                        },
+                        "UniformScale": 1.0
+                    }
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::Entity",
+            "mID": "CameraEntity",
+            "Components": [
+                {
+                    "Type": "nap::PerspCameraComponent",
+                    "mID": "PerspectiveCamera",
+                    "Properties": {
+                        "FieldOfView": 50.0,
+                        "NearClippingPlane": 1.0,
+                        "FarClippingPlane": 1000.0,
+                        "GridDimensions": {
+                            "x": 1,
+                            "y": 1
+                        },
+                        "GridLocation": {
+                            "x": 0,
+                            "y": 0
+                        }
+                    }
+                },
+                {
+                    "Type": "nap::TransformComponent",
+                    "mID": "CameraTransform",
+                    "Properties": {
+                        "Translate": {
+                            "x": 0.0,
+                            "y": 5.0,
+                            "z": 10.0
+                        },
+                        "Rotate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        },
+                        "UniformScale": 1.0
+                    }
+                },
+                {
+                    "Type": "nap::OrbitController",
+                    "mID": "OrbitController",
+                    "MovementSpeed": 0.5,
+                    "RotateSpeed": 0.004999999888241291,
+                    "PerspCameraComponent": "./PerspectiveCamera",
+                    "LookAtPosition": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "MinimumZoomDistance": 0.5,
+                    "LimitZoomDistance": false
+                },
+                {
+                    "Type": "nap::PointerInputComponent",
+                    "mID": "CameraPointerInput"
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::Entity",
+            "mID": "OrthoCameraEntity",
+            "Components": [
+                {
+                    "Type": "nap::OrthoCameraComponent",
+                    "mID": "nap::OrthoCameraComponent_ab24e06d",
+                    "Properties": {
+                        "Mode": "PixelSpace",
+                        "LeftPlane": 0.0,
+                        "RightPlane": 100.0,
+                        "TopPlane": 100.0,
+                        "BottomPlane": 0.0,
+                        "NearClippingPlane": 0.0,
+                        "FarClippingPlane": 1000.0,
+                        "ClipRect": {
+                            "Min": {
+                                "x": 0.0,
+                                "y": 0.0
+                            },
+                            "Max": {
+                                "x": 1.0,
+                                "y": 1.0
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "nap::TransformComponent",
+                    "mID": "nap::TransformComponent_370564a5",
+                    "Properties": {
+                        "Translate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 1.0
+                        },
+                        "Rotate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        },
+                        "UniformScale": 1.0
+                    }
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::Entity",
+            "mID": "SmallCircle1CanvasEntity",
+            "Components": [
+                {
+                    "Type": "nap::RenderCanvasComponent",
+                    "mID": "SmallCircleCanvasComponent",
+                    "Visible": true,
+                    "Canvas": "SmallCircle",
+                    "VideoPlayer": "",
+                    "CornerOffsets": [
+                        {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0
+                        }
+                    ],
+                    "PostShader": "",
+                    "Mask": "SmallCircleMask"
+                },
+                {
+                    "Type": "nap::TransformComponent",
+                    "mID": "SmallCircleTransformComponent",
+                    "Properties": {
+                        "Translate": {
+                            "x": -0.3499999940395355,
+                            "y": 0.25,
+                            "z": 0.0
+                        },
+                        "Rotate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Scale": {
+                            "x": 0.15000000596046449,
+                            "y": 0.15000000596046449,
+                            "z": 0.15000000596046449
+                        },
+                        "UniformScale": 1.0
+                    }
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::Entity",
+            "mID": "VideoWallEntity",
+            "Components": [
+                {
+                    "Type": "nap::CanvasGroupComponent",
+                    "mID": "VideoWallCanvasGroup",
+                    "SequencePlayerEditor": "SequenceEditor_b1d13c76",
+                    "SequencePlayerEditorGUI": "CanvasSequenceEditorGUI"
+                }
+            ],
+            "Children": [
+                "BackgroundCanvasEntity",
+                "BigCircleCanvasEntity",
+                "SmallCircle1CanvasEntity"
+            ]
+        },
+        {
+            "Type": "nap::Material",
+            "mID": "FractalMaterial",
+            "Uniforms": [],
+            "Samplers": [],
+            "Buffers": [],
+            "Shader": "Mandelbulb",
+            "VertexAttributeBindings": [],
+            "BlendMode": "Opaque",
+            "DepthMode": "InheritFromBlendMode"
+        },
+        {
+            "Type": "nap::RenderWindow",
+            "mID": "ControlsWindow",
+            "Borderless": false,
+            "Resizable": true,
+            "Visible": true,
+            "SampleShading": true,
+            "Title": "",
+            "Width": 512,
+            "Height": 512,
+            "Mode": "Immediate",
+            "ClearColor": {
+                "Values": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "Samples": "Four",
+            "AdditionalSwapImages": 1,
+            "RestoreSize": true,
+            "RestorePosition": true
+        },
+        {
+            "Type": "nap::RenderWindow",
+            "mID": "MainWindow",
+            "Borderless": false,
+            "Resizable": true,
+            "Visible": true,
+            "SampleShading": true,
+            "Title": "foglio",
+            "Width": 1920,
+            "Height": 1080,
+            "Mode": "Immediate",
+            "ClearColor": {
+                "Values": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            },
+            "Samples": "Four",
+            "AdditionalSwapImages": 1,
+            "RestoreSize": true,
+            "RestorePosition": true
+        },
+        {
+            "Type": "nap::ResourceGroup",
+            "mID": "CanvasResources",
+            "Members": [
+                {
+                    "Type": "nap::Canvas",
+                    "mID": "Background",
+                    "VideoPlayer": "BackgroundVideoPlayer",
+                    "MaskImage": "",
+                    "Name": "Background"
+                },
+                {
+                    "Type": "nap::Canvas",
+                    "mID": "BigCircle",
+                    "VideoPlayer": "BigCircleVideoPlayer",
+                    "MaskImage": "CircleMask",
+                    "Name": "BigCircle"
+                },
+                {
+                    "Type": "nap::Canvas",
+                    "mID": "SmallCircle",
+                    "VideoPlayer": "SmallCircleVideoPlayer",
+                    "MaskImage": "SmallCircleMask",
+                    "Name": "SmallCircle"
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::ResourceGroup",
+            "mID": "CustomShaders",
+            "Members": [
+                {
+                    "Type": "nap::ShaderFromFile",
+                    "mID": "Mandelbulb",
+                    "VertShader": "shaders/mandelbulb.vert",
+                    "FragShader": "shaders/mandelbulb.frag"
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::ResourceGroup",
+            "mID": "ImageMasks",
+            "Members": [
+                {
+                    "Type": "nap::ImageFromFile",
+                    "mID": "FlowerMask",
+                    "Usage": "Static",
+                    "ImagePath": "images/masks/flower.png",
+                    "GenerateLods": true
+                },
+                {
+                    "Type": "nap::ImageFromFile",
+                    "mID": "CircleMask",
+                    "Usage": "Static",
+                    "ImagePath": "images/masks/circle.png",
+                    "GenerateLods": true
+                },
+                {
+                    "Type": "nap::ImageFromFile",
+                    "mID": "EckeMask",
+                    "Usage": "Static",
+                    "ImagePath": "images/masks/ecke.png",
+                    "GenerateLods": true
+                },
+                {
+                    "Type": "nap::ImageFromFile",
+                    "mID": "SmallCircleMask",
+                    "Usage": "Static",
+                    "ImagePath": "images/masks/circle.png",
+                    "GenerateLods": true
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::ResourceGroup",
+            "mID": "Sequences",
+            "Members": [
+                {
+                    "Type": "nap::SequencePlayer",
+                    "mID": "BackgroundHourSequence",
+                    "Default Show": "backgroundcanvassequence.json",
+                    "Outputs": [
+                        {
+                            "Type": "nap::SequencePlayerEventOutput",
+                            "mID": "SetVideoFileIndexEventOutput"
+                        }
+                    ],
+                    "Clock": {
+                        "Type": "nap::SequencePlayerStandardClock",
+                        "mID": "SequencePlayerStandardClock_6c77eebe"
+                    }
+                },
+                {
+                    "Type": "nap::SequencePlayer",
+                    "mID": "BigCircleHourSequence",
+                    "Default Show": "bigcirclesequence.json",
+                    "Outputs": [
+                        {
+                            "Type": "nap::SequencePlayerEventOutput",
+                            "mID": "VideoFileIndexOutput"
+                        }
+                    ],
+                    "Clock": {
+                        "Type": "nap::SequencePlayerStandardClock",
+                        "mID": "SequencePlayerStandardClock_8ea99e3a"
+                    }
+                },
+                {
+                    "Type": "nap::SequencePlayer",
+                    "mID": "FlowerHourSequence",
+                    "Default Show": "flowersequence.json",
+                    "Outputs": [
+                        {
+                            "Type": "nap::SequencePlayerEventOutput",
+                            "mID": "SetVideoFileIndexEventOutput2"
+                        }
+                    ],
+                    "Clock": {
+                        "Type": "nap::SequencePlayerStandardClock",
+                        "mID": "SequencePlayerStandardClock_f3a8e8d2"
+                    }
+                },
+                {
+                    "Type": "nap::SequencePlayer",
+                    "mID": "SmallCircleHourSequence",
+                    "Default Show": "smallcirclesequence.json",
+                    "Outputs": [
+                        {
+                            "Type": "nap::SequencePlayerEventOutput",
+                            "mID": "VideoFileIndex"
+                        }
+                    ],
+                    "Clock": {
+                        "Type": "nap::SequencePlayerStandardClock",
+                        "mID": "SequencePlayerStandardClock_98e87261"
+                    }
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::ResourceGroup",
+            "mID": "VideoPlayers",
+            "Members": [
+                {
+                    "Type": "nap::VideoPlayer",
+                    "mID": "BackgroundVideoPlayer",
+                    "Loop": true,
+                    "VideoFiles": [
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "noise1",
+                            "Path": "videos/background/noise_fin.mp4"
+                        },
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "altstadtbg",
+                            "Path": "videos/background/altstadtbg_red.mp4"
+                        },
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "bg2",
+                            "Path": "videos/background/bg2.mp4"
+                        }
+                    ],
+                    "VideoIndex": 0,
+                    "Speed": 1.0
+                },
+                {
+                    "Type": "nap::VideoPlayer",
+                    "mID": "FlowerVideoPlayer",
+                    "Loop": true,
+                    "VideoFiles": [
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "uv_sphere",
+                            "Path": "videos/flower/flower_uv_sphere_sine_1.1.mp4"
+                        },
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "shadow_cast_sphere",
+                            "Path": "videos/flower/shadow_cast_sphere_first.mp4"
+                        },
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "ballpit",
+                            "Path": "videos/flower/ballpit_fin.mp4"
+                        },
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "metaballs",
+                            "Path": "videos/flower/Metaballs.mp4"
+                        },
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "light_sweep",
+                            "Path": "videos/flower/tunnel_blocks_light_sweep_1.1.mp4"
+                        },
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "cake",
+                            "Path": "videos/flower/Cake.mp4"
+                        }
+                    ],
+                    "VideoIndex": 0,
+                    "Speed": 1.0
+                },
+                {
+                    "Type": "nap::VideoPlayer",
+                    "mID": "ExamplePlaneVideoPlayer",
+                    "Loop": true,
+                    "VideoFiles": [
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "bonjesu",
+                            "Path": "videos/dj_names/Bonjesu.mp4"
+                        },
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "forma",
+                            "Path": "videos/dj_names/Forma.mp4"
+                        },
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "guedes",
+                            "Path": "videos/dj_names/Guedes.mp4"
+                        },
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "hector",
+                            "Path": "videos/dj_names/Hector.mp4"
+                        },
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "marctrain",
+                            "Path": "videos/dj_names/Marctrain.mp4"
+                        },
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "skiba",
+                            "Path": "videos/dj_names/Skiba.mp4"
+                        },
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "spherart",
+                            "Path": "videos/dj_names/Spherart.mp4"
+                        }
+                    ],
+                    "VideoIndex": 0,
+                    "Speed": 1.0
+                },
+                {
+                    "Type": "nap::VideoPlayer",
+                    "mID": "BigCircleVideoPlayer",
+                    "Loop": true,
+                    "VideoFiles": [
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "qua_forma",
+                            "Path": "videos/big_circle/qua_forma_tentacles.mp4"
+                        },
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "spherart2",
+                            "Path": "videos/big_circle/spherart_donut_tilt.mp4"
+                        },
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "nvndo",
+                            "Path": "videos/big_circle/nvndo_josh_canallie_blocks.mp4"
+                        },
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "marc_trainel",
+                            "Path": "videos/big_circle/marc_trainel_walls.mp4"
+                        }
+                    ],
+                    "VideoIndex": 0,
+                    "Speed": 1.0
+                },
+                {
+                    "Type": "nap::VideoPlayer",
+                    "mID": "SmallCircleVideoPlayer",
+                    "Loop": true,
+                    "VideoFiles": [
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "tentacles",
+                            "Path": "videos/small_circle/tentacles.mp4"
+                        },
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "growing_donuts2",
+                            "Path": "videos/small_circle/growing_donut_tilt.mp4"
+                        },
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "blocks",
+                            "Path": "videos/small_circle/blocks.mp4"
+                        },
+                        {
+                            "Type": "nap::VideoFile",
+                            "mID": "walls",
+                            "Path": "videos/small_circle/walls.mp4"
+                        }
+                    ],
+                    "VideoIndex": 0,
+                    "Speed": 1.0
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::Scene",
+            "mID": "Scene",
+            "Entities": [
+                {
+                    "Entity": "CameraEntity",
+                    "InstanceProperties": []
+                },
+                {
+                    "Entity": "VideoWallEntity",
+                    "InstanceProperties": []
+                },
+                {
+                    "Entity": "OrthoCameraEntity",
+                    "InstanceProperties": [
+                        {
+                            "TargetComponent": "./nap::TransformComponent_370564a5",
+                            "TargetAttributes": [
+                                {
+                                    "Path": "Properties/Translate/z",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_477fe6ae",
+                                        "Value": 1.0
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "TargetComponent": "./nap::OrthoCameraComponent_ab24e06d",
+                            "TargetAttributes": [
+                                {
+                                    "Path": "Properties/NearClippingPlane",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_dd53379b",
+                                        "Value": 0.0
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Type": "nap::SequenceEditor",
+            "mID": "SequenceEditor_b1d13c76",
+            "Sequence Player": "BackgroundHourSequence"
+        },
+        {
+            "Type": "nap::SequenceEditorGUI",
+            "mID": "CanvasSequenceEditorGUI",
+            "Sequence Editor": "SequenceEditor_b1d13c76",
+            "Render Window": "ControlsWindow",
+            "Draw Full Window": false,
+            "Hide Marker Labels": false
+        }
+    ]
+}

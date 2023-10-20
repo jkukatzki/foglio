@@ -124,6 +124,9 @@ namespace nap
 
 
 	void CanvasGroupComponentInstance::drawOutliner() {
+		if (ImGui::Button("Toggle Backdrop")) {
+			mDrawBackdrop = !mDrawBackdrop;
+		}
 		for (EntityInstance* canvasEntity : getEntityInstance()->getChildren()) {
 			ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 			if (mSelected == canvasEntity) {
@@ -144,8 +147,10 @@ namespace nap
 		Texture2D& canvas_tex = canvas_comp.getOutputTexture();
 		float col_width = ImGui::GetContentRegionAvailWidth();
 		float ratio_canvas_tex = static_cast<float>(canvas_tex.getWidth()) / static_cast<float>(canvas_tex.getHeight());
-		ImGui::Image(canvas_tex, { col_width , col_width / ratio_canvas_tex });
-
+		if (ImGui::CollapsingHeader("Preview", ImGuiTreeNodeFlags_None))
+		{
+			ImGui::Image(canvas_tex, { col_width , col_width / ratio_canvas_tex });
+		}
 		utility::ErrorState errorState;
 		if (canvas_comp.getVideoPlayer() != nullptr) {
 			VideoPlayer* video_player = canvas_comp.getVideoPlayer();
@@ -154,11 +159,27 @@ namespace nap
 				canvas_comp.getVideoPlayer()->seek(current_time);
 			ImGui::Text("Total time: %fs", canvas_comp.getVideoPlayer()->getDuration());
 			ImGui::BeginGroup();
-			std::string mediaControlSymbol = video_player->isPlaying() ? "⏸" : "▶";
+			std::string mediaControlSymbol = video_player->isPlaying() ? "X" : "O";
+			
+			if (ImGui::ArrowButton("##left", ImGuiDir_Left)) {
+				if (video_player->getIndex() == 0) {
+					video_player->selectVideo(video_player->getCount() - 1, errorState);
+					video_player->play();
+				}
+				else {
+					video_player->selectVideo((video_player->getIndex() - 1) % video_player->getCount(), errorState);
+					video_player->play();
+				}
+			}
+			ImGui::SameLine();
 			if (ImGui::Button(mediaControlSymbol.c_str())) {
 				video_player->isPlaying() ? video_player->stopPlayback() : video_player->play();
 			}
-			if (ImGui::ArrowButton("##left", ImGuiDir_Left)) { }
+			ImGui::SameLine();
+			if (ImGui::ArrowButton("##right", ImGuiDir_Right)) {
+				video_player->selectVideo((video_player->getIndex() + 1) % video_player->getCount(), errorState);
+				video_player->play();
+			}
 			ImGui::EndGroup();
 
 		}

@@ -36,7 +36,9 @@ namespace nap
 
 	RenderCanvasComponentInstance::RenderCanvasComponentInstance(EntityInstance& entity, Component& resource) :
 		RenderableComponentInstance(entity, resource),
-		mPlane(new PlaneMesh(*entity.getCore()))
+		mPlane(new PlaneMesh(*entity.getCore())),
+		mFinalRenderTarget(new RenderTarget(*entity.getCore())),
+		mFinalTexture(new RenderTexture2D(*entity.getCore()))
 	{ }
 
 

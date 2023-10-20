@@ -53,7 +53,7 @@ namespace nap
 
 		ResourcePtr<RenderTarget>					mSelectedRenderTarget;
 		ResourcePtr<RenderTexture2D>				mSelectedOutputTexture;
-		
+		bool										mDrawBackdrop = false;
 
 	protected:
 		virtual void trigger(const nap::InputEvent& inEvent) override;

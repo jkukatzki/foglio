@@ -115,7 +115,8 @@ namespace nap
 		PlaneMesh*						mCanvasPlane;
 		PlaneMesh*						mPlane;
 		VideoPlayer*					mVideoPlayer = nullptr;
-		
+		ResourcePtr<RenderTarget>		mFinalRenderTarget;
+		ResourcePtr<RenderTexture2D>	mFinalTexture;
 		std::vector<glm::vec2>			mCornerOffsets;
 
 		TransformComponentInstance*	mTransformComponent = nullptr;

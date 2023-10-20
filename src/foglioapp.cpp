@@ -117,6 +117,7 @@ namespace nap
 			mMainWindow->beginRendering();
 
 			mRenderService->renderObjects(*mMainWindow, ortho_cam, canvas_components_to_render);
+			
 			mGuiService->draw();
 
 			// End render pass
@@ -132,7 +133,9 @@ namespace nap
 			// Begin render pass
 			mControlsWindow->beginRendering();
 			// render canvases
-			mRenderService->renderObjects(*mControlsWindow, ortho_cam, canvas_components_to_render);
+			if (canvasGroupComponent->mDrawBackdrop) {
+				mRenderService->renderObjects(*mControlsWindow, ortho_cam, canvas_components_to_render);
+			}
 			// Render GUI elements
 			mGuiService->draw();
 			
