@@ -72,28 +72,11 @@ namespace nap
 		// Setup double buffer target for internal render
 		for (int target_idx = 0; target_idx < 2; target_idx++)
 		{
+			
 			auto tex = getEntityInstance()->getCore()->getResourceManager()->createObject<RenderTexture2D>();
-			ResourcePtr<RenderTexture2D> outputTexRef = mCanvas->getOutputTexture();
-			tex->mWidth = outputTexRef->mWidth;
-			tex->mHeight = outputTexRef->mHeight;
-			tex->mFormat = outputTexRef->mFormat;
-			tex->mUsage = ETextureUsage::Static;
-			if (!tex->init(errorState))
-			{
-				errorState.fail("%s: Failed to initialize internal render texture", tex->mID.c_str());
-				return false;
-			}
-
 			auto target = getEntityInstance()->getCore()->getResourceManager()->createObject<RenderTarget>();
-			target->mColorTexture = tex;
-			target->mClearColor = RGBAColor8(255, 255, 255, 0).convert<RGBAColorFloat>();
-			target->mSampleShading = false;
-			target->mRequestedSamples = ERasterizationSamples::One;
-			if (!target->init(errorState))
-			{
-				errorState.fail("%s: Failed to initialize internal render target", target->mID.c_str());
+			if(!errorState.check(constructTextureAndRenderTarget(target, tex, true, errorState), "%s: unable to construct internal render target", resource->mID.c_str()))
 				return false;
-			}
 
 			mDoubleBufferTarget[target_idx] = target;
 		}
@@ -102,7 +85,6 @@ namespace nap
 		mRenderService = getEntityInstance()->getCore()->getService<RenderService>();
 		assert(mRenderService != nullptr);
 
-		//canvas_material->mVertexAttributeBindings = mCanvas->mMaterialWithBindings->mVertexAttributeBindings;
 		if (!constructCanvasPassItem(CanvasMaterialType::VIDEO, errorState))
 			return false;
 		mMask = resource->mMask.get();
@@ -527,6 +509,37 @@ namespace nap
 		outMatrix = glm::scale(outMatrix, glm::vec3(tex_size.x * scale.x, tex_size.y * scale.y, 1.0f));
 		//outMatrix = glm::rotate(outMatrix, transform_comp->getRotate());
 
+	}
+
+	bool RenderCanvasComponentInstance::constructTextureAndRenderTarget(ResourcePtr<RenderTarget>& renderTarget, ResourcePtr<RenderTexture2D>& texture, bool transparent, utility::ErrorState& errorState) {
+		//init mOutputTexture TODO: resize when videoChanged event?
+		int width;
+		int height;
+		if(mVideoPlayer == nullptr) {
+			//TODO: set from component properties if videoplayer not present
+			width = 256;
+			height = 256;
+		}
+		else {
+			width = mVideoPlayer->getWidth();
+			height = mVideoPlayer->getHeight();
+		}
+		texture->mWidth = width;
+		texture->mHeight = width;
+		texture->mFormat = RenderTexture2D::EFormat::RGBA8;
+		if (!texture->init(errorState))
+			return false;
+		if (transparent) {
+			renderTarget->mClearColor = RGBAColor8(255, 255, 255, 0).convert<RGBAColorFloat>();
+		}
+		else {
+			renderTarget->mClearColor = RGBColor8(255, 255, 255).convert<RGBColorFloat>();
+		}
+		renderTarget->mColorTexture = texture;
+		renderTarget->mSampleShading = true;
+		renderTarget->mRequestedSamples = ERasterizationSamples::One;
+		if (!renderTarget->init(errorState))
+			return false;
 	}
 
 	void RenderCanvasComponentInstance::setCornerOffsets(std::vector<glm::vec2> offsets) {
