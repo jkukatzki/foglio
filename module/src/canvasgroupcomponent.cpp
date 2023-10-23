@@ -35,10 +35,6 @@ namespace nap
 			return false;
 		// Get resource
 		CanvasGroupComponent* resource = getComponent<CanvasGroupComponent>();
-
-		for (EntityInstance* canvasEntity : getEntityInstance()->getChildren()) {
-			canvasEntity->getComponent<RenderCanvasComponentInstance>().getCanvas()->mVideoPlayer->play();
-		}
 		
 		mSelected = getEntityInstance()->getChildren()[0];
 		if (!initSelectedRenderTarget()) {
@@ -83,7 +79,7 @@ namespace nap
 	bool CanvasGroupComponentInstance::initSelectedRenderTarget()
 	{
 		mSelectedOutputTexture = getEntityInstance()->getCore()->getResourceManager()->createObject<RenderTexture2D>();
-		ResourcePtr<RenderTexture2D> outputTexRef = mSelected->getComponent<RenderCanvasComponentInstance>().getCanvas()->getOutputTexture();
+		ResourcePtr<RenderTexture2D> outputTexRef = mSelected->getComponent<RenderCanvasComponentInstance>().getOutputTexture();
 		mSelectedOutputTexture->mWidth = outputTexRef->mWidth;
 		mSelectedOutputTexture->mHeight = outputTexRef->mHeight;
 		mSelectedOutputTexture->mFormat = outputTexRef->mFormat;
@@ -144,18 +140,18 @@ namespace nap
 		RenderCanvasComponentInstance& canvas_comp = mSelected->getComponent<RenderCanvasComponentInstance>();
 		TransformComponentInstance& canvas_transform_comp = mSelected->getComponent<TransformComponentInstance>();
 		
-		Texture2D& canvas_tex = canvas_comp.getOutputTexture();
+		ResourcePtr<RenderTexture2D> canvas_tex = canvas_comp.getOutputTexture();
 		float col_width = ImGui::GetContentRegionAvailWidth();
-		float ratio_canvas_tex = static_cast<float>(canvas_tex.getWidth()) / static_cast<float>(canvas_tex.getHeight());
+		float ratio_canvas_tex = static_cast<float>(canvas_tex->getWidth()) / static_cast<float>(canvas_tex->getHeight());
 		if (ImGui::CollapsingHeader("Preview", ImGuiTreeNodeFlags_None))
 		{
-			ImGui::Image(canvas_tex, { col_width , col_width / ratio_canvas_tex });
+			ImGui::Image(canvas_tex.get(), {col_width , col_width / ratio_canvas_tex});
 		}
 		utility::ErrorState errorState;
 		if (canvas_comp.getVideoPlayer() != nullptr) {
 			VideoPlayer* video_player = canvas_comp.getVideoPlayer();
 			float current_time = canvas_comp.getVideoPlayer()->getCurrentTime();
-			if (ImGui::SliderFloat("", &current_time, 0.0f, canvas_comp.getCanvas()->mVideoPlayer->getDuration(), "%.3fs", 1.0f))
+			if (ImGui::SliderFloat("", &current_time, 0.0f, canvas_comp.getVideoPlayer()->getDuration(), "%.3fs", 1.0f))
 				canvas_comp.getVideoPlayer()->seek(current_time);
 			ImGui::Text("Total time: %fs", canvas_comp.getVideoPlayer()->getDuration());
 			ImGui::BeginGroup();
@@ -235,9 +231,16 @@ namespace nap
 				nap::Logger::info("set playback speed for sequence");
 				seq_player->setPlaybackSpeed(playbackSpeed);
 			}
-
 		}
-		
+		if (canvas_comp.mCustomPostPass != nullptr || canvas_comp.mCustomPostPass->mUBO) {
+			UniformStructInstance* ubo = canvas_comp.mCustomPostPass->mUBO;
+			ImGui::Text("Custom Post Pass");
+			float tempPowerTo = ubo->findUniform<UniformFloatInstance>("power_to")->getValue();
+			ImGui::DragFloat("Power to", &tempPowerTo, 0.01f, 0.0f, 1.0f);
+			if (tempPowerTo != ubo->findUniform<UniformFloatInstance>("power_to")->getValue()) {
+				ubo->findUniform<UniformFloatInstance>("power_to")->setValue(tempPowerTo);
+			}
+		}
 		
 	}	
 

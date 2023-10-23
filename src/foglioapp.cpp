@@ -187,11 +187,11 @@ namespace nap
 			}
 
 			if (press_event->mKey == nap::EKeyCode::KEY_l && press_event->mWindow == mControlsWindow->getNumber()) {
-				ResourcePtr<VideoPlayer> player = mScene->findEntity("BigCircleCanvasEntity")->findComponent<RenderCanvasComponentInstance>()->getCanvas()->mVideoPlayer;
+				ResourcePtr<VideoPlayer> player = mScene->findEntity("BigCircleCanvasEntity")->findComponent<RenderCanvasComponentInstance>()->getVideoPlayer();
 				nap::utility::ErrorState error;
 				player->selectVideo((player->getIndex() + 1) % player->getCount(), error);
 				player->play();
-				player = mScene->findEntity("SmallCircle1CanvasEntity")->findComponent<RenderCanvasComponentInstance>()->getCanvas()->mVideoPlayer;
+				player = mScene->findEntity("SmallCircle1CanvasEntity")->findComponent<RenderCanvasComponentInstance>()->getVideoPlayer();
 				player->selectVideo((player->getIndex() + 1) % player->getCount(), error);
 				player->play();
 			}

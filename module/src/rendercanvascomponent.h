@@ -1,6 +1,5 @@
 #pragma once
 
-#include "canvas.h"
 
 #include <component.h>
 #include <rendercomponent.h>
@@ -28,7 +27,6 @@ namespace nap
 		DECLARE_COMPONENT(RenderCanvasComponent, RenderCanvasComponentInstance)
 
 	public:
-		ResourcePtr<Canvas>				mCanvas = nullptr;
 		ResourcePtr<VideoPlayer>		mVideoPlayer = nullptr;
 		ResourcePtr<Material>			mPostShader = nullptr;
 		std::vector<glm::vec2>			mCornerOffsets = std::vector<glm::vec2>(4);
@@ -46,11 +44,9 @@ namespace nap
 
 		virtual bool isSupported(nap::CameraComponentInstance& camera) const override;
 
-		Texture2D& getOutputTexture();
+		ResourcePtr<RenderTexture2D> getOutputTexture();
 
 		VideoPlayer* getVideoPlayer();
-
-		Canvas* getCanvas() { return mCanvas; };
 
 		std::vector<glm::vec2>	getCornerOffsets() { return mCornerOffsets; }
 
@@ -87,7 +83,7 @@ namespace nap
 
 		void computeModelMatrixFullscreen(glm::mat4& outMatrix);
 
-		
+		std::unique_ptr<CanvasPass>		mCustomPostPass = nullptr;
 
 		
 		std::unordered_map<CanvasMaterialType, CanvasPass> mStockCanvasPasses;
@@ -107,8 +103,7 @@ namespace nap
 	private:
 		using DoubleBufferedRenderTarget = std::array<rtti::ObjectPtr<RenderTarget>, 2>;
 		//TODO: make this a ResourcePtr<Canvas>?
-		Canvas*							mCanvas = nullptr;
-		std::unique_ptr<CanvasPass>		mCustomPostPass = nullptr;
+		
 		DoubleBufferedRenderTarget		mDoubleBufferTarget;
 		ResourcePtr<RenderTarget>		mCurrentInternalRT;
 		ResourcePtr<ImageFromFile>		mMask;
@@ -119,6 +114,9 @@ namespace nap
 		ResourcePtr<RenderTexture2D>	mFinalTexture;
 		std::vector<glm::vec2>			mCornerOffsets;
 
+		ResourcePtr<PlaneMesh>			mHeadlessPlaneMesh; //1x1 plane mesh
+		ResourcePtr<PlaneMesh>			mFinalPlaneMesh;	//10x10 plane mesh because warp vertex shader needs more geometry for uv data so it doesn't get distorted
+
 		TransformComponentInstance*	mTransformComponent = nullptr;
 
 		RenderService*				mRenderService = nullptr;
@@ -126,6 +124,8 @@ namespace nap
 		Vec3VertexAttribute*		mOffsetVec3Uniform = nullptr;
 
 		glm::mat4x4					mModelMatrix;
+
+		bool setupPlaneMesh(ResourcePtr<PlaneMesh> planeMesh, int resX, int resY, nap::utility::ErrorState errorState);
 
 		void setWarpCornerUniforms();
 

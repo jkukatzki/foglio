@@ -18,7 +18,6 @@
 
 // nap::rendercanvascomponent run time class definition
 RTTI_BEGIN_CLASS(nap::RenderCanvasComponent)
-RTTI_PROPERTY("Canvas", &nap::RenderCanvasComponent::mCanvas, nap::rtti::EPropertyMetaData::Default)
 RTTI_PROPERTY("VideoPlayer", &nap::RenderCanvasComponent::mVideoPlayer, nap::rtti::EPropertyMetaData::Default)
 RTTI_PROPERTY("CornerOffsets", &nap::RenderCanvasComponent::mCornerOffsets, nap::rtti::EPropertyMetaData::Default)
 RTTI_PROPERTY("PostShader", &nap::RenderCanvasComponent::mPostShader, nap::rtti::EPropertyMetaData::Default)
@@ -36,16 +35,17 @@ namespace nap
 
 	RenderCanvasComponentInstance::RenderCanvasComponentInstance(EntityInstance& entity, Component& resource) :
 		RenderableComponentInstance(entity, resource),
-		mPlane(new PlaneMesh(*entity.getCore())),
+		mHeadlessPlaneMesh(new PlaneMesh(*entity.getCore())),
+		mFinalPlaneMesh(new PlaneMesh(*entity.getCore())),
 		mFinalRenderTarget(new RenderTarget(*entity.getCore())),
 		mFinalTexture(new RenderTexture2D(*entity.getCore()))
 	{ }
 
 
 
-	nap::Texture2D& RenderCanvasComponentInstance::getOutputTexture()
+	ResourcePtr<RenderTexture2D> RenderCanvasComponentInstance::getOutputTexture()
 	{
-		return *mCanvas->getOutputTexture();
+		return mFinalTexture;
 	}
 
 	nap::VideoPlayer* RenderCanvasComponentInstance::getVideoPlayer()
@@ -60,15 +60,22 @@ namespace nap
 		// Get resource
 		RenderCanvasComponent* resource = getComponent<RenderCanvasComponent>();
 		mTransformComponent = getEntityInstance()->findComponent<TransformComponentInstance>();
-		// Now create a plane and initialize it
-		// The plane is positioned on update based on current texture output size and transform component
-		mCanvas = resource->mCanvas.get();
-		if (!errorState.check(mCanvas != nullptr, "unable to find canvas resource in: %s", getEntityInstance()->mID))
+		
+		// Get video player
+		mVideoPlayer = resource->mVideoPlayer.get();
+		if (mVideoPlayer != nullptr) {
+			mVideoPlayer->play();
+		}
+		// create planes and initialize them
+		// The plane is positioned on update based on current texture output size and transform component, if its headless it's always fullscreen
+		if (!setupPlaneMesh(mHeadlessPlaneMesh, 1, 1, errorState)) {
 			return false;
-		//TODO: can this canvas init be removed?
-		if (!errorState.check(mCanvas->init(errorState), "%s: unable to init canvas resource", resource->mID.c_str()))
+		}
+		if (!setupPlaneMesh(mFinalPlaneMesh, 10, 10, errorState)) {
 			return false;
+		}
 
+		constructTextureAndRenderTarget(mFinalRenderTarget, mFinalTexture, true, errorState);
 		// Setup double buffer target for internal render
 		for (int target_idx = 0; target_idx < 2; target_idx++)
 		{
@@ -102,8 +109,8 @@ namespace nap
 		setWarpCornerUniforms();
 		mStockCanvasPasses[CanvasMaterialType::INTERFACE].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvasinterface::mousePos)->setValue(glm::vec3());
 		mStockCanvasPasses[CanvasMaterialType::INTERFACE].mUBO->getOrCreateUniform<UniformFloatInstance>(uniform::canvasinterface::frameThickness)->setValue(0.01);
-		mStockCanvasPasses[CanvasMaterialType::INTERFACE].mSamplers["inTextureSampler"]->setTexture(*mCanvas->mOutputRenderTarget->mColorTexture);
-		mStockCanvasPasses[CanvasMaterialType::WARP].mSamplers["inTextureSampler"]->setTexture(*mCanvas->mOutputRenderTarget->mColorTexture);
+		mStockCanvasPasses[CanvasMaterialType::INTERFACE].mSamplers["inTextureSampler"]->setTexture(*mFinalTexture);
+		mStockCanvasPasses[CanvasMaterialType::WARP].mSamplers["inTextureSampler"]->setTexture(*mFinalTexture);
 		
 		
 		if (resource->mPostShader.get() != nullptr) {
@@ -128,28 +135,30 @@ namespace nap
 			mCustomPostPass->mModelMatrixUniform = mCustomPostPass->mMVPStruct->getOrCreateUniform<UniformMat4Instance>(uniform::modelMatrix);//ensureUniformMat4(uniform::modelMatrix, mCustomPostPass->mMVPStruct, errorState);
 			mCustomPostPass->mProjectMatrixUniform = mCustomPostPass->mMVPStruct->getOrCreateUniform<UniformMat4Instance>(uniform::projectionMatrix);//ensureUniformMat4(uniform::projectionMatrix, mCustomPostPass->mMVPStruct, errorState);
 			mCustomPostPass->mViewMatrixUniform = mCustomPostPass->mMVPStruct->getOrCreateUniform<UniformMat4Instance>(uniform::viewMatrix);//ensureUniformMat4(uniform::viewMatrix, mCustomPostPass->mMVPStruct, errorState);
-			mCustomPostPass->mSamplers["inTextureSampler"] = ensureSampler("inTexture", mCustomPostPass->mMaterialInstance, errorState);
+			bool mvpFulfilled = !(mCustomPostPass->mModelMatrixUniform == nullptr || mCustomPostPass->mProjectMatrixUniform == nullptr || mCustomPostPass->mViewMatrixUniform == nullptr);
+			if (!errorState.check(mvpFulfilled, "%s: unable to construct mvp uniforms for custom pass", getEntityInstance()->mID.c_str()))
+				return false;
+
 			mCustomPostPass->mUBO = mCustomPostPass->mUBO = mCustomPostPass->mMaterialInstance->getOrCreateUniform("UBO");
 			if (!errorState.check(mCustomPostPass->mUBO != nullptr, "%s: Unable to find UBO struct: %s in material: %s",
 				this->mID.c_str(), uniform::canvaswarp::uboStructWarp, mCustomPostPass->mMaterialInstResource->mMaterial->mID.c_str()))
 				return false;
-			// create all offset uniforms
 			ensureUniformFloat("iTime", mCustomPostPass->mUBO, errorState);
+			ensureUniformFloat("power_to", mCustomPostPass->mUBO, errorState);
 			mCustomPostPass->mUBO->getOrCreateUniform<UniformFloatInstance>("iTime")->setValue(float(getCurrentDateTime().getMilliSecond()));
-			bool mvpFulfilled = !(mCustomPostPass->mModelMatrixUniform == nullptr || mCustomPostPass->mProjectMatrixUniform == nullptr || mCustomPostPass->mViewMatrixUniform == nullptr);
-			if (!errorState.check(mvpFulfilled, "%s: unable to construct mvp uniforms for custom pass", getEntityInstance()->mID.c_str()))
-				return false;
+			mCustomPostPass->mUBO->getOrCreateUniform<UniformFloatInstance>("power_to")->setValue(1.0);
 			
-			mCustomPostPass->mRenderableMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh(), *mCustomPostPass->mMaterialInstance, errorState);
+			mCustomPostPass->mSamplers["inTextureSampler"] = ensureSampler("inTexture", mCustomPostPass->mMaterialInstance, errorState);
+			mCustomPostPass->mRenderableMesh = mRenderService->createRenderableMesh(*mHeadlessPlaneMesh, *mCustomPostPass->mMaterialInstance, errorState);
 			if (!errorState.check(mCustomPostPass->mRenderableMesh.isValid(), "%s: unable to construct renderable mesh for custom pass", getEntityInstance()->mID.c_str()))
 				return false;
 		}
-		mVideoPlayer = resource->mVideoPlayer.get();
+
 		if (mVideoPlayer != nullptr) {
-			mVideoPlayer->play();
 			mVideoPlayer->VideoChanged.connect(mVideoChangedSlot);
 			videoChanged(*mVideoPlayer);
 		}
+		
 		return true;
 
 	}
@@ -163,21 +172,21 @@ namespace nap
 		else 
 		{
 			//no mask pass
-			mCurrentInternalRT = mCanvas->mOutputRenderTarget;
-		}	
-		drawHeadlessPass(mStockCanvasPasses[CanvasMaterialType::VIDEO]);
-
+			mCurrentInternalRT = mFinalRenderTarget;
+		}
+			drawHeadlessPass(mStockCanvasPasses[CanvasMaterialType::VIDEO]);
+		
 		if (mCustomPostPass != nullptr) {
 			mCustomPostPass->mSamplers["inTextureSampler"]->setTexture(*mCurrentInternalRT->mColorTexture);
 			mCustomPostPass->mUBO->getOrCreateUniform<UniformFloatInstance>("iTime")->setValue(float(getEntityInstance()->getCore()->getElapsedTime()));
-			mCurrentInternalRT = mCanvas->mOutputRenderTarget;
+			mCurrentInternalRT = mFinalRenderTarget;
 			drawHeadlessPass(*mCustomPostPass);
 		}
 
 		if (mStockCanvasPasses.find(CanvasMaterialType::MASK) != mStockCanvasPasses.end())
 		{
 			mStockCanvasPasses[CanvasMaterialType::MASK].mSamplers["inTextureSampler"]->setTexture(*mCurrentInternalRT->mColorTexture);
-			mCurrentInternalRT = mCanvas->mOutputRenderTarget;
+			mCurrentInternalRT = mFinalRenderTarget;
 			drawHeadlessPass(mStockCanvasPasses[CanvasMaterialType::MASK]);
 		}
 	}
@@ -244,7 +253,7 @@ namespace nap
 			mStockCanvasPasses[CanvasMaterialType::WARP].mSamplers["inTextureSampler"]->setTexture(*mCurrentInternalRT->mColorTexture);
 		}
 		else {
-			mStockCanvasPasses[CanvasMaterialType::WARP].mSamplers["inTextureSampler"]->setTexture(*mCanvas->mOutputRenderTarget->mColorTexture);
+			mStockCanvasPasses[CanvasMaterialType::WARP].mSamplers["inTextureSampler"]->setTexture(*mFinalTexture);
 		}
 	}
 
@@ -254,7 +263,7 @@ namespace nap
 	void RenderCanvasComponentInstance::onDraw(IRenderTarget& renderTarget, VkCommandBuffer commandBuffer, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 	{
 		// compute the model matrix with aspect ratio calculated with outputTexture and size and position with mTransformComponent
-		computeModelMatrix(renderTarget, mModelMatrix, mCanvas->getOutputTexture(), mTransformComponent);
+		computeModelMatrix(renderTarget, mModelMatrix, mFinalTexture, mTransformComponent);
 		mStockCanvasPasses[CanvasMaterialType::WARP].mModelMatrixUniform->setValue(mModelMatrix);
 
 		// Update matrices, projection and model are required
@@ -412,7 +421,10 @@ namespace nap
 			break;
 		}
 		}
-		pass->mRenderableMesh = mRenderService->createRenderableMesh(*mCanvas->getMesh().get(), *pass->mMaterialInstance, error);
+		if (type == CanvasMaterialType::WARP) {
+			pass->mRenderableMesh = mRenderService->createRenderableMesh(*mFinalPlaneMesh, *pass->mMaterialInstance, error);
+		}
+		pass->mRenderableMesh = mRenderService->createRenderableMesh(*mHeadlessPlaneMesh, *pass->mMaterialInstance, error);
 		if (pass->mRenderableMesh.isValid())
 			return true;
 	}
@@ -525,7 +537,7 @@ namespace nap
 			height = mVideoPlayer->getHeight();
 		}
 		texture->mWidth = width;
-		texture->mHeight = width;
+		texture->mHeight = height;
 		texture->mFormat = RenderTexture2D::EFormat::RGBA8;
 		if (!texture->init(errorState))
 			return false;
@@ -540,6 +552,18 @@ namespace nap
 		renderTarget->mRequestedSamples = ERasterizationSamples::One;
 		if (!renderTarget->init(errorState))
 			return false;
+	}
+
+	bool RenderCanvasComponentInstance::setupPlaneMesh(ResourcePtr<PlaneMesh> planeMesh, int resX, int resY, nap::utility::ErrorState errorState) {
+		planeMesh->mSize = glm::vec2(1.0f, 1.0f);
+		planeMesh->mPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+		planeMesh->mCullMode = ECullMode::Back;
+		planeMesh->mUsage = EMemoryUsage::DynamicWrite;
+		planeMesh->mColumns = 10;
+		planeMesh->mRows = 10;
+		if (!errorState.check(planeMesh->setup(errorState), "Unable to setup canvas plane %s", mID.c_str()))
+			return false;
+		return errorState.check(planeMesh->getMeshInstance().init(errorState), "Unable to initialize plane mesh instance %s", mID.c_str());
 	}
 
 	void RenderCanvasComponentInstance::setCornerOffsets(std::vector<glm::vec2> offsets) {
