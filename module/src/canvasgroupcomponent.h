@@ -1,6 +1,5 @@
 #pragma once
 
-#include "canvas.h"
 #include "rendercanvascomponent.h"
 
 #include <component.h>

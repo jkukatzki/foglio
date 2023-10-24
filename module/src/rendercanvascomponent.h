@@ -28,8 +28,11 @@ namespace nap
 
 	public:
 		ResourcePtr<VideoPlayer>		mVideoPlayer = nullptr;
-		ResourcePtr<Material>			mPostShader = nullptr;
+		float							mAspectRatio;
+		int								mResolution;
 		std::vector<glm::vec2>			mCornerOffsets = std::vector<glm::vec2>(4);
+		ResourcePtr<Material>			mPostShader = nullptr;
+		
 		ResourcePtr<ImageFromFile>		mMask = nullptr;
 		
 	};
@@ -107,12 +110,13 @@ namespace nap
 		DoubleBufferedRenderTarget		mDoubleBufferTarget;
 		ResourcePtr<RenderTarget>		mCurrentInternalRT;
 		ResourcePtr<ImageFromFile>		mMask;
-		PlaneMesh*						mCanvasPlane;
-		PlaneMesh*						mPlane;
 		VideoPlayer*					mVideoPlayer = nullptr;
 		ResourcePtr<RenderTarget>		mFinalRenderTarget;
 		ResourcePtr<RenderTexture2D>	mFinalTexture;
 		std::vector<glm::vec2>			mCornerOffsets;
+
+		float*							mAspectRatio = nullptr;
+		int*							mResolution = nullptr;
 
 		ResourcePtr<PlaneMesh>			mHeadlessPlaneMesh; //1x1 plane mesh
 		ResourcePtr<PlaneMesh>			mFinalPlaneMesh;	//10x10 plane mesh because warp vertex shader needs more geometry for uv data so it doesn't get distorted

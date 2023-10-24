@@ -232,7 +232,8 @@ namespace nap
 				seq_player->setPlaybackSpeed(playbackSpeed);
 			}
 		}
-		if (canvas_comp.mCustomPostPass != nullptr || canvas_comp.mCustomPostPass->mUBO) {
+		
+		if (canvas_comp.mCustomPostPass != nullptr) {
 			UniformStructInstance* ubo = canvas_comp.mCustomPostPass->mUBO;
 			ImGui::Text("Custom Post Pass");
 			float tempPowerTo = ubo->findUniform<UniformFloatInstance>("power_to")->getValue();
@@ -241,6 +242,7 @@ namespace nap
 				ubo->findUniform<UniformFloatInstance>("power_to")->setValue(tempPowerTo);
 			}
 		}
+		
 		
 	}	
 

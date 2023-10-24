@@ -19,6 +19,8 @@
 // nap::rendercanvascomponent run time class definition
 RTTI_BEGIN_CLASS(nap::RenderCanvasComponent)
 RTTI_PROPERTY("VideoPlayer", &nap::RenderCanvasComponent::mVideoPlayer, nap::rtti::EPropertyMetaData::Default)
+RTTI_PROPERTY("Aspect Ratio", &nap::RenderCanvasComponent::mAspectRatio, nap::rtti::EPropertyMetaData::Default)
+RTTI_PROPERTY("Resolution", &nap::RenderCanvasComponent::mResolution, nap::rtti::EPropertyMetaData::Default)
 RTTI_PROPERTY("CornerOffsets", &nap::RenderCanvasComponent::mCornerOffsets, nap::rtti::EPropertyMetaData::Default)
 RTTI_PROPERTY("PostShader", &nap::RenderCanvasComponent::mPostShader, nap::rtti::EPropertyMetaData::Default)
 RTTI_PROPERTY("Mask", &nap::RenderCanvasComponent::mMask, nap::rtti::EPropertyMetaData::Default)
@@ -61,11 +63,7 @@ namespace nap
 		RenderCanvasComponent* resource = getComponent<RenderCanvasComponent>();
 		mTransformComponent = getEntityInstance()->findComponent<TransformComponentInstance>();
 		
-		// Get video player
-		mVideoPlayer = resource->mVideoPlayer.get();
-		if (mVideoPlayer != nullptr) {
-			mVideoPlayer->play();
-		}
+		
 		// create planes and initialize them
 		// The plane is positioned on update based on current texture output size and transform component, if its headless it's always fullscreen
 		if (!setupPlaneMesh(mHeadlessPlaneMesh, 1, 1, errorState)) {
@@ -74,15 +72,17 @@ namespace nap
 		if (!setupPlaneMesh(mFinalPlaneMesh, 10, 10, errorState)) {
 			return false;
 		}
-
+		mResolution = new int(resource->mResolution);
+		mAspectRatio = new float(resource->mAspectRatio);
+		mVideoPlayer = resource->mVideoPlayer.get();
 		constructTextureAndRenderTarget(mFinalRenderTarget, mFinalTexture, true, errorState);
 		// Setup double buffer target for internal render
 		for (int target_idx = 0; target_idx < 2; target_idx++)
 		{
-			
+
 			auto tex = getEntityInstance()->getCore()->getResourceManager()->createObject<RenderTexture2D>();
 			auto target = getEntityInstance()->getCore()->getResourceManager()->createObject<RenderTarget>();
-			if(!errorState.check(constructTextureAndRenderTarget(target, tex, true, errorState), "%s: unable to construct internal render target", resource->mID.c_str()))
+			if (!errorState.check(constructTextureAndRenderTarget(target, tex, true, errorState), "%s: unable to construct internal render target", resource->mID.c_str()))
 				return false;
 
 			mDoubleBufferTarget[target_idx] = target;
@@ -92,8 +92,18 @@ namespace nap
 		mRenderService = getEntityInstance()->getCore()->getService<RenderService>();
 		assert(mRenderService != nullptr);
 
-		if (!constructCanvasPassItem(CanvasMaterialType::VIDEO, errorState))
-			return false;
+		// Get video player
+		
+		if (mVideoPlayer != nullptr) {
+			mVideoPlayer->play();
+			if (!constructCanvasPassItem(CanvasMaterialType::VIDEO, errorState))
+				return false;
+			mVideoPlayer->VideoChanged.connect(mVideoChangedSlot);
+			videoChanged(*mVideoPlayer);
+		}
+		
+
+		
 		mMask = resource->mMask.get();
 		if (mMask !=  nullptr) {
 			if(!constructCanvasPassItem(CanvasMaterialType::MASK, errorState))
@@ -154,11 +164,6 @@ namespace nap
 				return false;
 		}
 
-		if (mVideoPlayer != nullptr) {
-			mVideoPlayer->VideoChanged.connect(mVideoChangedSlot);
-			videoChanged(*mVideoPlayer);
-		}
-		
 		return true;
 
 	}
@@ -174,12 +179,14 @@ namespace nap
 			//no mask pass
 			mCurrentInternalRT = mFinalRenderTarget;
 		}
+		if (mStockCanvasPasses.find(CanvasMaterialType::VIDEO) != mStockCanvasPasses.end()) {
 			drawHeadlessPass(mStockCanvasPasses[CanvasMaterialType::VIDEO]);
+		}
 		
 		if (mCustomPostPass != nullptr) {
 			mCustomPostPass->mSamplers["inTextureSampler"]->setTexture(*mCurrentInternalRT->mColorTexture);
 			mCustomPostPass->mUBO->getOrCreateUniform<UniformFloatInstance>("iTime")->setValue(float(getEntityInstance()->getCore()->getElapsedTime()));
-			mCurrentInternalRT = mFinalRenderTarget;
+			mCurrentInternalRT = (mStockCanvasPasses.find(CanvasMaterialType::MASK) != mStockCanvasPasses.end()) ? mDoubleBufferTarget[1] : mFinalRenderTarget;
 			drawHeadlessPass(*mCustomPostPass);
 		}
 
@@ -409,6 +416,7 @@ namespace nap
 
 		case CanvasMaterialType::MASK:
 		{
+			nap::Logger::info("Constructing mask pass");
 			pass->mSamplers["inTextureSampler"] = ensureSampler(uniform::mask::sampler::inTexture, pass->mMaterialInstance, error);
 			pass->mSamplers["maskSampler"] = ensureSampler(uniform::mask::sampler::maskTexture, pass->mMaterialInstance, error);
 			if (pass->mSamplers["inTextureSampler"] == nullptr || pass->mSamplers["maskSampler"] == nullptr)
@@ -527,15 +535,48 @@ namespace nap
 		//init mOutputTexture TODO: resize when videoChanged event?
 		int width;
 		int height;
-		if(mVideoPlayer == nullptr) {
-			//TODO: set from component properties if videoplayer not present
-			width = 256;
-			height = 256;
+		if (*mResolution > 19) { // > 19 to establish a minimum size
+			if (*mAspectRatio > 0.05) {
+				width = (*mResolution) * (*mAspectRatio);
+				height = *mResolution;
+			}
+			else {
+				if (mVideoPlayer != nullptr) {
+					if (mVideoPlayer->getWidth() >= mVideoPlayer->getHeight()) {
+						width = *mResolution * mVideoPlayer->getWidth()/mVideoPlayer->getHeight();
+						height = *mResolution;
+					}
+					else {
+						width = *mResolution;
+						height = *mResolution * mVideoPlayer->getHeight()/mVideoPlayer->getWidth();
+					}
+				}
+				else {
+					width = *mResolution;
+					height = *mResolution;
+				}
+			}
 		}
 		else {
-			width = mVideoPlayer->getWidth();
-			height = mVideoPlayer->getHeight();
+			if (mVideoPlayer != nullptr)
+			{
+				if (*mAspectRatio > 0.05) {
+					int max = std::max(mVideoPlayer->getWidth(), mVideoPlayer->getHeight());
+					if (max < 20) {
+						max = 20;
+					}
+					width = max * (*mAspectRatio);
+					height = max / (*mAspectRatio);
+				}
+				else {
+					width = mVideoPlayer->getWidth();
+					height = mVideoPlayer->getHeight();
+				}
+				
+			}
 		}
+		
+		
 		texture->mWidth = width;
 		texture->mHeight = height;
 		texture->mFormat = RenderTexture2D::EFormat::RGBA8;
@@ -545,7 +586,7 @@ namespace nap
 			renderTarget->mClearColor = RGBAColor8(255, 255, 255, 0).convert<RGBAColorFloat>();
 		}
 		else {
-			renderTarget->mClearColor = RGBColor8(255, 255, 255).convert<RGBColorFloat>();
+			renderTarget->mClearColor = RGBColor8(255, 0, 0).convert<RGBColorFloat>();
 		}
 		renderTarget->mColorTexture = texture;
 		renderTarget->mSampleShading = true;
