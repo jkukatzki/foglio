@@ -145,7 +145,7 @@ namespace nap
 		float ratio_canvas_tex = static_cast<float>(canvas_tex->getWidth()) / static_cast<float>(canvas_tex->getHeight());
 		if (ImGui::CollapsingHeader("Preview", ImGuiTreeNodeFlags_None))
 		{
-			ImGui::Image(canvas_tex.get(), {col_width , col_width / ratio_canvas_tex});
+			ImGui::Image(*canvas_tex.get(), {col_width , col_width / ratio_canvas_tex});
 		}
 		utility::ErrorState errorState;
 		if (canvas_comp.getVideoPlayer() != nullptr) {
