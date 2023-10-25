@@ -270,7 +270,19 @@ namespace nap
 	void RenderCanvasComponentInstance::onDraw(IRenderTarget& renderTarget, VkCommandBuffer commandBuffer, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 	{
 		// compute the model matrix with aspect ratio calculated with outputTexture and size and position with mTransformComponent
-		computeModelMatrix(renderTarget, mModelMatrix, mFinalTexture, mTransformComponent);
+		if (mIsControlViewDraw)
+		{
+			ResourcePtr<RenderWindow> mainWindowRenderTarget = getEntityInstance()->getCore()->getResourceManager()->findObject<RenderWindow>("MainWindow");
+			computeModelMatrix(*mainWindowRenderTarget, mModelMatrix, mFinalTexture, mTransformComponent);
+			/***if (renderTarget.getBufferSize().x > renderTarget.getBufferSize().y) {
+				glm::vec3 translate = mTransformComponent->getTranslate();
+				mModelMatrix = glm::translate(mModelMatrix, glm::vec3(-mainWindowRenderTarget->getBufferSize().x * translate.x + , 0, 0));
+			}***/
+		}
+		else {
+			computeModelMatrix(renderTarget, mModelMatrix, mFinalTexture, mTransformComponent);
+		}
+			
 		mStockCanvasPasses[CanvasMaterialType::WARP].mModelMatrixUniform->setValue(mModelMatrix);
 
 		// Update matrices, projection and model are required

@@ -148,7 +148,6 @@ namespace nap
 		if (mSelected != nullptr) {
 			mSelected->getComponent<RenderCanvasComponentInstance>().drawInterface(mSelectedRenderTarget);
 		}
-		
 	}
 
 

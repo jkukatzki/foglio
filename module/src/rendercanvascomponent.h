@@ -32,7 +32,6 @@ namespace nap
 		int								mResolution;
 		std::vector<glm::vec2>			mCornerOffsets = std::vector<glm::vec2>(4);
 		ResourcePtr<Material>			mPostShader = nullptr;
-		
 		ResourcePtr<ImageFromFile>		mMask = nullptr;
 		
 	};
@@ -98,6 +97,7 @@ namespace nap
 		Sampler2DInstance* ensureSampler(const std::string& samplerName, MaterialInstance* materialInstance, utility::ErrorState& error);
 		bool constructTextureAndRenderTarget(ResourcePtr<RenderTarget>& renderTarget, ResourcePtr<RenderTexture2D>& texture, bool transparent, utility::ErrorState& error);
 		
+		bool mIsControlViewDraw = false;
 
 	protected:
 
