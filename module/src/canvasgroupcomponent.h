@@ -64,5 +64,7 @@ namespace nap
 		std::vector<RenderCanvasComponentInstance*> mCanvases;
 		EntityInstance*								mSelected = nullptr;
 		
+		std::vector<glm::i16vec2> calculateScreenSpacePosition(EntityInstance* entity);
+
 	};
 }

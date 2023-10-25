@@ -54,13 +54,46 @@ namespace nap
 		rtti::TypeInfo event_type = inEvent.get_type().get_raw_type();
 		if (!event_type.is_derived_from(RTTI_OF(nap::PointerEvent)))
 			return;
-
+		std::vector<glm::i16vec2> corners = calculateScreenSpacePosition(mSelected);
 		if (event_type == RTTI_OF(PointerPressEvent))
 		{
 			const PointerPressEvent& press_event = static_cast<const PointerPressEvent&>(inEvent);
-			nap::Logger::info("press event!!!" + std::to_string(press_event.mX));
+			nap::Logger::info("press event!!! upperLeft.x %i, upperLeft.y %i", corners[0].x, corners[0].y);
+		}
+		else if (event_type == RTTI_OF(PointerMoveEvent))
+		{
+			const PointerMoveEvent& move_event = static_cast<const PointerMoveEvent&>(inEvent);
+			
+			nap::Logger::info("move event!!!" + std::to_string(abs(corners[0].x - move_event.mX)));
+			if (abs(corners[0].x - move_event.mX) < 10 && abs(corners[0].y - move_event.mY) < 10) {
+				nap::Logger::info("touching upper left corner");
+			}
+		}
+	}
+
+	std::vector<glm::i16vec2> CanvasGroupComponentInstance::calculateScreenSpacePosition(EntityInstance* entity) {
+		std::vector<glm::i16vec2> corners = std::vector<glm::i16vec2>(4);
+
+		glm::vec3				translate = entity->getComponent<TransformComponentInstance>().getTranslate();
+		glm::vec3				scale = entity->getComponent<TransformComponentInstance>().getScale();
+		glm::quat				rotate = entity->getComponent<TransformComponentInstance>().getRotate();
+		std::vector<glm::vec2>	cornerOffsets = entity->getComponent<RenderCanvasComponentInstance>().getCornerOffsets();
+		//canvasSize and windowSize are in pixels
+		glm::ivec2 canvasSize = entity->getComponent<RenderCanvasComponentInstance>().getOutputTexture()->getSize();
+		glm::ivec2 windowSize = entity->getCore()->getResourceManager()->findObject<RenderWindow>("ControlsWindow")->getSize();
+		//scale canvasSize values to window
+		if (canvasSize.x > canvasSize.y) {
+			canvasSize = {windowSize.x, windowSize.x * canvasSize.y / canvasSize.x};
+		}
+		else {
+			canvasSize = { windowSize.y * canvasSize.x / canvasSize.y, windowSize.y };
 		}
 
+		corners[0] = glm::i16vec2(((windowSize.x - canvasSize.x * scale.x) / 2 + windowSize.x * translate.x) + cornerOffsets[0].x * canvasSize.x, ((canvasSize.y * scale.y + windowSize.y) / 2 + windowSize.y * translate.y) - cornerOffsets[0].y * canvasSize.y);
+		corners[1] = glm::i16vec2(((windowSize.x + canvasSize.x * scale.x) / 2 + windowSize.x * translate.x) - cornerOffsets[1].x * canvasSize.x, ((canvasSize.y * scale.y + windowSize.y) / 2 + windowSize.y * translate.y) - cornerOffsets[1].y * canvasSize.y);
+		corners[2] = glm::i16vec2(((windowSize.x - canvasSize.x * scale.x) / 2 + windowSize.x * translate.x) + cornerOffsets[2].x * canvasSize.x, ((windowSize.y - canvasSize.y * scale.y) / 2 + windowSize.y * translate.y) + cornerOffsets[2].y * canvasSize.y);
+		corners[3] = glm::i16vec2(((windowSize.x + canvasSize.x * scale.x) / 2 + windowSize.x * translate.x) - cornerOffsets[3].x * canvasSize.x, ((windowSize.y - canvasSize.y * scale.y) / 2 + windowSize.y * translate.y) + cornerOffsets[3].y * canvasSize.y);
+		return corners;
 	}
 
 	void CanvasGroupComponentInstance::drawSequenceEditor() {

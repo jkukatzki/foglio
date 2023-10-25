@@ -210,6 +210,15 @@ namespace nap
 	void foglioApp::updateGUI()
 	{
 		mGuiService->selectWindow(mControlsWindow);
+		#ifdef IMGUI_HAS_VIEWPORT
+			ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImGui::SetNextWindowPos(viewport->GetWorkPos());
+			ImGui::SetNextWindowSize(viewport->GetWorkSize());
+			ImGui::SetNextWindowViewport(viewport->ID);
+		#else 
+			ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
+			ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+		#endif
 		ImGui::Begin("Controls");
 		ImGui::Text(getCurrentDateTime().toString().c_str());
 		ImGui::Text(utility::stringFormat("Framerate: %.02f", getCore().getFramerate()).c_str());
