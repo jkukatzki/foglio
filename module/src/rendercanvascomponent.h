@@ -107,6 +107,7 @@ namespace nap
 		using DoubleBufferedRenderTarget = std::array<rtti::ObjectPtr<RenderTarget>, 2>;
 		//TODO: make this a ResourcePtr<Canvas>?
 		
+		ResourcePtr<RenderWindow>		mMainWindowPtr;
 		DoubleBufferedRenderTarget		mDoubleBufferTarget;
 		ResourcePtr<RenderTarget>		mCurrentInternalRT;
 		ResourcePtr<ImageFromFile>		mMask;

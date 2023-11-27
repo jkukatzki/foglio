@@ -62,8 +62,9 @@ namespace nap
 		// Get resource
 		RenderCanvasComponent* resource = getComponent<RenderCanvasComponent>();
 		mTransformComponent = getEntityInstance()->findComponent<TransformComponentInstance>();
-		
-		
+		// get main window render target // maybe this should be a parameter inside the canvasgroupcomponent that defines the window to render to
+		mMainWindowPtr = getEntityInstance()->getCore()->getResourceManager()->findObject<RenderWindow>("MainWindow");
+		assert(mMainWindowPtr != nullptr);
 		// create planes and initialize them
 		// The plane is positioned on update based on current texture output size and transform component, if its headless it's always fullscreen
 		if (!setupPlaneMesh(mHeadlessPlaneMesh, 1, 1, errorState)) {
@@ -270,18 +271,9 @@ namespace nap
 	void RenderCanvasComponentInstance::onDraw(IRenderTarget& renderTarget, VkCommandBuffer commandBuffer, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 	{
 		// compute the model matrix with aspect ratio calculated with outputTexture and size and position with mTransformComponent
-		if (mIsControlViewDraw)
-		{
-			ResourcePtr<RenderWindow> mainWindowRenderTarget = getEntityInstance()->getCore()->getResourceManager()->findObject<RenderWindow>("MainWindow");
-			computeModelMatrix(*mainWindowRenderTarget, mModelMatrix, mFinalTexture, mTransformComponent);
-			/***if (renderTarget.getBufferSize().x > renderTarget.getBufferSize().y) {
-				glm::vec3 translate = mTransformComponent->getTranslate();
-				mModelMatrix = glm::translate(mModelMatrix, glm::vec3(-mainWindowRenderTarget->getBufferSize().x * translate.x + , 0, 0));
-			}***/
-		}
-		else {
-			computeModelMatrix(renderTarget, mModelMatrix, mFinalTexture, mTransformComponent);
-		}
+		
+		computeModelMatrix(renderTarget, mModelMatrix, mFinalTexture, mTransformComponent);
+		
 			
 		mStockCanvasPasses[CanvasMaterialType::WARP].mModelMatrixUniform->setValue(mModelMatrix);
 
@@ -509,37 +501,83 @@ namespace nap
 			tex_size.y / 2.0f,
 			0.0f));
 
-		// Scale to fit target
+		// Scale to fit targets
 		outMatrix = glm::scale(outMatrix, glm::vec3(tex_size.x, tex_size.y, 1.0f));
 	}
 
 	void RenderCanvasComponentInstance::computeModelMatrix(const nap::IRenderTarget& target, glm::mat4& outMatrix, ResourcePtr<RenderTexture2D> canvas_output_texture, TransformComponentInstance* transform_comp)
 	{
-		//target should be window target
+		mMainWindowPtr = getEntityInstance()->getCore()->getResourceManager()->findObject<RenderWindow>("MainWindow");
+		//target is control window
+		if (mIsControlViewDraw)
+		{
+			glm::vec3 translate = transform_comp->getTranslate();
+			glm::vec3 scale = transform_comp->getScale();
+			glm::ivec2 canvas_tex_size = canvas_output_texture->getSize();
+			glm::ivec2 target_size_main = mMainWindowPtr->getBufferSize();
+			glm::ivec2 target_size_controls = target.getBufferSize();
 
-		glm::vec3 translate = transform_comp->getTranslate();
-		glm::vec3 scale = transform_comp->getScale();
-		glm::ivec2 canvas_tex_size = canvas_output_texture->getSize();
-		glm::ivec2 tex_size = target.getBufferSize();
-		glm::ivec2 new_size;
-		outMatrix = glm::translate(glm::mat4(), glm::vec3(
-			translate.x*tex_size.x + tex_size.x / 2.0f,
-			translate.y*tex_size.y + tex_size.y / 2.0f,
-			0.0f));
-		// Scale correlating to target
-		// Calculate ratio
-		float canvas_ratio = static_cast<float>(canvas_tex_size.x) / static_cast<float>(canvas_tex_size.y);
-		float window_ratio = static_cast<float>(tex_size.x) / static_cast<float>(tex_size.y);
+			
+			// Calculate ratio
+			float canvas_ratio = static_cast<float>(canvas_tex_size.x) / static_cast<float>(canvas_tex_size.y);
+			float main_window_ratio = static_cast<float>(target_size_main.x) / static_cast<float>(target_size_main.y);
+			float controls_window_ratio = static_cast<float>(target_size_controls.x) / static_cast<float>(target_size_controls.y);
+			glm::ivec3 viewport_size = glm::highp_ivec3();
+			//scale to a viewport dependent on main window ratio
+			if (main_window_ratio > controls_window_ratio) {
+				viewport_size.x = target_size_controls.x;
+				viewport_size.y = target_size_controls.x / main_window_ratio;
+			}
+			else {
+				viewport_size.y = target_size_controls.y;
+				viewport_size.x = target_size_controls.y * main_window_ratio;
+			}
+			outMatrix = glm::translate(glm::mat4(), glm::vec3(
+				translate.x * viewport_size.x + target_size_controls.x / 2.0f,
+				translate.y * viewport_size.y + target_size_controls.y / 2.0f,
+				0.0f));
+			// normalize canvas size to viewport size
+			if (main_window_ratio > canvas_ratio) {
+				viewport_size.x = viewport_size.y * canvas_ratio;
 
-		if (window_ratio > canvas_ratio) {
-			tex_size.x = tex_size.y * canvas_ratio;
+			}
+			else {
+				viewport_size.y = viewport_size.x / canvas_ratio;
+			}
+			
+			outMatrix = glm::scale(outMatrix, glm::vec3(
+				viewport_size.x * scale.x,
+				viewport_size.y * scale.y,
+				1.0f));
 		}
+		//target is main window
 		else {
-			tex_size.y = tex_size.x / canvas_ratio;
+			glm::vec3 translate = transform_comp->getTranslate();
+			glm::vec3 scale = transform_comp->getScale();
+			glm::ivec2 canvas_tex_size = canvas_output_texture->getSize();
+			glm::ivec2 tex_size = target.getBufferSize();
+			glm::ivec2 new_size;
+			outMatrix = glm::translate(glm::mat4(), glm::vec3(
+				translate.x * tex_size.x + tex_size.x / 2.0f,
+				translate.y * tex_size.y + tex_size.y / 2.0f,
+				0.0f));
+			// Scale correlating to target
+			// Calculate ratio
+			float canvas_ratio = static_cast<float>(canvas_tex_size.x) / static_cast<float>(canvas_tex_size.y);
+			float window_ratio = static_cast<float>(tex_size.x) / static_cast<float>(tex_size.y);
+
+			if (window_ratio > canvas_ratio) {
+				tex_size.x = tex_size.y * canvas_ratio;
+			}
+			else {
+				tex_size.y = tex_size.x / canvas_ratio;
+			}
+
+			outMatrix = glm::scale(outMatrix, glm::vec3(tex_size.x * scale.x, tex_size.y * scale.y, 1.0f));
+			//outMatrix = glm::rotate(outMatrix, transform_comp->getRotate());
 		}
 
-		outMatrix = glm::scale(outMatrix, glm::vec3(tex_size.x * scale.x, tex_size.y * scale.y, 1.0f));
-		//outMatrix = glm::rotate(outMatrix, transform_comp->getRotate());
+		
 
 	}
 
@@ -547,7 +585,7 @@ namespace nap
 		//init mOutputTexture TODO: resize when videoChanged event?
 		int width;
 		int height;
-		if (*mResolution > 19) { // > 19 to establish a minimum size
+		if (*mResolution >= 20) { // to establish a minimum texture resolution
 			if (*mAspectRatio > 0.05) {
 				width = (*mResolution) * (*mAspectRatio);
 				height = *mResolution;

@@ -111,7 +111,9 @@ namespace nap
 		}
 
 		canvasGroupComponent->getSelected()->getComponent<RenderCanvasComponentInstance>().setFinalSampler(false);
-
+		for (auto canvasEntity : mVideoWallEntity->getChildren()) {
+			canvasEntity->getComponent<RenderCanvasComponentInstance>().mIsControlViewDraw = false;
+		}
 		if (mRenderService->beginRecording(*mMainWindow)) {
 			// Begin render pass
 			mMainWindow->beginRendering();
@@ -127,6 +129,9 @@ namespace nap
 			mRenderService->endRecording();
 		}
 		
+		for (auto canvasEntity : mVideoWallEntity->getChildren()) {
+			canvasEntity->getComponent<RenderCanvasComponentInstance>().mIsControlViewDraw = true;
+		}
 		canvasGroupComponent->getSelected()->getComponent<RenderCanvasComponentInstance>().setFinalSampler(true);
 
 		if (mRenderService->beginRecording(*mControlsWindow)) {
@@ -187,11 +192,11 @@ namespace nap
 			}
 
 			if (press_event->mKey == nap::EKeyCode::KEY_l && press_event->mWindow == mControlsWindow->getNumber()) {
-				ResourcePtr<VideoPlayer> player = mScene->findEntity("BigCircleCanvasEntity")->findComponent<RenderCanvasComponentInstance>()->getVideoPlayer();
+				ResourcePtr<VideoPlayer> player = mScene->findEntity("BigCircleEntity")->findComponent<RenderCanvasComponentInstance>()->getVideoPlayer();
 				nap::utility::ErrorState error;
 				player->selectVideo((player->getIndex() + 1) % player->getCount(), error);
 				player->play();
-				player = mScene->findEntity("SmallCircle1CanvasEntity")->findComponent<RenderCanvasComponentInstance>()->getVideoPlayer();
+				player = mScene->findEntity("SmallCircle1Entity")->findComponent<RenderCanvasComponentInstance>()->getVideoPlayer();
 				player->selectVideo((player->getIndex() + 1) % player->getCount(), error);
 				player->play();
 			}
