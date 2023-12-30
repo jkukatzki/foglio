@@ -31,7 +31,7 @@ namespace nap
 		float							mAspectRatio;
 		int								mResolution;
 		std::vector<glm::vec2>			mCornerOffsets = std::vector<glm::vec2>(4);
-		ResourcePtr<Material>			mPostShader = nullptr;
+		ResourcePtr<ShaderFromFile>		mPostShader = nullptr;
 		ResourcePtr<ImageFromFile>		mMask = nullptr;
 		
 	};
@@ -105,7 +105,6 @@ namespace nap
 
 	private:
 		using DoubleBufferedRenderTarget = std::array<rtti::ObjectPtr<RenderTarget>, 2>;
-		//TODO: make this a ResourcePtr<Canvas>?
 		
 		ResourcePtr<RenderWindow>		mMainWindowPtr;
 		DoubleBufferedRenderTarget		mDoubleBufferTarget;

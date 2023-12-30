@@ -125,13 +125,14 @@ namespace nap
 		
 		
 		if (resource->mPostShader.get() != nullptr) {
-			if (!errorState.check(resource->mPostShader.get()->init(errorState), "%s: unable to init post shader resource", resource->mID.c_str()))
-				return false;
 			mCustomPostPass = std::make_unique<CanvasPass>(CanvasPass());
 			mCustomPostPass->mMaterialInstResource = std::make_unique<MaterialInstanceResource>(MaterialInstanceResource());
-			mCustomPostPass->mMaterialInstResource->mBlendMode = resource->mPostShader->mBlendMode;
-			mCustomPostPass->mMaterialInstResource->mDepthMode = resource->mPostShader->mDepthMode;
-			mCustomPostPass->mMaterialInstResource->mMaterial = resource->mPostShader;
+			mCustomPostPass->mMaterialInstResource->mBlendMode = EBlendMode::Opaque;
+			mCustomPostPass->mMaterialInstResource->mDepthMode = EDepthMode::NoReadWrite;
+			mCustomPostPass->mMaterialInstResource->mMaterial = ResourcePtr<Material>(new Material(*getEntityInstance()->getCore())); //mRenderService->getOrCreateMaterial<ShaderFromFile>(errorState);
+			mCustomPostPass->mMaterialInstResource->mMaterial->mShader = resource->mPostShader.get();
+			if (!errorState.check(mCustomPostPass->mMaterialInstResource->mMaterial->init(errorState), "%s: unable to init material", resource->mID.c_str()))
+				return false;
 			mCustomPostPass->mMaterialInstance = new MaterialInstance();
 			if (!errorState.check(mCustomPostPass->mMaterialInstance->init(*mRenderService, *mCustomPostPass->mMaterialInstResource, errorState), "%s: unable to instance material", this->mID.c_str()))
 				return false;
@@ -149,15 +150,17 @@ namespace nap
 			bool mvpFulfilled = !(mCustomPostPass->mModelMatrixUniform == nullptr || mCustomPostPass->mProjectMatrixUniform == nullptr || mCustomPostPass->mViewMatrixUniform == nullptr);
 			if (!errorState.check(mvpFulfilled, "%s: unable to construct mvp uniforms for custom pass", getEntityInstance()->mID.c_str()))
 				return false;
-
-			mCustomPostPass->mUBO = mCustomPostPass->mUBO = mCustomPostPass->mMaterialInstance->getOrCreateUniform("UBO");
+			mCustomPostPass->mUBO = mCustomPostPass->mMaterialInstance->getOrCreateUniform("UBO");
 			if (!errorState.check(mCustomPostPass->mUBO != nullptr, "%s: Unable to find UBO struct: %s in material: %s",
-				this->mID.c_str(), uniform::canvaswarp::uboStructWarp, mCustomPostPass->mMaterialInstResource->mMaterial->mID.c_str()))
+				this->mID.c_str(), "customPostPass", mCustomPostPass->mMaterialInstResource->mMaterial->mID.c_str()))
 				return false;
+			for (int i = 0; i < 8; i++) {
+				ensureUniformFloat("midiKnob" + std::to_string(i), mCustomPostPass->mUBO, errorState);
+			}
+			ensureUniformFloat("midiPitchBend", mCustomPostPass->mUBO, errorState);
+			ensureUniformFloat("midiPitchBendAcc", mCustomPostPass->mUBO, errorState);
 			ensureUniformFloat("iTime", mCustomPostPass->mUBO, errorState);
-			ensureUniformFloat("power_to", mCustomPostPass->mUBO, errorState);
 			mCustomPostPass->mUBO->getOrCreateUniform<UniformFloatInstance>("iTime")->setValue(float(getCurrentDateTime().getMilliSecond()));
-			mCustomPostPass->mUBO->getOrCreateUniform<UniformFloatInstance>("power_to")->setValue(1.0);
 			
 			mCustomPostPass->mSamplers["inTextureSampler"] = ensureSampler("inTexture", mCustomPostPass->mMaterialInstance, errorState);
 			mCustomPostPass->mRenderableMesh = mRenderService->createRenderableMesh(*mHeadlessPlaneMesh, *mCustomPostPass->mMaterialInstance, errorState);

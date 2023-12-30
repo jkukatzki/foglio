@@ -10,6 +10,7 @@
 #include <sequence.h>
 #include <sequenceevent.h>
 #include <renderservice.h>
+#include <midievent.h>
 
 
 namespace nap
@@ -26,6 +27,9 @@ namespace nap
 	public:
 		ResourcePtr<SequenceEditor> mSequencePlayerEditor = nullptr;
 		ResourcePtr<SequenceEditorGUI>	mSequencePlayerEditorGUI = nullptr;
+
+		virtual void getDependentComponents(std::vector<rtti::TypeInfo>& components) const override;
+
 	};
 
 	class NAPAPI CanvasGroupComponentInstance : public InputComponentInstance
@@ -42,17 +46,29 @@ namespace nap
 
 		void drawOutliner();
 
+		void drawMidiInformation();
+
 		void drawSequenceEditor();
 
 		void setSequencePlayer(); // for editor gui
 
 		bool initSelectedRenderTarget();
 
+		void handleTimeDependentAction(double deltaTime);
+
 		EntityInstance* getSelected() { return mSelected; }
 
 		ResourcePtr<RenderTarget>					mSelectedRenderTarget;
 		ResourcePtr<RenderTexture2D>				mSelectedOutputTexture;
 		bool										mDrawBackdrop = false;
+
+		struct MidiData {
+			float pitch = 0;
+			float pitchAccumulative = 0;
+			std::vector<std::string> mReceivedEvents;
+		};
+
+		
 
 	protected:
 		virtual void trigger(const nap::InputEvent& inEvent) override;
@@ -63,7 +79,17 @@ namespace nap
 		ResourcePtr<SequenceEditor>					mSequenceEditor = nullptr;
 		std::vector<RenderCanvasComponentInstance*> mCanvases;
 		EntityInstance*								mSelected = nullptr;
+		std::unique_ptr<MidiData>					mMidiData = nullptr;
+		Slot<const MidiEvent&> midiEventReceivedSlot = { this, &CanvasGroupComponentInstance::onMidiEventReceived };
+		double currentTime = 0;
+
+		/**
+		 *	Called by the slot when a new midi event is received
+		 */
+		void onMidiEventReceived(const MidiEvent&);
+
 		
+
 		std::vector<glm::i16vec2> calculateScreenSpacePosition(EntityInstance* entity);
 
 	};

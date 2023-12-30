@@ -16,6 +16,7 @@
 
 #include <sequenceplayereventoutput.h>
 #include <sequenceevent.h>
+#include <midiinputcomponent.h>
 
 
 
@@ -80,6 +81,8 @@ namespace nap
 		//mInputService->processWindowEvents(*mMainWindow, input_router, { &mScene->getRootEntity() });
 		mInputService->processWindowEvents(*mControlsWindow, input_router, { &mScene->getRootEntity() });
 		updateGUI();
+		CanvasGroupComponentInstance* canvasGroupComponent = &mVideoWallEntity->getComponent<CanvasGroupComponentInstance>();
+		canvasGroupComponent->handleTimeDependentAction(deltaTime);
 	}
 	
 	
@@ -215,24 +218,42 @@ namespace nap
 	void foglioApp::updateGUI()
 	{
 		mGuiService->selectWindow(mControlsWindow);
+		
 		#ifdef IMGUI_HAS_VIEWPORT
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
 			ImGui::SetNextWindowPos(viewport->GetWorkPos());
 			ImGui::SetNextWindowSize(viewport->GetWorkSize());
 			ImGui::SetNextWindowViewport(viewport->ID);
-		#else 
+		#else
 			ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
-			ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+			ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0, ImGui::GetIO().DisplaySize.y * 0.75));
 		#endif
-		ImGui::Begin("Controls");
-		ImGui::Text(getCurrentDateTime().toString().c_str());
-		ImGui::Text(utility::stringFormat("Framerate: %.02f", getCore().getFramerate()).c_str());
+		nap::math::Rect controlsWindowRect = mControlsWindow->getRectPixels();
+		//ImGui::SetNextWindowSize(ImVec2(controlsWindowRect.getWidth()/3, controlsWindowRect.getHeight()), ImGuiCond_FirstUseEver);
+		//ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
+		ImGui::Begin("Outliner");
+		
 		if (mVideoWallEntity->hasComponent<CanvasGroupComponentInstance>()) {
 			mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawOutliner();
 		}
-		
+		else {
+			ImGui::Text("No CanvasGroupComponentInstance found");
+		}
 		//mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawSequenceEditor();
 		ImGui::End();
+
+		//general info window
+		ImGui::SetNextWindowPos(ImVec2(0.0f, ImGui::GetIO().DisplaySize.y * 0.75));
+		ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0, ImGui::GetIO().DisplaySize.y * 0.25));
+		ImGui::Begin("Info");
+		ImGui::Text(getCurrentDateTime().toString().c_str());
+		ImGui::Text(utility::stringFormat("Framerate: %.02f", getCore().getFramerate()).c_str());
+		ImGui::End();
+
+		//midi and osc info window
+		ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0, 0.0f));
+		ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0, ImGui::GetIO().DisplaySize.y));
+		mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawMidiInformation();
 		
 		
 

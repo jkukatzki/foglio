@@ -4,11 +4,13 @@
 #include "inputcomponent.h"
 
 #include <sequencecanvascomponent.h>
+#include <midiinputcomponent.h>
 #include <entity.h>
 #include <nap/core.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui/imgui.h>
 #include <imguiutils.h>
+#include <midievent.h>
 
 // nap::rendercanvascomponent run time class definition
 RTTI_BEGIN_CLASS(nap::CanvasGroupComponent)
@@ -22,6 +24,12 @@ RTTI_END_CLASS
 
 namespace nap
 {
+	void CanvasGroupComponent::getDependentComponents(std::vector<rtti::TypeInfo>& components) const
+	{
+		components.emplace_back(RTTI_OF(nap::MidiInputComponent));
+
+	}
+
 	
 	CanvasGroupComponentInstance::CanvasGroupComponentInstance(EntityInstance& entity, Component& resource) :
 		InputComponentInstance(entity, resource)
@@ -47,6 +55,14 @@ namespace nap
 		if (!errorState.check(mSequenceEditorGUI->init(errorState), "%s: unable to init sequence editor GUI", resource->mID.c_str()))
 			return false;
 		//setSequencePlayer();
+
+		MidiInputComponentInstance* midi_input = getEntityInstance()->findComponent<MidiInputComponentInstance>();
+		if (errorState.check(midi_input != nullptr, "%s: missing MidiInputComponent", mID.c_str())) {
+			midi_input->messageReceived.connect(midiEventReceivedSlot);
+			mMidiData = std::make_unique<MidiData>(MidiData());
+		}
+		return true;
+
 	}
 
 	void CanvasGroupComponentInstance::trigger(const nap::InputEvent& inEvent) {
@@ -132,6 +148,46 @@ namespace nap
 		{
 			error.fail("%s: Failed to initialize internal render target", mSelectedRenderTarget->mID.c_str());
 			return false;
+		}
+	}
+
+	void CanvasGroupComponentInstance::onMidiEventReceived(const MidiEvent& inEvent) {
+		mMidiData->mReceivedEvents.emplace_back(inEvent.toString());
+		if (mMidiData->mReceivedEvents.size() > 25)
+		{
+			mMidiData->mReceivedEvents.erase(mMidiData->mReceivedEvents.begin());
+		}
+		//pass to all canvas components
+		for (auto group_child : getEntityInstance()->getChildren())
+		{
+			RenderCanvasComponentInstance& canvas_comp = group_child->getComponent<RenderCanvasComponentInstance>();
+			if (canvas_comp.mCustomPostPass != nullptr) {
+				UniformStructInstance* ubo = canvas_comp.mCustomPostPass->mUBO;
+				if (inEvent.getChannel() == 0 && inEvent.getType() == MidiEvent::Type::controlChange) {
+					ubo->findUniform<UniformFloatInstance>("midiKnob" + std::to_string(inEvent.getCCNumber() - 1))->setValue(inEvent.getCCValue() / 128.0);
+				}
+				else if (inEvent.getType() == MidiEvent::Type::pitchBend) {
+					nap::Logger::info("pitch bend value: %f", inEvent.getPitchBendValue());
+					ubo->findUniform<UniformFloatInstance>("midiPitchBend")->setValue(inEvent.getPitchBendValue());
+					mMidiData->pitch = inEvent.getPitchBendValue();
+				}
+			}
+		}
+		
+	}
+
+	void CanvasGroupComponentInstance::handleTimeDependentAction(double deltatime) {
+		if (mMidiData != nullptr) {
+			mMidiData->pitchAccumulative = mMidiData->pitchAccumulative + mMidiData->pitch * deltatime;
+			//pass to all canvas components
+			for (auto group_child : getEntityInstance()->getChildren())
+			{
+				RenderCanvasComponentInstance& canvas_comp = group_child->getComponent<RenderCanvasComponentInstance>();
+				if (canvas_comp.mCustomPostPass != nullptr) {
+					UniformStructInstance* ubo = canvas_comp.mCustomPostPass->mUBO;
+					ubo->findUniform<UniformFloatInstance>("midiPitchBendAcc")->setValue(mMidiData->pitchAccumulative);
+				}
+			}
 		}
 	}
 
@@ -264,7 +320,7 @@ namespace nap
 				seq_player->setPlaybackSpeed(playbackSpeed);
 			}
 		}
-		
+		/***
 		if (canvas_comp.mCustomPostPass != nullptr) {
 			UniformStructInstance* ubo = canvas_comp.mCustomPostPass->mUBO;
 			ImGui::Text("Custom Post Pass");
@@ -274,8 +330,35 @@ namespace nap
 				ubo->findUniform<UniformFloatInstance>("power_to")->setValue(tempPowerTo);
 			}
 		}
+		***/
 		
-		
-	}	
+	}
+
+	void CanvasGroupComponentInstance::drawMidiInformation()
+	{
+		if (mMidiData == nullptr)
+			return;
+
+		ImGui::Begin("MIDI and OSC info");
+
+		ImGui::Text("Pitch accumulated: %f", mMidiData->pitchAccumulative);
+		// Get all received osc messages and convert into a single string
+		std::string msg;
+		for (const auto& message : mMidiData->mReceivedEvents)
+			msg += (message + "\n");
+
+		// Backup text
+		char txt[256] = "No Midi Messages Received";
+
+		// If there are no messages display that instead of the received messages
+		char* display_msg = msg.empty() ? txt : &msg[0];
+		size_t display_size = msg.empty() ? 256 : msg.size();
+
+		// Display block of text
+		ImGui::InputTextMultiline("Midi Messages", display_msg, display_size, ImVec2(-1.0f, ImGui::GetTextLineHeight() * 15), ImGuiInputTextFlags_ReadOnly);
+	
+
+		ImGui::End();
+	}
 
 }
