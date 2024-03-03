@@ -56,7 +56,7 @@ namespace nap
 		if (!error.check(mScene != nullptr, "unable to find scene with name: %s", "Scene"))
 			return false;
 
-
+		
 		// Get the camera entity
 		mCameraEntity = mScene->findEntity("CameraEntity");
 		if (!error.check(mCameraEntity != nullptr, "unable to find camera entity with name: %s", "CameraEntity"))
@@ -67,6 +67,10 @@ namespace nap
 		mVideoWallEntity = mScene->findEntity("VideoWallEntity");
 		if (!error.check(mVideoWallEntity != nullptr, "unable to find video wall entity with name: %s", "VideoWallEntity"))
 			return false;
+
+		// limit framerate
+		setFramerate(60.0);
+		capFramerate(true);
 
 		// All done!
 		return true;
@@ -248,6 +252,11 @@ namespace nap
 		ImGui::Begin("Info");
 		ImGui::Text(getCurrentDateTime().toString().c_str());
 		ImGui::Text(utility::stringFormat("Framerate: %.02f", getCore().getFramerate()).c_str());
+		float requestedFramerateTemp = getRequestedFramerate();
+		ImGui::DragFloat("Frame Rate Limit", &requestedFramerateTemp, 1.0f, 10.0, 300.0, "%.0f", 1.0);
+		if (requestedFramerateTemp != getRequestedFramerate()) {
+			setFramerate(requestedFramerateTemp);
+		}
 		ImGui::End();
 
 		//midi and osc info window

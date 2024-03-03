@@ -1,0 +1,341 @@
+{
+    "Objects": [
+        {
+            "Type": "nap::Entity",
+            "mID": "BackgroundCanvasEntity",
+            "Components": [
+                {
+                    "Type": "nap::RenderCanvasComponent",
+                    "mID": "BackgroundCanvas",
+                    "Visible": true,
+                    "VideoPlayer": "",
+                    "Aspect Ratio": 0.0,
+                    "Resolution": 1000,
+                    "CornerOffsets": [
+                        {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0
+                        }
+                    ],
+                    "PostShader": "SDF1",
+                    "Mask": ""
+                },
+                {
+                    "Type": "nap::TransformComponent",
+                    "mID": "TransformBackgroundCanvas",
+                    "Properties": {
+                        "Translate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Rotate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        },
+                        "UniformScale": 1.0
+                    }
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::Entity",
+            "mID": "CameraEntity",
+            "Components": [
+                {
+                    "Type": "nap::PerspCameraComponent",
+                    "mID": "PerspectiveCamera",
+                    "Properties": {
+                        "FieldOfView": 50.0,
+                        "NearClippingPlane": 1.0,
+                        "FarClippingPlane": 1000.0,
+                        "GridDimensions": {
+                            "x": 1,
+                            "y": 1
+                        },
+                        "GridLocation": {
+                            "x": 0,
+                            "y": 0
+                        }
+                    }
+                },
+                {
+                    "Type": "nap::TransformComponent",
+                    "mID": "CameraTransform",
+                    "Properties": {
+                        "Translate": {
+                            "x": 0.0,
+                            "y": 5.0,
+                            "z": 10.0
+                        },
+                        "Rotate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        },
+                        "UniformScale": 1.0
+                    }
+                },
+                {
+                    "Type": "nap::OrbitController",
+                    "mID": "OrbitController",
+                    "MovementSpeed": 0.5,
+                    "RotateSpeed": 0.004999999888241291,
+                    "PerspCameraComponent": "./PerspectiveCamera",
+                    "LookAtPosition": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "MinimumZoomDistance": 0.5,
+                    "LimitZoomDistance": false
+                },
+                {
+                    "Type": "nap::PointerInputComponent",
+                    "mID": "CameraPointerInput"
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::Entity",
+            "mID": "OrthoCameraEntity",
+            "Components": [
+                {
+                    "Type": "nap::OrthoCameraComponent",
+                    "mID": "nap::OrthoCameraComponent_ab24e06d",
+                    "Properties": {
+                        "Mode": "PixelSpace",
+                        "LeftPlane": 0.0,
+                        "RightPlane": 100.0,
+                        "TopPlane": 100.0,
+                        "BottomPlane": 0.0,
+                        "NearClippingPlane": 0.0,
+                        "FarClippingPlane": 1000.0,
+                        "ClipRect": {
+                            "Min": {
+                                "x": 0.0,
+                                "y": 0.0
+                            },
+                            "Max": {
+                                "x": 1.0,
+                                "y": 1.0
+                            }
+                        }
+                    }
+                },
+                {
+                    "Type": "nap::TransformComponent",
+                    "mID": "nap::TransformComponent_370564a5",
+                    "Properties": {
+                        "Translate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 1.0
+                        },
+                        "Rotate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        },
+                        "UniformScale": 1.0
+                    }
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::Entity",
+            "mID": "VideoWallEntity",
+            "Components": [
+                {
+                    "Type": "nap::CanvasGroupComponent",
+                    "mID": "CanvasGroup",
+                    "SequencePlayerEditor": "SequenceEditor_77e81990",
+                    "SequencePlayerEditorGUI": "SequenceEditorGUI_5a62ec71"
+                },
+                {
+                    "Type": "nap::MidiInputComponent",
+                    "mID": "nap::MidiInputComponent_836b8eb4",
+                    "Ports": [],
+                    "Channels": [],
+                    "Numbers": [],
+                    "NoteOn": true,
+                    "NoteOff": true,
+                    "Aftertouch": true,
+                    "ControlChange": true,
+                    "ProgramChange": true,
+                    "ChannelPressure": true,
+                    "PitchBend": true
+                }
+            ],
+            "Children": [
+                "BackgroundCanvasEntity"
+            ]
+        },
+        {
+            "Type": "nap::MidiInputPort",
+            "mID": "MidiInputPort_9a782d30",
+            "Ports": [],
+            "EnableDebugOutput": false
+        },
+        {
+            "Type": "nap::RenderWindow",
+            "mID": "ControlsWindow",
+            "Borderless": false,
+            "Resizable": true,
+            "Visible": true,
+            "SampleShading": true,
+            "Title": "",
+            "Width": 512,
+            "Height": 512,
+            "Mode": "Immediate",
+            "ClearColor": {
+                "Values": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "Samples": "Four",
+            "AdditionalSwapImages": 1,
+            "RestoreSize": true,
+            "RestorePosition": true
+        },
+        {
+            "Type": "nap::RenderWindow",
+            "mID": "MainWindow",
+            "Borderless": false,
+            "Resizable": true,
+            "Visible": true,
+            "SampleShading": true,
+            "Title": "foglio",
+            "Width": 1920,
+            "Height": 1080,
+            "Mode": "Immediate",
+            "ClearColor": {
+                "Values": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            },
+            "Samples": "Four",
+            "AdditionalSwapImages": 1,
+            "RestoreSize": true,
+            "RestorePosition": true
+        },
+        {
+            "Type": "nap::ResourceGroup",
+            "mID": "Shaders",
+            "Members": [
+                {
+                    "Type": "nap::ShaderFromFile",
+                    "mID": "SDF1",
+                    "VertShader": "shaders/mandelbulb.vert",
+                    "FragShader": "shaders/mandelbulb.frag"
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::Scene",
+            "mID": "Scene",
+            "Entities": [
+                {
+                    "Entity": "CameraEntity",
+                    "InstanceProperties": []
+                },
+                {
+                    "Entity": "VideoWallEntity",
+                    "InstanceProperties": []
+                },
+                {
+                    "Entity": "OrthoCameraEntity",
+                    "InstanceProperties": [
+                        {
+                            "TargetComponent": "./nap::TransformComponent_370564a5",
+                            "TargetAttributes": [
+                                {
+                                    "Path": "Properties/Translate/z",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_477fe6ae",
+                                        "Value": 1.0
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "TargetComponent": "./nap::OrthoCameraComponent_ab24e06d",
+                            "TargetAttributes": [
+                                {
+                                    "Path": "Properties/NearClippingPlane",
+                                    "Value": {
+                                        "Type": "nap::FloatInstancePropertyValue",
+                                        "mID": "override_dd53379b",
+                                        "Value": 0.0
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Type": "nap::SequenceEditor",
+            "mID": "SequenceEditor_77e81990",
+            "Sequence Player": "SequencePlayer_4ac6d671"
+        },
+        {
+            "Type": "nap::SequenceEditorGUI",
+            "mID": "SequenceEditorGUI_5a62ec71",
+            "Sequence Editor": "SequenceEditor_77e81990",
+            "Render Window": "ControlsWindow",
+            "Draw Full Window": false,
+            "Hide Marker Labels": false
+        },
+        {
+            "Type": "nap::SequencePlayer",
+            "mID": "SequencePlayer_4ac6d671",
+            "Default Show": "",
+            "Outputs": [],
+            "Clock": {
+                "Type": "nap::SequencePlayerStandardClock",
+                "mID": "SequencePlayerStandardClock_7819b630"
+            }
+        }
+    ]
+}

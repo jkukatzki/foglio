@@ -12,5 +12,4 @@ out vec4 out_Color;
 void main() 
 {
 	out_Color = texture(inTexture, vec2(pass_Uvs.x, pass_Uvs.y));
-
 }

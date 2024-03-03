@@ -9,9 +9,10 @@
         "napsequencegui",
         "napapp",
         "napimgui",
-        "napcameracontrol"
+        "napcameracontrol",
+        "napmidi"
     ],
-    "Data": "data/objects.json",
+    "Data": "geckos_new/objects.json",
     "ServiceConfig": "",
     "PathMapping": "cache/path_mapping.json"
 }

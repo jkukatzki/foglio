@@ -66,11 +66,94 @@ namespace nap
 	}
 
 	void CanvasGroupComponentInstance::trigger(const nap::InputEvent& inEvent) {
-		// Ensure it's a pointer event
+		float stepSize = 0.1;
+		RenderCanvasComponentInstance& canvas_comp = mSelected->getComponent<RenderCanvasComponentInstance>();
+		TransformComponentInstance& canvas_transform_comp = mSelected->getComponent<TransformComponentInstance>();
 		rtti::TypeInfo event_type = inEvent.get_type().get_raw_type();
-		if (!event_type.is_derived_from(RTTI_OF(nap::PointerEvent)))
-			return;
+		if (event_type == RTTI_OF(KeyPressEvent)){
+			const KeyPressEvent& press_event = static_cast<const KeyPressEvent&>(inEvent);
+			if (press_event.mKey == nap::EKeyCode::KEY_g) {
+				nap::Logger::info("switched mode to translate");
+				mCurrentKeyboardControlMode = KEYBOARD_CANVAS_CONTROL::TRANSLATE;
+			}
+			else if (press_event.mKey == nap::EKeyCode::KEY_s) {
+				nap::Logger::info("switched mode to scale");
+				mCurrentKeyboardControlMode = KEYBOARD_CANVAS_CONTROL::SCALE;
+			}
+			else if (press_event.mKey == nap::EKeyCode::KEY_c) {
+				//mCurrentKeyboardControlMode = KEYBOARD_CANVAS_CONTROL::CORNER;
+			}
+			else if (mCurrentCanvasCornerKeyboardControl == KEYBOARD_CANVAS_CONTROL::SCALE) {
+				glm::vec3 scaleCurrent = canvas_transform_comp.getScale();
+				if (press_event.mKey == nap::EKeyCode::KEY_LEFT) {
+					scaleCurrent.x -= stepSize;
+				}
+				else if (press_event.mKey == nap::EKeyCode::KEY_RIGHT) {
+					scaleCurrent.x += stepSize;
+				}
+				else if (press_event.mKey == nap::EKeyCode::KEY_UP) {
+					scaleCurrent.y += stepSize;
+				}
+				else if (press_event.mKey == nap::EKeyCode::KEY_DOWN) {
+					scaleCurrent.y -= stepSize;
+				}
+				canvas_transform_comp.setScale(scaleCurrent);
+			}
+			else if (mCurrentCanvasCornerKeyboardControl == KEYBOARD_CANVAS_CONTROL::TRANSLATE) {
+				glm::vec3 translateCurrent = canvas_transform_comp.getTranslate();
+				if (press_event.mKey == nap::EKeyCode::KEY_LEFT) {
+					translateCurrent.x -= stepSize;
+				}
+				else if (press_event.mKey == nap::EKeyCode::KEY_RIGHT) {
+					translateCurrent.x += stepSize;
+				}
+				else if (press_event.mKey == nap::EKeyCode::KEY_UP) {
+					translateCurrent.y += stepSize;
+				}
+				else if (press_event.mKey == nap::EKeyCode::KEY_DOWN) {
+					translateCurrent.y -= stepSize;
+				}
+				canvas_transform_comp.setTranslate(translateCurrent);
+			}
+			else if (mCurrentKeyboardControlMode == KEYBOARD_CANVAS_CONTROL::CORNER) {
+				if (press_event.mKey == nap::EKeyCode::KEY_1) {
+					mCurrentCanvasCornerKeyboardControl = 0;
+				}
+				else if (press_event.mKey == nap::EKeyCode::KEY_2) {
+					mCurrentCanvasCornerKeyboardControl = 1;
+				}
+				else if (press_event.mKey == nap::EKeyCode::KEY_3) {
+					mCurrentCanvasCornerKeyboardControl = 2;
+				}
+				else if (press_event.mKey == nap::EKeyCode::KEY_4) {
+					mCurrentCanvasCornerKeyboardControl = 3;
+				}
+
+				else if (press_event.mKey == nap::EKeyCode::KEY_LEFT) {
+					std::vector<glm::vec2> offsets = canvas_comp.getCornerOffsets();
+					offsets[mCurrentCanvasCornerKeyboardControl].x -= stepSize;
+					canvas_comp.setCornerOffsets(offsets);
+				}
+				else if (press_event.mKey == nap::EKeyCode::KEY_RIGHT) {
+					std::vector<glm::vec2> offsets = canvas_comp.getCornerOffsets();
+					offsets[mCurrentCanvasCornerKeyboardControl].x += stepSize;
+					canvas_comp.setCornerOffsets(offsets);
+				}
+				else if (press_event.mKey == nap::EKeyCode::KEY_UP) {
+					std::vector<glm::vec2> offsets = canvas_comp.getCornerOffsets();
+					offsets[mCurrentCanvasCornerKeyboardControl].y += stepSize;
+					canvas_comp.setCornerOffsets(offsets);
+				}
+				else if (press_event.mKey == nap::EKeyCode::KEY_DOWN) {
+					std::vector<glm::vec2> offsets = canvas_comp.getCornerOffsets();
+					offsets[mCurrentCanvasCornerKeyboardControl].x -= stepSize;
+					canvas_comp.setCornerOffsets(offsets);
+				}
+
+			}
+		}
 		std::vector<glm::i16vec2> corners = calculateScreenSpacePosition(mSelected);
+		// Ensure it's a pointer event
 		if (event_type == RTTI_OF(PointerPressEvent))
 		{
 			const PointerPressEvent& press_event = static_cast<const PointerPressEvent&>(inEvent);
@@ -164,11 +247,17 @@ namespace nap
 			if (canvas_comp.mCustomPostPass != nullptr) {
 				UniformStructInstance* ubo = canvas_comp.mCustomPostPass->mUBO;
 				if (inEvent.getChannel() == 0 && inEvent.getType() == MidiEvent::Type::controlChange) {
-					ubo->findUniform<UniformFloatInstance>("midiKnob" + std::to_string(inEvent.getCCNumber() - 1))->setValue(inEvent.getCCValue() / 128.0);
+					UniformFloatInstance* uniform = ubo->findUniform<UniformFloatInstance>("midiKnob" + std::to_string(inEvent.getCCNumber() - 1));
+					if (uniform != nullptr) {
+						uniform->setValue(inEvent.getCCValue() / 128.0);
+					}
 				}
 				else if (inEvent.getType() == MidiEvent::Type::pitchBend) {
 					nap::Logger::info("pitch bend value: %f", inEvent.getPitchBendValue());
-					ubo->findUniform<UniformFloatInstance>("midiPitchBend")->setValue(inEvent.getPitchBendValue());
+					UniformFloatInstance* uniform = ubo->findUniform<UniformFloatInstance>("midiPitchBend");
+					if (uniform != nullptr) {
+						uniform->setValue(inEvent.getPitchBendValue());
+					}
 					mMidiData->pitch = inEvent.getPitchBendValue();
 				}
 			}

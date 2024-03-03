@@ -39,7 +39,7 @@ namespace nap
 		CanvasGroupComponentInstance(EntityInstance& entity, Component& resource);
 
 		virtual bool init(utility::ErrorState& errorState) override;
-		
+
 		void drawAllHeadless();
 
 		void drawSelectedInterface();
@@ -68,18 +68,32 @@ namespace nap
 			std::vector<std::string> mReceivedEvents;
 		};
 
-		
+
 
 	protected:
 		virtual void trigger(const nap::InputEvent& inEvent) override;
 
 	private:
-		RenderService*								mRenderService = nullptr;
+		RenderService* mRenderService = nullptr;
 		ResourcePtr<SequenceEditorGUI>				mSequenceEditorGUI = nullptr;
 		ResourcePtr<SequenceEditor>					mSequenceEditor = nullptr;
 		std::vector<RenderCanvasComponentInstance*> mCanvases;
-		EntityInstance*								mSelected = nullptr;
+		EntityInstance* mSelected = nullptr;
 		std::unique_ptr<MidiData>					mMidiData = nullptr;
+		char*										mAvailableDisplays;
+		int											mCurrentDisplayIndex;
+
+		enum KEYBOARD_CANVAS_CONTROL
+		{
+			TRANSLATE,
+			SCALE,
+			CORNER
+		};
+
+		KEYBOARD_CANVAS_CONTROL						mCurrentKeyboardControlMode;
+		int											mCurrentCanvasCornerKeyboardControl;
+
+
 		Slot<const MidiEvent&> midiEventReceivedSlot = { this, &CanvasGroupComponentInstance::onMidiEventReceived };
 		double currentTime = 0;
 
