@@ -2,6 +2,7 @@
 #include "canvaswarpshader.h"
 #include "canvasinterfaceshader.h"
 #include "maskshader.h"
+#include "canvasgroupcomponent.h"
 
 #include <videoshader.h>
 #include <entity.h>
@@ -24,8 +25,6 @@ RTTI_PROPERTY("Resolution", &nap::RenderCanvasComponent::mResolution, nap::rtti:
 RTTI_PROPERTY("CornerOffsets", &nap::RenderCanvasComponent::mCornerOffsets, nap::rtti::EPropertyMetaData::Default)
 RTTI_PROPERTY("PostShader", &nap::RenderCanvasComponent::mPostShader, nap::rtti::EPropertyMetaData::Default)
 RTTI_PROPERTY("Mask", &nap::RenderCanvasComponent::mMask, nap::rtti::EPropertyMetaData::Default)
-
-
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::RenderCanvasComponentInstance)
@@ -63,8 +62,17 @@ namespace nap
 		RenderCanvasComponent* resource = getComponent<RenderCanvasComponent>();
 		mTransformComponent = getEntityInstance()->findComponent<TransformComponentInstance>();
 		// get main window render target // maybe this should be a parameter inside the canvasgroupcomponent that defines the window to render to
-		mMainWindowPtr = getEntityInstance()->getCore()->getResourceManager()->findObject<RenderWindow>("MainWindow");
-		assert(mMainWindowPtr != nullptr);
+		CanvasGroupComponent* groupResource = getEntityInstance()->getParent()->findComponent<CanvasGroupComponentInstance>()->getComponent<CanvasGroupComponent>();
+		if (groupResource != nullptr) {
+			if (groupResource->mPresentationWindow != nullptr) {
+				mPresentationWindow = groupResource->mPresentationWindow;
+			}
+		}
+		else {
+			nap::Logger::error("CanvasComponents entitys parent entity does not contain a CanvasGroupComponent");
+			return false;
+		}
+		
 		// create planes and initialize them
 		// The plane is positioned on update based on current texture output size and transform component, if its headless it's always fullscreen
 		if (!setupPlaneMesh(mHeadlessPlaneMesh, 1, 1, errorState)) {
@@ -510,14 +518,13 @@ namespace nap
 
 	void RenderCanvasComponentInstance::computeModelMatrix(const nap::IRenderTarget& target, glm::mat4& outMatrix, ResourcePtr<RenderTexture2D> canvas_output_texture, TransformComponentInstance* transform_comp)
 	{
-		mMainWindowPtr = getEntityInstance()->getCore()->getResourceManager()->findObject<RenderWindow>("MainWindow");
 		//target is control window
 		if (mIsControlViewDraw)
 		{
 			glm::vec3 translate = transform_comp->getTranslate();
 			glm::vec3 scale = transform_comp->getScale();
 			glm::ivec2 canvas_tex_size = canvas_output_texture->getSize();
-			glm::ivec2 target_size_main = mMainWindowPtr->getBufferSize();
+			glm::ivec2 target_size_main = mPresentationWindow->getBufferSize();
 			glm::ivec2 target_size_controls = target.getBufferSize();
 
 			

@@ -14,8 +14,9 @@
 
 // nap::rendercanvascomponent run time class definition
 RTTI_BEGIN_CLASS(nap::CanvasGroupComponent)
-	RTTI_PROPERTY("SequencePlayerEditor", &nap::CanvasGroupComponent::mSequencePlayerEditor, nap::rtti::EPropertyMetaData::Required)
-	RTTI_PROPERTY("SequencePlayerEditorGUI", &nap::CanvasGroupComponent::mSequencePlayerEditorGUI, nap::rtti::EPropertyMetaData::Required)
+RTTI_PROPERTY("SequencePlayerEditor", &nap::CanvasGroupComponent::mSequencePlayerEditor, nap::rtti::EPropertyMetaData::Required)
+RTTI_PROPERTY("SequencePlayerEditorGUI", &nap::CanvasGroupComponent::mSequencePlayerEditorGUI, nap::rtti::EPropertyMetaData::Required)
+RTTI_PROPERTY("Presentation Window", &nap::CanvasGroupComponent::mPresentationWindow, nap::rtti::EPropertyMetaData::Required)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::CanvasGroupComponentInstance)
@@ -43,11 +44,13 @@ namespace nap
 			return false;
 		// Get resource
 		CanvasGroupComponent* resource = getComponent<CanvasGroupComponent>();
-		
+		mPresentationWindow = resource->mPresentationWindow;
 		mSelected = getEntityInstance()->getChildren()[0];
 		if (!initSelectedRenderTarget()) {
 			return false;
 		}
+
+		//sequencer stuff
 		mSequenceEditor = resource->mSequencePlayerEditor.get();
 		if (!errorState.check(mSequenceEditor->init(errorState), "%s: unable to init sequence editor", resource->mID.c_str()))
 			return false;
@@ -56,6 +59,7 @@ namespace nap
 			return false;
 		//setSequencePlayer();
 
+		//MIDI stuff
 		MidiInputComponentInstance* midi_input = getEntityInstance()->findComponent<MidiInputComponentInstance>();
 		if (errorState.check(midi_input != nullptr, "%s: missing MidiInputComponent", mID.c_str())) {
 			midi_input->messageReceived.connect(midiEventReceivedSlot);
@@ -66,24 +70,37 @@ namespace nap
 	}
 
 	void CanvasGroupComponentInstance::trigger(const nap::InputEvent& inEvent) {
-		float stepSize = 0.1;
+		float stepSize = mKeyboardControlStepSize;
 		RenderCanvasComponentInstance& canvas_comp = mSelected->getComponent<RenderCanvasComponentInstance>();
 		TransformComponentInstance& canvas_transform_comp = mSelected->getComponent<TransformComponentInstance>();
 		rtti::TypeInfo event_type = inEvent.get_type().get_raw_type();
 		if (event_type == RTTI_OF(KeyPressEvent)){
 			const KeyPressEvent& press_event = static_cast<const KeyPressEvent&>(inEvent);
+			if (press_event.mKey == nap::EKeyCode::KEY_TAB) {
+				int findIndex = 0;
+				EntityInstance::ChildList canvasGroupChildren = getEntityInstance()->getChildren();
+				for (EntityInstance* canvasEntity : canvasGroupChildren) {
+					if (canvasEntity == mSelected) {
+						mSelected->getComponent<RenderCanvasComponentInstance>().setFinalSampler(false);
+						mSelected = canvasGroupChildren[(findIndex + 1) % canvasGroupChildren.size()]; //findIndex + 1 because we skip to next one because of tab press
+						break;
+					}
+					findIndex += 1;
+				}
+			}
 			if (press_event.mKey == nap::EKeyCode::KEY_g) {
-				nap::Logger::info("switched mode to translate");
+				nap::Logger::info("Switched canvas keyboard controls to MOVE");
 				mCurrentKeyboardControlMode = KEYBOARD_CANVAS_CONTROL::TRANSLATE;
 			}
 			else if (press_event.mKey == nap::EKeyCode::KEY_s) {
-				nap::Logger::info("switched mode to scale");
+				nap::Logger::info("Switched canvas keyboard controls to SCALE");
 				mCurrentKeyboardControlMode = KEYBOARD_CANVAS_CONTROL::SCALE;
 			}
 			else if (press_event.mKey == nap::EKeyCode::KEY_c) {
-				//mCurrentKeyboardControlMode = KEYBOARD_CANVAS_CONTROL::CORNER;
+				nap::Logger::info("Switched canvas keyboard controls to CORNER");
+				mCurrentKeyboardControlMode = KEYBOARD_CANVAS_CONTROL::CORNER;
 			}
-			else if (mCurrentCanvasCornerKeyboardControl == KEYBOARD_CANVAS_CONTROL::SCALE) {
+			else if (mCurrentKeyboardControlMode == KEYBOARD_CANVAS_CONTROL::SCALE) {
 				glm::vec3 scaleCurrent = canvas_transform_comp.getScale();
 				if (press_event.mKey == nap::EKeyCode::KEY_LEFT) {
 					scaleCurrent.x -= stepSize;
@@ -99,7 +116,7 @@ namespace nap
 				}
 				canvas_transform_comp.setScale(scaleCurrent);
 			}
-			else if (mCurrentCanvasCornerKeyboardControl == KEYBOARD_CANVAS_CONTROL::TRANSLATE) {
+			else if (mCurrentKeyboardControlMode == KEYBOARD_CANVAS_CONTROL::TRANSLATE) {
 				glm::vec3 translateCurrent = canvas_transform_comp.getTranslate();
 				if (press_event.mKey == nap::EKeyCode::KEY_LEFT) {
 					translateCurrent.x -= stepSize;
@@ -141,12 +158,12 @@ namespace nap
 				}
 				else if (press_event.mKey == nap::EKeyCode::KEY_UP) {
 					std::vector<glm::vec2> offsets = canvas_comp.getCornerOffsets();
-					offsets[mCurrentCanvasCornerKeyboardControl].y += stepSize;
+					offsets[mCurrentCanvasCornerKeyboardControl].y -= stepSize;
 					canvas_comp.setCornerOffsets(offsets);
 				}
 				else if (press_event.mKey == nap::EKeyCode::KEY_DOWN) {
 					std::vector<glm::vec2> offsets = canvas_comp.getCornerOffsets();
-					offsets[mCurrentCanvasCornerKeyboardControl].x -= stepSize;
+					offsets[mCurrentCanvasCornerKeyboardControl].y += stepSize;
 					canvas_comp.setCornerOffsets(offsets);
 				}
 
@@ -300,6 +317,22 @@ namespace nap
 		if (ImGui::Button("Toggle Backdrop")) {
 			mDrawBackdrop = !mDrawBackdrop;
 		}
+		if (ImGui::RadioButton("T", mCurrentKeyboardControlMode == KEYBOARD_CANVAS_CONTROL::TRANSLATE)) {
+			mCurrentKeyboardControlMode = KEYBOARD_CANVAS_CONTROL::TRANSLATE;
+			nap::Logger::info("mCurrentKeyboardControlMode Set to translate from gui");
+		};
+		ImGui::SameLine();
+		if (ImGui::RadioButton("S", mCurrentKeyboardControlMode == KEYBOARD_CANVAS_CONTROL::SCALE)) {
+			mCurrentKeyboardControlMode = KEYBOARD_CANVAS_CONTROL::SCALE;
+			nap::Logger::info("mCurrentKeyboardControlMode Set to translate from gui");
+		};
+		ImGui::SameLine();
+		if (ImGui::RadioButton("C", mCurrentKeyboardControlMode == KEYBOARD_CANVAS_CONTROL::CORNER)) {
+			mCurrentKeyboardControlMode = KEYBOARD_CANVAS_CONTROL::CORNER;
+			nap::Logger::info("mCurrentKeyboardControlMode Set to corner from gui");
+		};
+		ImGui::SameLine();
+		ImGui::DragFloat("Step Size", &mKeyboardControlStepSize, 0.01f, 0.f, 10.f, "%.2f", 1.f);
 		for (EntityInstance* canvasEntity : getEntityInstance()->getChildren()) {
 			ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 			if (mSelected == canvasEntity) {
@@ -448,6 +481,10 @@ namespace nap
 	
 
 		ImGui::End();
+	}
+
+	ResourcePtr<RenderWindow> CanvasGroupComponentInstance::getPresentationWindow() {
+		return mPresentationWindow;
 	}
 
 }

@@ -74,6 +74,8 @@ namespace nap
 		 */
 		virtual int shutdown() override;
 
+		void toggleFullscreen();
+
 	private:
 		ResourceManager*			mResourceManager = nullptr;		///< Manages all the loaded data
 		std::string					mFilename = "";					///< The JSON file that is loaded on initialization
@@ -84,6 +86,13 @@ namespace nap
 		ObjectPtr<RenderWindow>		mMainWindow = nullptr;					///< Pointer to the main render window
 		ObjectPtr<RenderWindow>		mControlsWindow = nullptr;					///< Pointer to the controls window	
 		ObjectPtr<Scene>			mScene = nullptr;				///< Pointer to the main scene
+
+		ResourcePtr<RenderWindow>	mPresentationWindow = nullptr;
+		nap::Display*				mMainDisplay = nullptr;
+
+
+		bool						mQueuedExitDialog = false;
+		bool						mQueuedExitFullscreenDialog = false;
 
 		ObjectPtr<SequenceEditorGUI>mCanvasSequenceEditorGUI = nullptr;
 

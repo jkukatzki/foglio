@@ -27,6 +27,7 @@ namespace nap
 	public:
 		ResourcePtr<SequenceEditor> mSequencePlayerEditor = nullptr;
 		ResourcePtr<SequenceEditorGUI>	mSequencePlayerEditorGUI = nullptr;
+		ResourcePtr<RenderWindow> mPresentationWindow = nullptr;
 
 		virtual void getDependentComponents(std::vector<rtti::TypeInfo>& components) const override;
 
@@ -56,6 +57,8 @@ namespace nap
 
 		void handleTimeDependentAction(double deltaTime);
 
+		ResourcePtr<RenderWindow> getPresentationWindow();
+
 		EntityInstance* getSelected() { return mSelected; }
 
 		ResourcePtr<RenderTarget>					mSelectedRenderTarget;
@@ -82,6 +85,7 @@ namespace nap
 		std::unique_ptr<MidiData>					mMidiData = nullptr;
 		char*										mAvailableDisplays;
 		int											mCurrentDisplayIndex;
+		ResourcePtr<RenderWindow>					mPresentationWindow;
 
 		enum KEYBOARD_CANVAS_CONTROL
 		{
@@ -92,6 +96,7 @@ namespace nap
 
 		KEYBOARD_CANVAS_CONTROL						mCurrentKeyboardControlMode;
 		int											mCurrentCanvasCornerKeyboardControl;
+		float										mKeyboardControlStepSize = 0.01f;
 
 
 		Slot<const MidiEvent&> midiEventReceivedSlot = { this, &CanvasGroupComponentInstance::onMidiEventReceived };

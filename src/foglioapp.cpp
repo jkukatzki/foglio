@@ -67,9 +67,23 @@ namespace nap
 		mVideoWallEntity = mScene->findEntity("VideoWallEntity");
 		if (!error.check(mVideoWallEntity != nullptr, "unable to find video wall entity with name: %s", "VideoWallEntity"))
 			return false;
+		if (mVideoWallEntity->hasComponent<CanvasGroupComponentInstance>()) {
+			mPresentationWindow = mVideoWallEntity->findComponent<CanvasGroupComponentInstance>()->getPresentationWindow();
+		}
+		else {
+			nap::Logger::error("No canvas group component");
+		}
+		//set second monitor as main display
+		DisplayList displays = mRenderService->getDisplays();
+		if (displays.size() < 2) {
+			mMainDisplay = new Display(displays[0]);
+		}
+		else {
+			mMainDisplay = new Display(displays[1]);
+		}
 
 		// limit framerate
-		setFramerate(60.0);
+		setFramerate(30.0);
 		capFramerate(true);
 
 		// All done!
@@ -112,20 +126,18 @@ namespace nap
 		{
 			canvasGroupComponent->drawAllHeadless();
 			canvasGroupComponent->drawSelectedInterface();
-			// Tell the render service we are done rendering into render-targets.
-			// The queue is submitted and executed.
 			mRenderService->endHeadlessRecording();
 		}
-
 		canvasGroupComponent->getSelected()->getComponent<RenderCanvasComponentInstance>().setFinalSampler(false);
 		for (auto canvasEntity : mVideoWallEntity->getChildren()) {
 			canvasEntity->getComponent<RenderCanvasComponentInstance>().mIsControlViewDraw = false;
 		}
-		if (mRenderService->beginRecording(*mMainWindow)) {
+		
+		if (mRenderService->beginRecording(*mPresentationWindow)) {
 			// Begin render pass
 			mMainWindow->beginRendering();
 
-			mRenderService->renderObjects(*mMainWindow, ortho_cam, canvas_components_to_render);
+			mRenderService->renderObjects(*mPresentationWindow, ortho_cam, canvas_components_to_render);
 			
 			mGuiService->draw();
 
@@ -159,9 +171,6 @@ namespace nap
 		}
 		// Proceed to next frame
 		mRenderService->endFrame();
-
-
-
 	}
 	
 
@@ -177,24 +186,17 @@ namespace nap
 		{
 			// If we pressed escape, quit the loop
 			nap::KeyPressEvent* press_event = static_cast<nap::KeyPressEvent*>(inputEvent.get());
-			if (press_event->mKey == nap::EKeyCode::KEY_ESCAPE)
-				quit();
-
+			if (press_event->mKey == nap::EKeyCode::KEY_ESCAPE) {
+				mQueuedExitDialog = true;
+			}
+				
 			// f is pressed, toggle full-screen
-			if (press_event->mKey == nap::EKeyCode::KEY_f && press_event->mWindow == mMainWindow->getNumber()) {
-				if (!mFullscreen) {
-					mMainWindow->mBorderless = !&mMainWindow->mBorderless;
-					mMainWindow->setWidth(mRenderService->getDisplays()[0].getMax()[0]);
-					mMainWindow->setHeight(mRenderService->getDisplays()[0].getMax()[1]);
-					mMainWindow->setPosition(glm::vec2(0, 0));
-					mFullscreen = true;
+			if (press_event->mKey == nap::EKeyCode::KEY_f) {
+				if (mFullscreen) {
+					mQueuedExitFullscreenDialog = true;
 				}
 				else {
-					mMainWindow->mBorderless = !&mMainWindow->mBorderless;
-					mMainWindow->setWidth(mRenderService->getDisplays()[0].getMax()[0]/2);
-					mMainWindow->setHeight(mRenderService->getDisplays()[0].getMax()[1]/2);
-					mMainWindow->setPosition(glm::vec2(mRenderService->getDisplays()[0].getMax()[0] / 4, mRenderService->getDisplays()[0].getMax()[1] / 4));
-					mFullscreen = false;
+					toggleFullscreen();
 				}
 			}
 
@@ -223,18 +225,55 @@ namespace nap
 	{
 		mGuiService->selectWindow(mControlsWindow);
 		
-		#ifdef IMGUI_HAS_VIEWPORT
-			ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImGui::SetNextWindowPos(viewport->GetWorkPos());
-			ImGui::SetNextWindowSize(viewport->GetWorkSize());
-			ImGui::SetNextWindowViewport(viewport->ID);
-		#else
-			ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
-			ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0, ImGui::GetIO().DisplaySize.y * 0.75));
-		#endif
-		nap::math::Rect controlsWindowRect = mControlsWindow->getRectPixels();
-		//ImGui::SetNextWindowSize(ImVec2(controlsWindowRect.getWidth()/3, controlsWindowRect.getHeight()), ImGuiCond_FirstUseEver);
-		//ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
+		ImVec2 center = ImVec2(ImGui::GetIO().DisplaySize.x / 2.0, ImGui::GetIO().DisplaySize.y / 2.0);
+		ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+		if (ImGui::BeginPopupModal("Exit?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::Text("Exit?");
+			ImGui::Separator();
+
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+			ImGui::PopStyleVar();
+
+			if (ImGui::Button("OK", ImVec2(120, 0))) {
+				ImGui::CloseCurrentPopup();
+				quit();
+			}
+			ImGui::SetItemDefaultFocus();
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+			ImGui::EndPopup();
+		}
+		if (mQueuedExitDialog) {
+			ImGui::OpenPopup("Exit?");
+			mQueuedExitDialog = false;
+		}
+		ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+		if (ImGui::BeginPopupModal("Exit fullscreen?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::Text("Exit fullscreen?");
+			ImGui::Separator();
+
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+			ImGui::PopStyleVar();
+
+			if (ImGui::Button("OK", ImVec2(120, 0))) {
+				ImGui::CloseCurrentPopup();
+				toggleFullscreen();
+			}
+			ImGui::SetItemDefaultFocus();
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+			ImGui::EndPopup();
+		}
+		if (mQueuedExitFullscreenDialog) {
+			ImGui::OpenPopup("Exit fullscreen?");
+			mQueuedExitFullscreenDialog = false;
+		}
+
+		ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
+		ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0, ImGui::GetIO().DisplaySize.y * 0.75));
+		
 		ImGui::Begin("Outliner");
 		
 		if (mVideoWallEntity->hasComponent<CanvasGroupComponentInstance>()) {
@@ -243,8 +282,9 @@ namespace nap
 		else {
 			ImGui::Text("No CanvasGroupComponentInstance found");
 		}
-		//mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawSequenceEditor();
+		
 		ImGui::End();
+
 
 		//general info window
 		ImGui::SetNextWindowPos(ImVec2(0.0f, ImGui::GetIO().DisplaySize.y * 0.75));
@@ -254,9 +294,34 @@ namespace nap
 		ImGui::Text(utility::stringFormat("Framerate: %.02f", getCore().getFramerate()).c_str());
 		float requestedFramerateTemp = getRequestedFramerate();
 		ImGui::DragFloat("Frame Rate Limit", &requestedFramerateTemp, 1.0f, 10.0, 300.0, "%.0f", 1.0);
+
+		//display select
+		nap::DisplayList displays = mRenderService->getDisplays();
+		if (ImGui::BeginCombo("Display##displaySelect", std::to_string(mMainDisplay->getIndex()).c_str()))
+		{
+			for (int n = 0; n < IM_ARRAYSIZE(displays.data()); n++)
+			{
+				bool is_selected = (*mMainDisplay == displays[n]);
+				if (ImGui::Selectable(std::to_string(displays[n].getIndex()).c_str()), is_selected) {
+					nap::Logger::info("This stuff is being called");
+					delete mMainDisplay;
+					mMainDisplay = new Display(displays.at(n));
+					mFullscreen = false;
+					toggleFullscreen();
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+			}
+			ImGui::EndCombo();
+		}
+		if (ImGui::Button("Toggle fullscreen")) {
+			toggleFullscreen();
+		}
+
 		if (requestedFramerateTemp != getRequestedFramerate()) {
 			setFramerate(requestedFramerateTemp);
 		}
+
 		ImGui::End();
 
 		//midi and osc info window
@@ -264,8 +329,23 @@ namespace nap
 		ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0, ImGui::GetIO().DisplaySize.y));
 		mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawMidiInformation();
 		
-		
-
 		mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawSequenceEditor();
+	}
+
+	void foglioApp::toggleFullscreen() {
+		if (!mFullscreen) {
+			mMainWindow->mBorderless = !&mMainWindow->mBorderless;
+			mMainWindow->setWidth(mMainDisplay->getBounds().getWidth());
+			mMainWindow->setHeight(mMainDisplay->getBounds().getHeight());
+			mMainWindow->setPosition(mMainDisplay->getBounds().getMin());
+			mFullscreen = true;
+		}
+		else {
+			mMainWindow->mBorderless = !&mMainWindow->mBorderless;
+			mMainWindow->setWidth(mMainDisplay->getMax()[0] / 2);
+			mMainWindow->setHeight(mMainDisplay->getMax()[1] / 2);
+			mMainWindow->setPosition(glm::vec2(mMainDisplay->getMax()[0] / 4, mMainDisplay->getMax()[1] / 4));
+			mFullscreen = false;
+		}
 	}
 }

@@ -33,7 +33,6 @@ namespace nap
 		std::vector<glm::vec2>			mCornerOffsets = std::vector<glm::vec2>(4);
 		ResourcePtr<ShaderFromFile>		mPostShader = nullptr;
 		ResourcePtr<ImageFromFile>		mMask = nullptr;
-		
 	};
 
 	class NAPAPI RenderCanvasComponentInstance : public RenderableComponentInstance
@@ -106,7 +105,6 @@ namespace nap
 	private:
 		using DoubleBufferedRenderTarget = std::array<rtti::ObjectPtr<RenderTarget>, 2>;
 		
-		ResourcePtr<RenderWindow>		mMainWindowPtr;
 		DoubleBufferedRenderTarget		mDoubleBufferTarget;
 		ResourcePtr<RenderTarget>		mCurrentInternalRT;
 		ResourcePtr<ImageFromFile>		mMask;
@@ -114,6 +112,7 @@ namespace nap
 		ResourcePtr<RenderTarget>		mFinalRenderTarget;
 		ResourcePtr<RenderTexture2D>	mFinalTexture;
 		std::vector<glm::vec2>			mCornerOffsets;
+		ResourcePtr<RenderWindow>		mPresentationWindow;
 
 		float*							mAspectRatio = nullptr;
 		int*							mResolution = nullptr;

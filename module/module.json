@@ -9,8 +9,7 @@
         "napparameter",
         "napimgui",
         "napvideo",
-        "napmidi",
-        "napopencv"
+        "napmidi"
     ], 
     "WindowsDllSearchPaths": [],
     "DataSearchPaths": [
