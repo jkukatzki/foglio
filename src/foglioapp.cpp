@@ -201,11 +201,11 @@ namespace nap
 			}
 
 			if (press_event->mKey == nap::EKeyCode::KEY_l && press_event->mWindow == mControlsWindow->getNumber()) {
-				ResourcePtr<VideoPlayer> player = mScene->findEntity("BigCircleEntity")->findComponent<RenderCanvasComponentInstance>()->getVideoPlayer();
+				ResourcePtr<VideoPlayer> player = mScene->findEntity("NameCardCanvasEntity")->findComponent<RenderCanvasComponentInstance>()->getVideoPlayer();
 				nap::utility::ErrorState error;
 				player->selectVideo((player->getIndex() + 1) % player->getCount(), error);
 				player->play();
-				player = mScene->findEntity("SmallCircle1Entity")->findComponent<RenderCanvasComponentInstance>()->getVideoPlayer();
+				player = mScene->findEntity("SoundBoxEntity")->findComponent<RenderCanvasComponentInstance>()->getVideoPlayer();
 				player->selectVideo((player->getIndex() + 1) % player->getCount(), error);
 				player->play();
 			}
@@ -295,22 +295,22 @@ namespace nap
 		float requestedFramerateTemp = getRequestedFramerate();
 		ImGui::DragFloat("Frame Rate Limit", &requestedFramerateTemp, 1.0f, 10.0, 300.0, "%.0f", 1.0);
 
-		//display select
+		//display select // BROKEN: cannot switch back
 		nap::DisplayList displays = mRenderService->getDisplays();
 		if (ImGui::BeginCombo("Display##displaySelect", std::to_string(mMainDisplay->getIndex()).c_str()))
 		{
-			for (int n = 0; n < IM_ARRAYSIZE(displays.data()); n++)
+			for (int n = 0; n <= IM_ARRAYSIZE(displays.data()); n++)
 			{
 				bool is_selected = (*mMainDisplay == displays[n]);
-				if (ImGui::Selectable(std::to_string(displays[n].getIndex()).c_str()), is_selected) {
-					nap::Logger::info("This stuff is being called");
+				if (ImGui::Selectable(("Monitor "+std::to_string(displays[n].getIndex())).c_str(), is_selected)) {
 					delete mMainDisplay;
 					mMainDisplay = new Display(displays.at(n));
 					mFullscreen = false;
-					toggleFullscreen();
+					toggleFullscreen();	
 					if (is_selected)
 						ImGui::SetItemDefaultFocus();
 				}
+				
 			}
 			ImGui::EndCombo();
 		}
