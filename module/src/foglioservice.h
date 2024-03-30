@@ -2,6 +2,7 @@
 
 // External Includes
 #include <nap/service.h>
+#include <nap/signalslot.h>
 
 namespace nap
 {
@@ -41,6 +42,17 @@ namespace nap
 		 * When service B depends on A, Service B is shutdown before A
 		 */
 		virtual void shutdown() override;
+
+		/**
+		 * Signal that is emitted when a file reload occurs
+		 */
+		nap::Signal<> fileLoaded;
+
+	protected:
+		/**
+		 * Called when a json file has been (re)loaded. Used to re-apply the presets.
+		 */
+		virtual void postResourcesLoaded() override;
 
 	};
 }

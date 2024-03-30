@@ -1,15 +1,16 @@
 #pragma once
 
+#include "canvaspasscomponent.h"
 
 #include <component.h>
 #include <rendercomponent.h>
+#include <renderwindow.h>
 #include <nap/resourceptr.h>
 #include <rendertexture2d.h>
 #include <planemesh.h>
 #include <rendertarget.h>
 #include <materialinstance.h>
 #include <renderablemesh.h>
-#include <videoplayer.h>
 #include <imagefromfile.h>
 #include <foglioservice.h>
 #include <transformcomponent.h>
@@ -27,12 +28,13 @@ namespace nap
 		DECLARE_COMPONENT(RenderCanvasComponent, RenderCanvasComponentInstance)
 
 	public:
-		ResourcePtr<VideoPlayer>		mVideoPlayer = nullptr;
-		float							mAspectRatio;
-		int								mResolution;
+		float							mAspectRatio = 1.0;
+		int								mResolution = 4;
 		std::vector<glm::vec2>			mCornerOffsets = std::vector<glm::vec2>(4);
 		ResourcePtr<ShaderFromFile>		mPostShader = nullptr;
 		ResourcePtr<ImageFromFile>		mMask = nullptr;
+
+		virtual void getDependentComponents(std::vector<rtti::TypeInfo>& components) const override;
 	};
 
 	class NAPAPI RenderCanvasComponentInstance : public RenderableComponentInstance
@@ -43,11 +45,17 @@ namespace nap
 
 		virtual bool init(utility::ErrorState& errorState) override;
 
+		void setupCanvasPassComponents(utility::ErrorState& errorState);
+
+		void renderPasses();
+
+		void setIsControlWindow(bool isControlView);
+
 		virtual bool isSupported(nap::CameraComponentInstance& camera) const override;
 
-		ResourcePtr<RenderTexture2D> getOutputTexture();
+		ResourcePtr<RenderTexture2D> getFinalOutputTexture();
 
-		VideoPlayer* getVideoPlayer();
+		ResourcePtr<RenderTarget>	getRenderTarget();
 
 		std::vector<glm::vec2>	getCornerOffsets() { return mCornerOffsets; }
 
@@ -78,7 +86,7 @@ namespace nap
 
 		void drawInterface(rtti::ObjectPtr<RenderTarget> interfaceTarget);
 
-		void setFinalSampler(bool isInterface);
+		void setFinalSamplerTexture(RenderTexture2D* texture);
 
 		void computeModelMatrix(const nap::IRenderTarget& target, glm::mat4& outMatrix, ResourcePtr<RenderTexture2D> canvas_output_texture, TransformComponentInstance* transform_comp);
 
@@ -96,10 +104,9 @@ namespace nap
 		Sampler2DInstance* ensureSampler(const std::string& samplerName, MaterialInstance* materialInstance, utility::ErrorState& error);
 		bool constructTextureAndRenderTarget(ResourcePtr<RenderTarget>& renderTarget, ResourcePtr<RenderTexture2D>& texture, bool transparent, utility::ErrorState& error);
 		
-		bool mIsControlViewDraw = false;
+		bool mIsControlWindowDraw = false;
 
 	protected:
-
 		virtual void onDraw(IRenderTarget& renderTarget, VkCommandBuffer commandBuffer, const glm::mat4& viewmatrix, const glm::mat4& projectionMatrix) override;
 
 	private:
@@ -108,11 +115,12 @@ namespace nap
 		DoubleBufferedRenderTarget		mDoubleBufferTarget;
 		ResourcePtr<RenderTarget>		mCurrentInternalRT;
 		ResourcePtr<ImageFromFile>		mMask;
-		VideoPlayer*					mVideoPlayer = nullptr;
 		ResourcePtr<RenderTarget>		mFinalRenderTarget;
 		ResourcePtr<RenderTexture2D>	mFinalTexture;
 		std::vector<glm::vec2>			mCornerOffsets;
 		ResourcePtr<RenderWindow>		mPresentationWindow;
+
+		std::vector<CanvasPassComponentInstance*>	mCanvasPassComponents;
 
 		float*							mAspectRatio = nullptr;
 		int*							mResolution = nullptr;
@@ -131,8 +139,5 @@ namespace nap
 		bool setupPlaneMesh(ResourcePtr<PlaneMesh> planeMesh, int resX, int resY, nap::utility::ErrorState errorState);
 
 		void setWarpCornerUniforms();
-
-		void videoChanged(VideoPlayer& player);
-		nap::Slot<VideoPlayer&> mVideoChangedSlot = { this, &RenderCanvasComponentInstance::videoChanged };
 	};
 }

@@ -1,6 +1,7 @@
 ﻿
 #include "canvasgroupcomponent.h"
 #include "rendercanvascomponent.h"
+#include "canvaspasscomponent.h"
 #include "inputcomponent.h"
 
 #include <sequencecanvascomponent.h>
@@ -45,7 +46,8 @@ namespace nap
 		// Get resource
 		CanvasGroupComponent* resource = getComponent<CanvasGroupComponent>();
 		mPresentationWindow = resource->mPresentationWindow;
-		mSelected = getEntityInstance()->getChildren()[0];
+		mSelectedCanvas = getEntityInstance()->getChildren()[0];
+		mSelectedCanvasPass = mSelectedCanvas->getComponent<CanvasPassComponentInstance*>();
 		if (!initSelectedRenderTarget()) {
 			return false;
 		}
@@ -71,8 +73,8 @@ namespace nap
 
 	void CanvasGroupComponentInstance::trigger(const nap::InputEvent& inEvent) {
 		float stepSize = mKeyboardControlStepSize;
-		RenderCanvasComponentInstance& canvas_comp = mSelected->getComponent<RenderCanvasComponentInstance>();
-		TransformComponentInstance& canvas_transform_comp = mSelected->getComponent<TransformComponentInstance>();
+		RenderCanvasComponentInstance& canvas_comp = mSelectedCanvas->getComponent<RenderCanvasComponentInstance>();
+		TransformComponentInstance& canvas_transform_comp = mSelectedCanvas->getComponent<TransformComponentInstance>();
 		rtti::TypeInfo event_type = inEvent.get_type().get_raw_type();
 		if (event_type == RTTI_OF(KeyPressEvent)){
 			const KeyPressEvent& press_event = static_cast<const KeyPressEvent&>(inEvent);
@@ -80,9 +82,9 @@ namespace nap
 				int findIndex = 0;
 				EntityInstance::ChildList canvasGroupChildren = getEntityInstance()->getChildren();
 				for (EntityInstance* canvasEntity : canvasGroupChildren) {
-					if (canvasEntity == mSelected) {
-						mSelected->getComponent<RenderCanvasComponentInstance>().setFinalSampler(false);
-						mSelected = canvasGroupChildren[(findIndex + 1) % canvasGroupChildren.size()]; //findIndex + 1 because we skip to next one because of tab press
+					if (canvasEntity == mSelectedCanvas) {
+						mSelectedCanvas = canvasGroupChildren[(findIndex + 1) % canvasGroupChildren.size()]; //findIndex + 1 because we skip to next one because of tab press
+						mSelectedCanvasPass = mSelectedCanvas->getComponent<CanvasPassComponentInstance*>();
 						break;
 					}
 					findIndex += 1;
@@ -169,7 +171,7 @@ namespace nap
 
 			}
 		}
-		std::vector<glm::i16vec2> corners = calculateScreenSpacePosition(mSelected);
+		std::vector<glm::i16vec2> corners = calculateScreenSpacePosition(mSelectedCanvas);
 		// Ensure it's a pointer event
 		if (event_type == RTTI_OF(PointerPressEvent))
 		{
@@ -187,6 +189,7 @@ namespace nap
 		}
 	}
 
+	//UNFINISHED
 	std::vector<glm::i16vec2> CanvasGroupComponentInstance::calculateScreenSpacePosition(EntityInstance* entity) {
 		std::vector<glm::i16vec2> corners = std::vector<glm::i16vec2>(4);
 
@@ -195,7 +198,7 @@ namespace nap
 		glm::quat				rotate = entity->getComponent<TransformComponentInstance>().getRotate();
 		std::vector<glm::vec2>	cornerOffsets = entity->getComponent<RenderCanvasComponentInstance>().getCornerOffsets();
 		//canvasSize and windowSize are in pixels
-		glm::ivec2 canvasSize = entity->getComponent<RenderCanvasComponentInstance>().getOutputTexture()->getSize();
+		glm::ivec2 canvasSize = entity->getComponent<RenderCanvasComponentInstance>().getFinalOutputTexture()->getSize();
 		glm::ivec2 windowSize = entity->getCore()->getResourceManager()->findObject<RenderWindow>("ControlsWindow")->getSize();
 		//scale canvasSize values to window
 		if (canvasSize.x > canvasSize.y) {
@@ -217,36 +220,47 @@ namespace nap
 	}
 
 	void CanvasGroupComponentInstance::setSequencePlayer() {
-		if (mSelected->hasComponent<SequenceCanvasComponent>()) {
-			mSequenceEditor->mSequencePlayer = mSelected->getComponent<SequenceCanvasComponentInstance>().mSequencePlayer;
+		if (mSelectedCanvas->hasComponent<SequenceCanvasComponent>()) {
+			mSequenceEditor->mSequencePlayer = mSelectedCanvas->getComponent<SequenceCanvasComponentInstance>().mSequencePlayer;
 			nap::utility::ErrorState error;
 			mSequenceEditor->init(error);
 			mSequenceEditorGUI->init(error);
 		}
 	}
 
+	void CanvasGroupComponentInstance::setSelectedTextureControlOverlay(bool isControlWindowDraw) {
+		auto& canvasComp = mSelectedCanvas->getComponent<RenderCanvasComponentInstance>();
+		if (isControlWindowDraw) {
+			canvasComp.setFinalSamplerTexture(mSelectedOverlayRenderTarget->mColorTexture.get());
+		}
+		else {
+			canvasComp.setFinalSamplerTexture(canvasComp.getFinalOutputTexture().get());
+		}
+		
+	}
+
 	bool CanvasGroupComponentInstance::initSelectedRenderTarget()
 	{
-		mSelectedOutputTexture = getEntityInstance()->getCore()->getResourceManager()->createObject<RenderTexture2D>();
-		ResourcePtr<RenderTexture2D> outputTexRef = mSelected->getComponent<RenderCanvasComponentInstance>().getOutputTexture();
-		mSelectedOutputTexture->mWidth = outputTexRef->mWidth;
-		mSelectedOutputTexture->mHeight = outputTexRef->mHeight;
-		mSelectedOutputTexture->mFormat = outputTexRef->mFormat;
-		mSelectedOutputTexture->mUsage = ETextureUsage::Static;
+		mSelectedOverlayTexture = getEntityInstance()->getCore()->getResourceManager()->createObject<RenderTexture2D>();
+		ResourcePtr<RenderTexture2D> outputTexRef = mSelectedCanvas->getComponent<RenderCanvasComponentInstance>().getFinalOutputTexture();
+		mSelectedOverlayTexture->mWidth = outputTexRef->mWidth;
+		mSelectedOverlayTexture->mHeight = outputTexRef->mHeight;
+		mSelectedOverlayTexture->mFormat = outputTexRef->mFormat;
+		mSelectedOverlayTexture->mUsage = ETextureUsage::Static;
 		nap::utility::ErrorState error;
-		if (!mSelectedOutputTexture->init(error))
+		if (!mSelectedOverlayTexture->init(error))
 		{
-			error.fail("%s: Failed to initialize selected output texture", mSelectedOutputTexture->mID.c_str());
+			error.fail("%s: Failed to initialize selected output texture", mSelectedOverlayTexture->mID.c_str());
 			return false;
 		}
-		mSelectedRenderTarget = getEntityInstance()->getCore()->getResourceManager()->createObject<RenderTarget>();
-		mSelectedRenderTarget->mColorTexture = mSelectedOutputTexture;
-		mSelectedRenderTarget->mClearColor = RGBAColor8(255, 255, 255, 0).convert<RGBAColorFloat>();
-		mSelectedRenderTarget->mSampleShading = false;
-		mSelectedRenderTarget->mRequestedSamples = ERasterizationSamples::One;
-		if (!mSelectedRenderTarget->init(error))
+		mSelectedOverlayRenderTarget = getEntityInstance()->getCore()->getResourceManager()->createObject<RenderTarget>();
+		mSelectedOverlayRenderTarget->mColorTexture = mSelectedOverlayTexture;
+		mSelectedOverlayRenderTarget->mClearColor = RGBAColor8(255, 255, 255, 0).convert<RGBAColorFloat>();
+		mSelectedOverlayRenderTarget->mSampleShading = false;
+		mSelectedOverlayRenderTarget->mRequestedSamples = ERasterizationSamples::One;
+		if (!mSelectedOverlayRenderTarget->init(error))
 		{
-			error.fail("%s: Failed to initialize internal render target", mSelectedRenderTarget->mID.c_str());
+			error.fail("%s: Failed to initialize internal render target for selected canvas overlay", mSelectedOverlayRenderTarget->mID.c_str());
 			return false;
 		}
 	}
@@ -257,9 +271,14 @@ namespace nap
 		{
 			mMidiData->mReceivedEvents.erase(mMidiData->mReceivedEvents.begin());
 		}
-		//pass to all canvas components
+		//pass to all canvas pass components that enabled midi events
 		for (auto group_child : getEntityInstance()->getChildren())
 		{
+			std::vector<CanvasPassComponentInstance*> canvas_passes;
+			group_child->getComponentsOfType(canvas_passes);
+			for (CanvasPassComponentInstance* canvas_pass : canvas_passes) {
+
+			}
 			RenderCanvasComponentInstance& canvas_comp = group_child->getComponent<RenderCanvasComponentInstance>();
 			if (canvas_comp.mCustomPostPass != nullptr) {
 				UniformStructInstance* ubo = canvas_comp.mCustomPostPass->mUBO;
@@ -301,17 +320,21 @@ namespace nap
 	{
 		std::vector<EntityInstance*> mCanvasEntities = getEntityInstance()->getChildren(); //TODO: maybe set in init() and update() when entityinstance children update call?
 		for (EntityInstance* canvasEntity : mCanvasEntities) {
-			canvasEntity->getComponent<RenderCanvasComponentInstance>().drawAllHeadlessPasses();
+			canvasEntity->getComponent<RenderCanvasComponentInstance>().renderPasses();
 		}
 	}
 
 	void CanvasGroupComponentInstance::drawSelectedInterface()
 	{
-		if (mSelected != nullptr) {
-			mSelected->getComponent<RenderCanvasComponentInstance>().drawInterface(mSelectedRenderTarget);
+		if (mSelectedCanvas != nullptr) {
+			mSelectedCanvas->getComponent<RenderCanvasComponentInstance>().drawInterface(mSelectedOverlayRenderTarget);
 		}
 	}
 
+	void CanvasGroupComponentInstance::selectCanvas(EntityInstance* newSelectedCanvas) {
+		mSelectedCanvas = newSelectedCanvas;
+		initSelectedRenderTarget();
+	}
 
 	void CanvasGroupComponentInstance::drawOutliner() {
 		if (ImGui::Button("Toggle Backdrop")) {
@@ -335,22 +358,21 @@ namespace nap
 		ImGui::DragFloat("Step Size", &mKeyboardControlStepSize, 0.01f, 0.f, 10.f, "%.2f", 1.f);
 		for (EntityInstance* canvasEntity : getEntityInstance()->getChildren()) {
 			ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-			if (mSelected == canvasEntity) {
+			if (mSelectedCanvas == canvasEntity) {
 				node_flags |= ImGuiTreeNodeFlags_Selected;
 			}
 			ImGui::TreeNodeEx((EntityInstance*)canvasEntity, node_flags, canvasEntity->getEntity()->mID.c_str());
 			if (ImGui::IsItemClicked())
 			{
-				mSelected->getComponent<RenderCanvasComponentInstance>().setFinalSampler(false);
-				mSelected = canvasEntity;
+				mSelectedCanvas = canvasEntity;
+				mSelectedCanvasPass = mSelectedCanvas->getComponent<CanvasPassComponentInstance*>();
 				setSequencePlayer();
-			}
-				
+			}		
 		}
-		RenderCanvasComponentInstance& canvas_comp = mSelected->getComponent<RenderCanvasComponentInstance>();
-		TransformComponentInstance& canvas_transform_comp = mSelected->getComponent<TransformComponentInstance>();
+		RenderCanvasComponentInstance& canvas_comp = mSelectedCanvas->getComponent<RenderCanvasComponentInstance>();
+		TransformComponentInstance& canvas_transform_comp = mSelectedCanvas->getComponent<TransformComponentInstance>();
 		
-		ResourcePtr<RenderTexture2D> canvas_tex = canvas_comp.getOutputTexture();
+		ResourcePtr<RenderTexture2D> canvas_tex = canvas_comp.getFinalOutputTexture();
 		float col_width = ImGui::GetContentRegionAvailWidth();
 		float ratio_canvas_tex = static_cast<float>(canvas_tex->getWidth()) / static_cast<float>(canvas_tex->getHeight());
 		if (ImGui::CollapsingHeader("Preview", ImGuiTreeNodeFlags_None))
@@ -358,6 +380,7 @@ namespace nap
 			ImGui::Image(*canvas_tex.get(), {col_width , col_width / ratio_canvas_tex});
 		}
 		utility::ErrorState errorState;
+		/*
 		if (canvas_comp.getVideoPlayer() != nullptr) {
 			VideoPlayer* video_player = canvas_comp.getVideoPlayer();
 			float current_time = canvas_comp.getVideoPlayer()->getCurrentTime();
@@ -389,6 +412,7 @@ namespace nap
 			ImGui::EndGroup();
 
 		}
+		*/
 		ImGui::Text("Position");
 		glm::vec3 translate = canvas_transform_comp.getTranslate();
 		float tempXTransl = translate.x;
@@ -429,9 +453,22 @@ namespace nap
 				canvas_comp.setCornerOffsets(offsets);
 			}
 		}
+		std::vector<CanvasPassComponentInstance*> passes;
+		mSelectedCanvas->getComponentsOfType(passes);
+		for (CanvasPassComponentInstance* pass : passes) {
+			ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+			if (mSelectedCanvasPass == pass) { 
+				node_flags |= ImGuiTreeNodeFlags_Selected;
+			}
+			ImGui::TreeNodeEx((EntityInstance*)pass, node_flags, pass->mID.c_str());
+			if (ImGui::IsItemClicked())
+			{
+				mSelectedCanvasPass = pass;
+			}
+		}
 		
-		if (mSelected->hasComponent<SequenceCanvasComponentInstance>()) {
-			SequenceCanvasComponentInstance& seq_canvas_comp = mSelected->getComponent<SequenceCanvasComponentInstance>();
+		if (mSelectedCanvas->hasComponent<SequenceCanvasComponentInstance>()) {
+			SequenceCanvasComponentInstance& seq_canvas_comp = mSelectedCanvas->getComponent<SequenceCanvasComponentInstance>();
 			ResourcePtr<SequencePlayer> seq_player = seq_canvas_comp.getSequencePlayer();
 			ImGui::Text("Sequence %s", seq_player->getSequenceFilename());
 			float playbackSpeed = seq_player->getPlaybackSpeed();

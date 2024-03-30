@@ -50,7 +50,7 @@ namespace nap
 		RenderCanvasComponentInstance* mRenderCanvasComponent;
 		
 		void drawSequenceControls(utility::ErrorState& errorState);
-		void selectVideo(const SequenceEventBase& sequenceEvent);
-		nap::Slot<const SequenceEventBase&>		mSelectVideoSlot = { this, &SequenceCanvasComponentInstance::selectVideo };
+		//void selectVideo(const SequenceEventBase& sequenceEvent);
+		//nap::Slot<const SequenceEventBase&>		mSelectVideoSlot = { this, &SequenceCanvasComponentInstance::selectVideo };
 	};
 }

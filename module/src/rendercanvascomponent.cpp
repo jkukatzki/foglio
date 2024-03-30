@@ -3,6 +3,7 @@
 #include "canvasinterfaceshader.h"
 #include "maskshader.h"
 #include "canvasgroupcomponent.h"
+#include "canvaspasscomponent.h"
 
 #include <videoshader.h>
 #include <entity.h>
@@ -19,12 +20,9 @@
 
 // nap::rendercanvascomponent run time class definition
 RTTI_BEGIN_CLASS(nap::RenderCanvasComponent)
-RTTI_PROPERTY("VideoPlayer", &nap::RenderCanvasComponent::mVideoPlayer, nap::rtti::EPropertyMetaData::Default)
 RTTI_PROPERTY("Aspect Ratio", &nap::RenderCanvasComponent::mAspectRatio, nap::rtti::EPropertyMetaData::Default)
 RTTI_PROPERTY("Resolution", &nap::RenderCanvasComponent::mResolution, nap::rtti::EPropertyMetaData::Default)
 RTTI_PROPERTY("CornerOffsets", &nap::RenderCanvasComponent::mCornerOffsets, nap::rtti::EPropertyMetaData::Default)
-RTTI_PROPERTY("PostShader", &nap::RenderCanvasComponent::mPostShader, nap::rtti::EPropertyMetaData::Default)
-RTTI_PROPERTY("Mask", &nap::RenderCanvasComponent::mMask, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::RenderCanvasComponentInstance)
@@ -42,26 +40,33 @@ namespace nap
 		mFinalTexture(new RenderTexture2D(*entity.getCore()))
 	{ }
 
+	void RenderCanvasComponent::getDependentComponents(std::vector<rtti::TypeInfo>& components) const
+	{
+		components.emplace_back(RTTI_OF(CanvasPassComponent));
+	}
 
-
-	ResourcePtr<RenderTexture2D> RenderCanvasComponentInstance::getOutputTexture()
+	ResourcePtr<RenderTexture2D> RenderCanvasComponentInstance::getFinalOutputTexture()
 	{
 		return mFinalTexture;
 	}
 
-	nap::VideoPlayer* RenderCanvasComponentInstance::getVideoPlayer()
-	{
-		return mVideoPlayer;
+	ResourcePtr<RenderTarget> RenderCanvasComponentInstance::getRenderTarget() {
+		return mFinalRenderTarget;
 	}
+
 
 	bool RenderCanvasComponentInstance::init(utility::ErrorState& errorState)
 	{
 		if (!RenderableComponentInstance::init(errorState))
 			return false;
+
 		// Get resource
 		RenderCanvasComponent* resource = getComponent<RenderCanvasComponent>();
+
+		// Get transform component
 		mTransformComponent = getEntityInstance()->findComponent<TransformComponentInstance>();
-		// get main window render target // maybe this should be a parameter inside the canvasgroupcomponent that defines the window to render to
+
+		// Get window to render to
 		CanvasGroupComponent* groupResource = getEntityInstance()->getParent()->findComponent<CanvasGroupComponentInstance>()->getComponent<CanvasGroupComponent>();
 		if (groupResource != nullptr) {
 			if (groupResource->mPresentationWindow != nullptr) {
@@ -73,6 +78,9 @@ namespace nap
 			return false;
 		}
 		
+		// Get all passes
+
+
 		// create planes and initialize them
 		// The plane is positioned on update based on current texture output size and transform component, if its headless it's always fullscreen
 		if (!setupPlaneMesh(mHeadlessPlaneMesh, 1, 1, errorState)) {
@@ -83,12 +91,15 @@ namespace nap
 		}
 		mResolution = new int(resource->mResolution);
 		mAspectRatio = new float(resource->mAspectRatio);
-		mVideoPlayer = resource->mVideoPlayer.get();
+
 		constructTextureAndRenderTarget(mFinalRenderTarget, mFinalTexture, true, errorState);
+
+		//PASSES
+		setupCanvasPassComponents(errorState);
+
 		// Setup double buffer target for internal render
 		for (int target_idx = 0; target_idx < 2; target_idx++)
 		{
-
 			auto tex = getEntityInstance()->getCore()->getResourceManager()->createObject<RenderTexture2D>();
 			auto target = getEntityInstance()->getCore()->getResourceManager()->createObject<RenderTarget>();
 			if (!errorState.check(constructTextureAndRenderTarget(target, tex, true, errorState), "%s: unable to construct internal render target", resource->mID.c_str()))
@@ -100,25 +111,7 @@ namespace nap
 		// Extract render service
 		mRenderService = getEntityInstance()->getCore()->getService<RenderService>();
 		assert(mRenderService != nullptr);
-
-		// Get video player
 		
-		if (mVideoPlayer != nullptr) {
-			mVideoPlayer->play();
-			if (!constructCanvasPassItem(CanvasMaterialType::VIDEO, errorState))
-				return false;
-			mVideoPlayer->VideoChanged.connect(mVideoChangedSlot);
-			videoChanged(*mVideoPlayer);
-		}
-		
-
-		
-		mMask = resource->mMask.get();
-		if (mMask !=  nullptr) {
-			if(!constructCanvasPassItem(CanvasMaterialType::MASK, errorState))
-				return false;
-			mStockCanvasPasses[CanvasMaterialType::MASK].mSamplers["maskSampler"]->setTexture(*mMask.get());
-		}
 		if (!constructCanvasPassItem(CanvasMaterialType::INTERFACE, errorState))
 			return false;
 		if (!constructCanvasPassItem(CanvasMaterialType::WARP, errorState))
@@ -128,87 +121,44 @@ namespace nap
 		setWarpCornerUniforms();
 		mStockCanvasPasses[CanvasMaterialType::INTERFACE].mUBO->getOrCreateUniform<UniformVec3Instance>(uniform::canvasinterface::mousePos)->setValue(glm::vec3());
 		mStockCanvasPasses[CanvasMaterialType::INTERFACE].mUBO->getOrCreateUniform<UniformFloatInstance>(uniform::canvasinterface::frameThickness)->setValue(0.01);
-		mStockCanvasPasses[CanvasMaterialType::INTERFACE].mSamplers["inTextureSampler"]->setTexture(*mFinalTexture);
-		mStockCanvasPasses[CanvasMaterialType::WARP].mSamplers["inTextureSampler"]->setTexture(*mFinalTexture);
 		
+
 		
-		if (resource->mPostShader.get() != nullptr) {
-			mCustomPostPass = std::make_unique<CanvasPass>(CanvasPass());
-			mCustomPostPass->mMaterialInstResource = std::make_unique<MaterialInstanceResource>(MaterialInstanceResource());
-			mCustomPostPass->mMaterialInstResource->mBlendMode = EBlendMode::Opaque;
-			mCustomPostPass->mMaterialInstResource->mDepthMode = EDepthMode::NoReadWrite;
-			mCustomPostPass->mMaterialInstResource->mMaterial = ResourcePtr<Material>(new Material(*getEntityInstance()->getCore())); //mRenderService->getOrCreateMaterial<ShaderFromFile>(errorState);
-			mCustomPostPass->mMaterialInstResource->mMaterial->mShader = resource->mPostShader.get();
-			if (!errorState.check(mCustomPostPass->mMaterialInstResource->mMaterial->init(errorState), "%s: unable to init material", resource->mID.c_str()))
-				return false;
-			mCustomPostPass->mMaterialInstance = new MaterialInstance();
-			if (!errorState.check(mCustomPostPass->mMaterialInstance->init(*mRenderService, *mCustomPostPass->mMaterialInstResource, errorState), "%s: unable to instance material", this->mID.c_str()))
-				return false;
-			
-			//create mvp struct on material instance, regardless of type
-			mCustomPostPass->mMVPStruct = mCustomPostPass->mMaterialInstance->getOrCreateUniform(uniform::mvpStruct);
-			if (!errorState.check(mCustomPostPass->mMVPStruct != nullptr, "%s: Unable to find uniform MVP struct: %s in material: %s",
-				this->mID.c_str(), uniform::mvpStruct, mCustomPostPass->mMaterialInstResource->mMaterial->mID.c_str()))
-				return false;
-			// Get all matrices
-			
-			mCustomPostPass->mModelMatrixUniform = mCustomPostPass->mMVPStruct->getOrCreateUniform<UniformMat4Instance>(uniform::modelMatrix);//ensureUniformMat4(uniform::modelMatrix, mCustomPostPass->mMVPStruct, errorState);
-			mCustomPostPass->mProjectMatrixUniform = mCustomPostPass->mMVPStruct->getOrCreateUniform<UniformMat4Instance>(uniform::projectionMatrix);//ensureUniformMat4(uniform::projectionMatrix, mCustomPostPass->mMVPStruct, errorState);
-			mCustomPostPass->mViewMatrixUniform = mCustomPostPass->mMVPStruct->getOrCreateUniform<UniformMat4Instance>(uniform::viewMatrix);//ensureUniformMat4(uniform::viewMatrix, mCustomPostPass->mMVPStruct, errorState);
-			bool mvpFulfilled = !(mCustomPostPass->mModelMatrixUniform == nullptr || mCustomPostPass->mProjectMatrixUniform == nullptr || mCustomPostPass->mViewMatrixUniform == nullptr);
-			if (!errorState.check(mvpFulfilled, "%s: unable to construct mvp uniforms for custom pass", getEntityInstance()->mID.c_str()))
-				return false;
-			mCustomPostPass->mUBO = mCustomPostPass->mMaterialInstance->getOrCreateUniform("UBO");
-			if (!errorState.check(mCustomPostPass->mUBO != nullptr, "%s: Unable to find UBO struct: %s in material: %s",
-				this->mID.c_str(), "customPostPass", mCustomPostPass->mMaterialInstResource->mMaterial->mID.c_str()))
-				return false;
-			for (int i = 0; i < 8; i++) {
-				ensureUniformFloat("midiKnob" + std::to_string(i), mCustomPostPass->mUBO, errorState);
-			}
-			ensureUniformFloat("midiPitchBend", mCustomPostPass->mUBO, errorState);
-			ensureUniformFloat("midiPitchBendAcc", mCustomPostPass->mUBO, errorState);
-			ensureUniformFloat("iTime", mCustomPostPass->mUBO, errorState);
-			mCustomPostPass->mUBO->getOrCreateUniform<UniformFloatInstance>("iTime")->setValue(float(getCurrentDateTime().getMilliSecond()));
-			
-			mCustomPostPass->mSamplers["inTextureSampler"] = ensureSampler("inTexture", mCustomPostPass->mMaterialInstance, errorState);
-			mCustomPostPass->mRenderableMesh = mRenderService->createRenderableMesh(*mHeadlessPlaneMesh, *mCustomPostPass->mMaterialInstance, errorState);
-			if (!errorState.check(mCustomPostPass->mRenderableMesh.isValid(), "%s: unable to construct renderable mesh for custom pass", getEntityInstance()->mID.c_str()))
-				return false;
-		}
 
 		return true;
 
 	}
 
-	void RenderCanvasComponentInstance::drawAllHeadlessPasses() {
-		if (mStockCanvasPasses.find(CanvasMaterialType::MASK) != mStockCanvasPasses.end() || mCustomPostPass != nullptr)
-		{
-			//mask pass or custom pass present, render video into internal render target so it can be used in the mask/custom materials sampler
-			mCurrentInternalRT = mDoubleBufferTarget[0];
+	void RenderCanvasComponentInstance::setupCanvasPassComponents(utility::ErrorState& errorState) {
+		if (mCanvasPassComponents.size() != 0) {
+			getEntityInstance()->getComponentsOfType<CanvasPassComponentInstance>(mCanvasPassComponents);
+			for (int i = 0; i < mCanvasPassComponents.size(); i++) {
+				auto passComponent = mCanvasPassComponents[i];
+				passComponent->initPassTargetAndTexture(mFinalRenderTarget, mFinalTexture, errorState);
+				if (i > 0) {
+					// set pass component in texture to that of previous one in queue // extend this when implementing muting of passes / transparencies ?
+					passComponent->setInTextureSampler(mCanvasPassComponents[(i - 1)]->getOutputTexture());
+				}
+			}
+			mFinalTexture = mCanvasPassComponents.back()->getOutputTexture();
+			mStockCanvasPasses[CanvasMaterialType::INTERFACE].mSamplers["inTextureSampler"]->setTexture(*mFinalTexture);
+			mStockCanvasPasses[CanvasMaterialType::WARP].mSamplers["inTextureSampler"]->setTexture(*mFinalTexture);
 		}
-		else 
-		{
-			//no mask pass
-			mCurrentInternalRT = mFinalRenderTarget;
-		}
-		if (mStockCanvasPasses.find(CanvasMaterialType::VIDEO) != mStockCanvasPasses.end()) {
-			drawHeadlessPass(mStockCanvasPasses[CanvasMaterialType::VIDEO]);
-		}
-		
-		if (mCustomPostPass != nullptr) {
-			mCustomPostPass->mSamplers["inTextureSampler"]->setTexture(*mCurrentInternalRT->mColorTexture);
-			mCustomPostPass->mUBO->getOrCreateUniform<UniformFloatInstance>("iTime")->setValue(float(getEntityInstance()->getCore()->getElapsedTime()));
-			mCurrentInternalRT = (mStockCanvasPasses.find(CanvasMaterialType::MASK) != mStockCanvasPasses.end()) ? mDoubleBufferTarget[1] : mFinalRenderTarget;
-			drawHeadlessPass(*mCustomPostPass);
-		}
-
-		if (mStockCanvasPasses.find(CanvasMaterialType::MASK) != mStockCanvasPasses.end())
-		{
-			mStockCanvasPasses[CanvasMaterialType::MASK].mSamplers["inTextureSampler"]->setTexture(*mCurrentInternalRT->mColorTexture);
-			mCurrentInternalRT = mFinalRenderTarget;
-			drawHeadlessPass(mStockCanvasPasses[CanvasMaterialType::MASK]);
+		else {
+			nap::Logger::error("%s has no CanvasPassComponents on same level", this->mID.c_str());
 		}
 	}
+
+	void RenderCanvasComponentInstance::renderPasses() {
+		for (auto canvasPass : mCanvasPassComponents) {
+			canvasPass->draw();
+		}
+	}
+
+	void RenderCanvasComponentInstance::drawAllHeadlessPasses() {
+		
+	}
+
 
 	void RenderCanvasComponentInstance::drawHeadlessPass(CanvasPass& pass)
 	{
@@ -266,14 +216,19 @@ namespace nap
 		drawHeadlessPass(mStockCanvasPasses[CanvasMaterialType::INTERFACE]);
 	}
 
-	void RenderCanvasComponentInstance::setFinalSampler(bool isInterface) 
+	void RenderCanvasComponentInstance::setIsControlWindow(bool isControlWindowDraw) 
 	{
-		if (isInterface) {
+		if (isControlWindowDraw) {
 			mStockCanvasPasses[CanvasMaterialType::WARP].mSamplers["inTextureSampler"]->setTexture(*mCurrentInternalRT->mColorTexture);
 		}
 		else {
 			mStockCanvasPasses[CanvasMaterialType::WARP].mSamplers["inTextureSampler"]->setTexture(*mFinalTexture);
 		}
+	}
+
+	void RenderCanvasComponentInstance::setFinalSamplerTexture(RenderTexture2D* texture)
+	{
+		mStockCanvasPasses[CanvasMaterialType::WARP].mSamplers["inTextureSampler"]->setTexture(*texture);
 	}
 
 	
@@ -321,14 +276,6 @@ namespace nap
 	bool RenderCanvasComponentInstance::constructCanvasPassItem(CanvasMaterialType type, utility::ErrorState error) {
 		CanvasPass* pass = &mStockCanvasPasses[type];
 		switch (type) {
-		case CanvasMaterialType::VIDEO: {
-			//create video material
-			pass->mMaterialInstResource = std::make_unique<MaterialInstanceResource>(MaterialInstanceResource());
-			pass->mMaterialInstResource->mBlendMode = EBlendMode::Opaque;
-			pass->mMaterialInstResource->mDepthMode = EDepthMode::NoReadWrite;
-			pass->mMaterial = mRenderService->getOrCreateMaterial<VideoShader>(error);
-			break;
-		}
 		case CanvasMaterialType::WARP: {
 			//create canvas warp material
 			pass->mMaterialInstResource = std::make_unique<MaterialInstanceResource>(MaterialInstanceResource());
@@ -343,14 +290,6 @@ namespace nap
 			pass->mMaterialInstResource->mBlendMode = EBlendMode::AlphaBlend;
 			pass->mMaterialInstResource->mDepthMode = EDepthMode::NoReadWrite;
 			pass->mMaterial = mRenderService->getOrCreateMaterial<CanvasInterfaceShader>(error);
-			break;
-		}
-		case CanvasMaterialType::MASK: {
-			//create canvas mask material
-			pass->mMaterialInstResource = std::make_unique<MaterialInstanceResource>(MaterialInstanceResource());
-			pass->mMaterialInstResource->mBlendMode = EBlendMode::AlphaBlend;
-			pass->mMaterialInstResource->mDepthMode = EDepthMode::NoReadWrite;
-			pass->mMaterial = mRenderService->getOrCreateMaterial<MaskShader>(error);
 			break;
 		}
 		default:
@@ -387,15 +326,6 @@ namespace nap
 		//sampler and uniform definitions
 		switch (type) {
 
-		case CanvasMaterialType::VIDEO:
-		{
-			pass->mSamplers["YSampler"] = ensureSampler(uniform::video::sampler::YSampler, pass->mMaterialInstance, error);
-			pass->mSamplers["USampler"] = ensureSampler(uniform::video::sampler::USampler, pass->mMaterialInstance, error);
-			pass->mSamplers["VSampler"] = ensureSampler(uniform::video::sampler::VSampler, pass->mMaterialInstance, error);
-			if (pass->mSamplers["YSampler"] == nullptr || pass->mSamplers["USampler"] == nullptr || pass->mSamplers["VSampler"] == nullptr)
-				return false;
-			break;
-		}
 
 		case CanvasMaterialType::WARP:
 		{
@@ -426,16 +356,6 @@ namespace nap
 			// create uniforms
 			ensureUniformFloat(uniform::canvasinterface::frameThickness, pass->mUBO, error);
 			ensureUniformVec3(uniform::canvasinterface::mousePos, pass->mUBO, error);
-			break;
-		}
-
-		case CanvasMaterialType::MASK:
-		{
-			nap::Logger::info("Constructing mask pass");
-			pass->mSamplers["inTextureSampler"] = ensureSampler(uniform::mask::sampler::inTexture, pass->mMaterialInstance, error);
-			pass->mSamplers["maskSampler"] = ensureSampler(uniform::mask::sampler::maskTexture, pass->mMaterialInstance, error);
-			if (pass->mSamplers["inTextureSampler"] == nullptr || pass->mSamplers["maskSampler"] == nullptr)
-				return false;
 			break;
 		}
 		default:
@@ -490,13 +410,6 @@ namespace nap
 		return found_sampler;
 	}
 
-	void RenderCanvasComponentInstance::videoChanged(VideoPlayer& player)
-	{
-		nap::Logger::info("Video Changed for Canvas: %s", getEntityInstance()->mID.c_str());
-		mStockCanvasPasses[CanvasMaterialType::VIDEO].mSamplers["YSampler"]->setTexture(player.getYTexture());
-		mStockCanvasPasses[CanvasMaterialType::VIDEO].mSamplers["USampler"]->setTexture(player.getUTexture());
-		mStockCanvasPasses[CanvasMaterialType::VIDEO].mSamplers["VSampler"]->setTexture(player.getVTexture());
-	}
 
 	bool RenderCanvasComponentInstance::isSupported(nap::CameraComponentInstance& camera) const
 	{
@@ -519,7 +432,7 @@ namespace nap
 	void RenderCanvasComponentInstance::computeModelMatrix(const nap::IRenderTarget& target, glm::mat4& outMatrix, ResourcePtr<RenderTexture2D> canvas_output_texture, TransformComponentInstance* transform_comp)
 	{
 		//target is control window
-		if (mIsControlViewDraw)
+		if (mIsControlWindowDraw)
 		{
 			glm::vec3 translate = transform_comp->getTranslate();
 			glm::vec3 scale = transform_comp->getScale();
@@ -593,47 +506,20 @@ namespace nap
 
 	bool RenderCanvasComponentInstance::constructTextureAndRenderTarget(ResourcePtr<RenderTarget>& renderTarget, ResourcePtr<RenderTexture2D>& texture, bool transparent, utility::ErrorState& errorState) {
 		//init mOutputTexture TODO: resize when videoChanged event?
-		int width;
-		int height;
-		if (*mResolution >= 20) { // to establish a minimum texture resolution
+		int width = 4;
+		int height = 4;
+		if (*mResolution >= 4) { // to establish a minimum texture resolution
 			if (*mAspectRatio > 0.05) {
 				width = (*mResolution) * (*mAspectRatio);
 				height = *mResolution;
 			}
 			else {
-				if (mVideoPlayer != nullptr) {
-					if (mVideoPlayer->getWidth() >= mVideoPlayer->getHeight()) {
-						width = *mResolution * mVideoPlayer->getWidth()/mVideoPlayer->getHeight();
-						height = *mResolution;
-					}
-					else {
-						width = *mResolution;
-						height = *mResolution * mVideoPlayer->getHeight()/mVideoPlayer->getWidth();
-					}
-				}
-				else {
-					width = *mResolution;
-					height = *mResolution;
-				}
+				width = *mResolution;
+				height = *mResolution;
 			}
 		}
 		else {
-			if (mVideoPlayer != nullptr)
-			{
-				if (*mAspectRatio > 0.05) {
-					int max = std::max(mVideoPlayer->getWidth(), mVideoPlayer->getHeight());
-					if (max < 20) {
-						max = 20;
-					}
-					width = max * (*mAspectRatio);
-					height = max / (*mAspectRatio);
-				}
-				else {
-					width = mVideoPlayer->getWidth();
-					height = mVideoPlayer->getHeight();
-				}
-				
-			}
+			nap::Logger::info("%s: resolution left at minimum of 4", this->mID.c_str());
 		}
 		
 		

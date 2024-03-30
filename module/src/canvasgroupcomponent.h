@@ -11,6 +11,9 @@
 #include <sequenceevent.h>
 #include <renderservice.h>
 #include <midievent.h>
+#include <rendertarget.h>
+#include <rendertexture2d.h>
+#include <entity.h>
 
 
 namespace nap
@@ -45,6 +48,8 @@ namespace nap
 
 		void drawSelectedInterface();
 
+		void setSelectedTextureControlOverlay(bool isControlWindowDraw);
+
 		void drawOutliner();
 
 		void drawMidiInformation();
@@ -59,10 +64,10 @@ namespace nap
 
 		ResourcePtr<RenderWindow> getPresentationWindow();
 
-		EntityInstance* getSelected() { return mSelected; }
+		EntityInstance* getSelected() { return mSelectedCanvas; }
 
-		ResourcePtr<RenderTarget>					mSelectedRenderTarget;
-		ResourcePtr<RenderTexture2D>				mSelectedOutputTexture;
+		ResourcePtr<RenderTarget>					mSelectedOverlayRenderTarget;
+		ResourcePtr<RenderTexture2D>				mSelectedOverlayTexture;
 		bool										mDrawBackdrop = false;
 
 		struct MidiData {
@@ -81,7 +86,8 @@ namespace nap
 		ResourcePtr<SequenceEditorGUI>				mSequenceEditorGUI = nullptr;
 		ResourcePtr<SequenceEditor>					mSequenceEditor = nullptr;
 		std::vector<RenderCanvasComponentInstance*> mCanvases;
-		EntityInstance* mSelected = nullptr;
+		EntityInstance*								mSelectedCanvas = nullptr;
+		CanvasPassComponentInstance*				mSelectedCanvasPass = nullptr;
 		std::unique_ptr<MidiData>					mMidiData = nullptr;
 		char*										mAvailableDisplays;
 		int											mCurrentDisplayIndex;
@@ -107,7 +113,7 @@ namespace nap
 		 */
 		void onMidiEventReceived(const MidiEvent&);
 
-		
+		void selectCanvas(EntityInstance* newSelectedCanvas);
 
 		std::vector<glm::i16vec2> calculateScreenSpacePosition(EntityInstance* entity);
 

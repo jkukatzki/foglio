@@ -40,14 +40,14 @@ namespace nap
 		if (!errorState.check(canvasEventOutput != nullptr, "unable to find CanvasSequenceEventReceiver with index: %s", 0))
 			return false;
 		mSequencePlayer = resource->mSequencePlayer;
-		canvasEventOutput->mSignal.connect(mSelectVideoSlot);
+		//canvasEventOutput->mSignal.connect(mSelectVideoSlot);
 		mSequencePlayer->setIsLooping(true);
 		mSequencePlayer->setIsPlaying(true);
 		return true;
 
 	}
 
-	void SequenceCanvasComponentInstance::selectVideo(const SequenceEventBase& sequenceEvent) {
+	/*/void SequenceCanvasComponentInstance::selectVideo(const SequenceEventBase& sequenceEvent) {
 		VideoPlayer* player = getEntityInstance()->getComponent<RenderCanvasComponentInstance>().getVideoPlayer();
 		utility::ErrorState error;
 		error.check(player != nullptr, "unable to find player in rendercanvascomponent:");
@@ -55,7 +55,7 @@ namespace nap
 		nap::Logger::info("Select Video Event from Sequence. SelectIndex = %i", (eventInt.getValue()) % player->getCount());
 		player->selectVideo((eventInt.getValue()) % player->getCount(), error);
 		player->play();
-	}
+	}*/
 
 	void SequenceCanvasComponentInstance::drawSequenceControls(utility::ErrorState& errorState) {
 
