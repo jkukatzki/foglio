@@ -59,6 +59,15 @@ namespace nap
 		if (!errorState.check(constructMaterial(errorState), "%s: construct material call returned false", this->mID.c_str())) {
 			return false;
 		}
+		// In texture (previous pass out texture)
+		mSamplers["inTextureSampler"] = ensureSampler("inTexture", mMaterialInstance, errorState);
+		// create plane and initialize it
+		if (!setupPlaneMesh(mHeadlessPlaneMesh, errorState)) {
+			return false;
+		}
+		mRenderableMesh = mRenderService->createRenderableMesh(*mHeadlessPlaneMesh, *mMaterialInstance, errorState);
+		if (!errorState.check(mRenderableMesh.isValid(), "%s: unable to construct renderable mesh for pass", mID.c_str()))
+			return false;
 		// Create uniforms
 		if (!errorState.check(createUniforms(errorState), "%s: create uniforms call returned false", this->mID.c_str())) {
 			return false;
@@ -125,12 +134,9 @@ namespace nap
 		//		videoChanged(*video, this);
 		//	}
 		//}
-
-		// In texture (previous pass out texture)
-		mSamplers["inTextureSampler"] = ensureSampler("inTexture", mMaterialInstance, errorState);
-		mRenderableMesh = mRenderService->createRenderableMesh(*mHeadlessPlaneMesh, *mMaterialInstance, errorState);
-		if (!errorState.check(mRenderableMesh.isValid(), "%s: unable to construct renderable mesh for pass", mID.c_str()))
-			return false;
+		//
+		//  
+		
 		
 		return true;
 
@@ -144,7 +150,7 @@ namespace nap
 		glm::mat4 proj_matrix = OrthoCameraComponentInstance::createRenderProjectionMatrix(0.0f, (float)size.x, 0.0f, (float)size.y);
 		mProjectMatrixUniform->setValue(proj_matrix);
 		// Update the model matrix so that the plane mesh is of the same size as the render target
-		computeModelMatrixFullscreen(mModelMatrix);
+		computeModelMatrixFullscreen(mModelMatrix, (float)size.x, (float)size.y);
 		mModelMatrixUniform->setValue(mModelMatrix);
 		return status;
 	}
@@ -260,17 +266,16 @@ namespace nap
 		}
 	}
 
-	void CanvasPassComponentInstance::computeModelMatrixFullscreen(glm::mat4& outMatrix) {
+	void CanvasPassComponentInstance::computeModelMatrixFullscreen(glm::mat4& outMatrix, float sizeX, float sizeY) {
 		//aspect ratio should be right because we set mTarget textures height and width to video players?
 		// Transform to middle of target
-		glm::ivec2 tex_size = mFinalRenderTarget->getBufferSize();
 		outMatrix = glm::translate(glm::mat4(), glm::vec3(
-			tex_size.x / 2.0f,
-			tex_size.y / 2.0f,
+			sizeX / 2.0f,
+			sizeY / 2.0f,
 			0.0f));
 
 		// Scale to fit targets
-		outMatrix = glm::scale(outMatrix, glm::vec3(tex_size.x, tex_size.y, 1.0f));
+		outMatrix = glm::scale(outMatrix, glm::vec3(sizeX, sizeY, 1.0f));
 	}
 
 	void CanvasPassComponentInstance::videoChanged(VideoPlayer& player, CanvasPassComponentInstance* pass)
@@ -281,9 +286,8 @@ namespace nap
 		mSamplers["v_" + player.mID + "_V"]->setTexture(player.getVTexture());
 	}
 
-	// called from RenderCanvasComponent once size and resolution of canvas are set up
-	bool CanvasPassComponentInstance::setupPlaneMesh(ResourcePtr<PlaneMesh> planeMesh, int sizeX, int sizeY, nap::utility::ErrorState errorState) {
-		planeMesh->mSize = glm::vec2(static_cast<float>(sizeX) / 2.0, static_cast<float>(sizeY) / 2.0);
+	bool CanvasPassComponentInstance::setupPlaneMesh(ResourcePtr<PlaneMesh> planeMesh, nap::utility::ErrorState errorState) {
+		planeMesh->mSize = glm::vec2(1, 1);
 		planeMesh->mPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 		planeMesh->mCullMode = ECullMode::Back;
 		planeMesh->mUsage = EMemoryUsage::Static;

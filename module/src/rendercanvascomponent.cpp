@@ -95,8 +95,14 @@ namespace nap
 		constructTextureAndRenderTarget(mFinalRenderTarget, mFinalTexture, true, errorState);
 
 		//PASSES
+		// get pass components
+		getEntityInstance()->getComponentsOfType(mCanvasPassComponents);
+		// passes need some initialized members depending on the canvas size
 		setupCanvasPassComponents(errorState);
-
+		// set texture of shader that draws canvas to the wall to final pass out texture, (warp shader handles corner offsets in .vert)
+		if (mCanvasPassComponents.size() > 0) {
+			mStockCanvasPasses[CanvasMaterialType::WARP].mSamplers["inTexture"]->setTexture(*mCanvasPassComponents.back()->getOutputTexture());
+		}
 		// Setup double buffer target for internal render
 		for (int target_idx = 0; target_idx < 2; target_idx++)
 		{
@@ -154,11 +160,6 @@ namespace nap
 			canvasPass->draw();
 		}
 	}
-
-	void RenderCanvasComponentInstance::drawAllHeadlessPasses() {
-		
-	}
-
 
 	void RenderCanvasComponentInstance::drawHeadlessPass(CanvasPass& pass)
 	{

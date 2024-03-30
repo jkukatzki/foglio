@@ -295,7 +295,9 @@ namespace nap
 		ImGui::Text(utility::stringFormat("Framerate: %.02f", getCore().getFramerate()).c_str());
 		float requestedFramerateTemp = getRequestedFramerate();
 		ImGui::DragFloat("Frame Rate Limit", &requestedFramerateTemp, 1.0f, 10.0, 300.0, "%.0f", 1.0);
-
+		if (requestedFramerateTemp != getRequestedFramerate()) {
+			setFramerate(requestedFramerateTemp);
+		}
 		//display select // BROKEN: cannot switch back
 		nap::DisplayList displays = mRenderService->getDisplays();
 		if (ImGui::BeginCombo("Display##displaySelect", std::to_string(mMainDisplay->getIndex()).c_str()))
@@ -319,9 +321,7 @@ namespace nap
 			toggleFullscreen();
 		}
 
-		if (requestedFramerateTemp != getRequestedFramerate()) {
-			setFramerate(requestedFramerateTemp);
-		}
+		
 
 		ImGui::End();
 

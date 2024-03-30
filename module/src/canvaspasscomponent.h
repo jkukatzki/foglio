@@ -49,9 +49,9 @@ namespace nap
 
 		void setInTextureSampler(ResourcePtr<RenderTexture2D> inTexture);
 
-		void computeModelMatrixFullscreen(glm::mat4& outMatrix);
+		void computeModelMatrixFullscreen(glm::mat4& outMatrix, float sizeX, float sizeY);
 
-		bool setupPlaneMesh(ResourcePtr<PlaneMesh> planeMesh, int sizeX, int sizeY, nap::utility::ErrorState errorState);
+		bool setupPlaneMesh(ResourcePtr<PlaneMesh> planeMesh, nap::utility::ErrorState errorState);
 
 		UniformMat4Instance* ensureUniformMat4(const std::string& uniformName, UniformStructInstance* structInstance, utility::ErrorState& error);
 		UniformVec3Instance* ensureUniformVec3(const std::string& uniformName, UniformStructInstance* structInstance, utility::ErrorState& error);
@@ -67,6 +67,7 @@ namespace nap
 	protected:
 
 		virtual void onDraw(IRenderTarget& renderTarget, VkCommandBuffer commandBuffer, const glm::mat4& viewmatrix, const glm::mat4& projectionMatrix) override;
+
 
 	private:
 		using DoubleBufferedRenderTarget = std::array<rtti::ObjectPtr<RenderTarget>, 2>;
