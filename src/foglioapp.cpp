@@ -128,9 +128,10 @@ namespace nap
 			canvasGroupComponent->drawSelectedInterface();
 			mRenderService->endHeadlessRecording();
 		}
-		canvasGroupComponent->getSelected()->getComponent<RenderCanvasComponentInstance>().setFinalSampler(false);
+		
+		
 		for (auto canvasEntity : mVideoWallEntity->getChildren()) {
-			canvasEntity->getComponent<RenderCanvasComponentInstance>().mIsControlViewDraw = false;
+			canvasEntity->getComponent<RenderCanvasComponentInstance>().mIsControlWindowDraw = false;
 		}
 		
 		if (mRenderService->beginRecording(*mPresentationWindow)) {
@@ -149,9 +150,9 @@ namespace nap
 		}
 		
 		for (auto canvasEntity : mVideoWallEntity->getChildren()) {
-			canvasEntity->getComponent<RenderCanvasComponentInstance>().mIsControlViewDraw = true;
+			canvasEntity->getComponent<RenderCanvasComponentInstance>().mIsControlWindowDraw = true;
 		}
-		canvasGroupComponent->getSelected()->getComponent<RenderCanvasComponentInstance>().setFinalSampler(true);
+		canvasGroupComponent->setSelectedTextureControlOverlay(true);
 
 		if (mRenderService->beginRecording(*mControlsWindow)) {
 			// Begin render pass
@@ -200,7 +201,7 @@ namespace nap
 				}
 			}
 
-			if (press_event->mKey == nap::EKeyCode::KEY_l && press_event->mWindow == mControlsWindow->getNumber()) {
+			/*if (press_event->mKey == nap::EKeyCode::KEY_l && press_event->mWindow == mControlsWindow->getNumber()) {
 				ResourcePtr<VideoPlayer> player = mScene->findEntity("NameCardCanvasEntity")->findComponent<RenderCanvasComponentInstance>()->getVideoPlayer();
 				nap::utility::ErrorState error;
 				player->selectVideo((player->getIndex() + 1) % player->getCount(), error);
@@ -208,7 +209,7 @@ namespace nap
 				player = mScene->findEntity("SoundBoxEntity")->findComponent<RenderCanvasComponentInstance>()->getVideoPlayer();
 				player->selectVideo((player->getIndex() + 1) % player->getCount(), error);
 				player->play();
-			}
+			}*/
 		}
 		// Add event, so it can be forwarded on update
 		mInputService->addEvent(std::move(inputEvent));
