@@ -1,6 +1,8 @@
 #pragma once
 
 #include "canvaspasscomponent.h"
+#include "canvasinterfaceshader.h"
+#include "canvaswarpshader.h"
 
 #include <component.h>
 #include <rendercomponent.h>
@@ -61,7 +63,7 @@ namespace nap
 
 		enum class CanvasMaterialType
 		{
-			VIDEO = 0, MASK = 1, WARP = 2, INTERFACE = 3
+			WARP = 0, INTERFACE = 1
 		};
 		struct CanvasPass {
 			ResourcePtr<Material>						mMaterial = nullptr;

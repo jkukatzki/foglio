@@ -60,6 +60,10 @@ namespace nap
 		if (!RenderableComponentInstance::init(errorState))
 			return false;
 
+		// Extract render service
+		mRenderService = getEntityInstance()->getCore()->getService<RenderService>();
+		assert(mRenderService != nullptr);
+
 		// Get resource
 		RenderCanvasComponent* resource = getComponent<RenderCanvasComponent>();
 
@@ -94,6 +98,11 @@ namespace nap
 
 		constructTextureAndRenderTarget(mFinalRenderTarget, mFinalTexture, true, errorState);
 
+		if (!constructCanvasPassItem(CanvasMaterialType::INTERFACE, errorState))
+			return false;
+		if (!constructCanvasPassItem(CanvasMaterialType::WARP, errorState))
+			return false;
+
 		//PASSES
 		// get pass components
 		getEntityInstance()->getComponentsOfType(mCanvasPassComponents);
@@ -101,7 +110,7 @@ namespace nap
 		setupCanvasPassComponents(errorState);
 		// set texture of shader that draws canvas to the wall to final pass out texture, (warp shader handles corner offsets in .vert)
 		if (mCanvasPassComponents.size() > 0) {
-			mStockCanvasPasses[CanvasMaterialType::WARP].mSamplers["inTexture"]->setTexture(*mCanvasPassComponents.back()->getOutputTexture());
+			mStockCanvasPasses[CanvasMaterialType::WARP].mSamplers["inTextureSampler"]->setTexture(*mCanvasPassComponents.back()->getOutputTexture());
 		}
 		// Setup double buffer target for internal render
 		for (int target_idx = 0; target_idx < 2; target_idx++)
@@ -114,14 +123,7 @@ namespace nap
 			mDoubleBufferTarget[target_idx] = target;
 		}
 
-		// Extract render service
-		mRenderService = getEntityInstance()->getCore()->getService<RenderService>();
-		assert(mRenderService != nullptr);
 		
-		if (!constructCanvasPassItem(CanvasMaterialType::INTERFACE, errorState))
-			return false;
-		if (!constructCanvasPassItem(CanvasMaterialType::WARP, errorState))
-			return false;
 		
 		mCornerOffsets = resource->mCornerOffsets;
 		setWarpCornerUniforms();

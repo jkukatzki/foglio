@@ -455,17 +455,28 @@ namespace nap
 		}
 		std::vector<CanvasPassComponentInstance*> passes;
 		mSelectedCanvas->getComponentsOfType(passes);
-		for (CanvasPassComponentInstance* pass : passes) {
-			ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-			if (mSelectedCanvasPass == pass) { 
-				node_flags |= ImGuiTreeNodeFlags_Selected;
+		if (passes.size() > 0) {
+			for (CanvasPassComponentInstance* pass : passes) {
+				ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+				if (mSelectedCanvasPass == pass) {
+					node_flags |= ImGuiTreeNodeFlags_Selected;
+				}
+				ImGui::TreeNodeEx((EntityInstance*)pass, node_flags, pass->mID.c_str());
+				if (ImGui::IsItemClicked())
+				{
+					mSelectedCanvasPass = pass;
+				}
 			}
-			ImGui::TreeNodeEx((EntityInstance*)pass, node_flags, pass->mID.c_str());
-			if (ImGui::IsItemClicked())
+			ImGui::Text("%s: Overview", mSelectedCanvasPass->mID.c_str());
+			if (ImGui::CollapsingHeader("Preview", ImGuiTreeNodeFlags_None))
 			{
-				mSelectedCanvasPass = pass;
+				ImGui::Image(*mSelectedCanvasPass->getOutputTexture().get(), { col_width , col_width / ratio_canvas_tex });
 			}
 		}
+		else {
+			ImGui::Text("No passes");
+		}
+		
 		
 		if (mSelectedCanvas->hasComponent<SequenceCanvasComponentInstance>()) {
 			SequenceCanvasComponentInstance& seq_canvas_comp = mSelectedCanvas->getComponent<SequenceCanvasComponentInstance>();

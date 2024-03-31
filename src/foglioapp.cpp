@@ -42,7 +42,7 @@ namespace nap
 		mResourceManager = getCore().getResourceManager();
 
 		// Get the render window
-		ResourcePtr<nap::RenderWindow> dynWindow = mResourceManager->createObject<nap::RenderWindow>();
+		//ResourcePtr<nap::RenderWindow> dynWindow = mResourceManager->createObject<nap::RenderWindow>();
 		mMainWindow = mResourceManager->findObject<nap::RenderWindow>("MainWindow");
 		if (!error.check(mMainWindow != nullptr, "unable to find render window with name: %s", "MainWindow"))
 			return false;
