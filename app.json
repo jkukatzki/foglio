@@ -12,7 +12,7 @@
         "napcameracontrol",
         "napmidi"
     ],
-    "Data": "geckos_new/objects.json",
+    "Data": "shader_playground2/objects.json",
     "ServiceConfig": "",
     "PathMapping": "cache/path_mapping.json"
 }

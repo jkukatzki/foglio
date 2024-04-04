@@ -19,6 +19,11 @@
 
 namespace nap
 {
+	class NAPAPI ImageSamplerOverride {
+	public: 
+		std::string uniformName = "";
+		ResourcePtr<ImageFromFile> image;
+	};
 	// Forward declares
 	class CanvasPassComponentInstance;
 
@@ -29,6 +34,7 @@ namespace nap
 
 	public:
 		ResourcePtr<ShaderFromFile>				mPassShader = nullptr;
+		std::vector<ImageSamplerOverride>		mImageOverrides = {};
 	};
 
 	class NAPAPI CanvasPassComponentInstance : public RenderableComponentInstance

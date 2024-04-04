@@ -3,6 +3,10 @@
 // External Includes
 #include <nap/service.h>
 #include <nap/signalslot.h>
+#include <sceneservice.h>
+#include <renderservice.h>
+#include <rendervideocomponent.h>
+#include <rtti/objectptr.h>
 
 namespace nap
 {
@@ -43,16 +47,20 @@ namespace nap
 		 */
 		virtual void shutdown() override;
 
-		/**
-		 * Signal that is emitted when a file reload occurs
-		 */
-		nap::Signal<> fileLoaded;
 
+	private:
+		Entity* mVideoRenderEntity = nullptr;
+		SceneService* mSceneService = nullptr;
+		RenderService* mRenderService = nullptr;
+		ResourceManager mResourceManager;
 	protected:
 		/**
 		 * Called when a json file has been (re)loaded. Used to re-apply the presets.
 		 */
 		virtual void postResourcesLoaded() override;
 
+		void renderRequiredVideos(nap::utility::ErrorState errorState);
+
+	
 	};
 }

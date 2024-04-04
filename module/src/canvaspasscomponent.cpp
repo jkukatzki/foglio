@@ -11,16 +11,26 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <material.h>
 #include <nap/resourceptr.h>
+#include <nap/group.h>
 #include <rtti/objectptr.h>
+
+
+RTTI_BEGIN_STRUCT(nap::ImageSamplerOverride)
+	RTTI_PROPERTY("SamplerName", &nap::ImageSamplerOverride::uniformName, nap::rtti::EPropertyMetaData::Default)
+	RTTI_PROPERTY("Image", &nap::ImageSamplerOverride::image, nap::rtti::EPropertyMetaData::Default)
+RTTI_END_STRUCT
 
 // nap::rendercanvascomponent run time class definition
 RTTI_BEGIN_CLASS(nap::CanvasPassComponent)
-RTTI_PROPERTY("PassShader", &nap::CanvasPassComponent::mPassShader, nap::rtti::EPropertyMetaData::Default)
+	RTTI_PROPERTY("PassShader", &nap::CanvasPassComponent::mPassShader, nap::rtti::EPropertyMetaData::Default)
+	RTTI_PROPERTY("ImageOverrides", &nap::CanvasPassComponent::mImageOverrides, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::CanvasPassComponentInstance)
 RTTI_CONSTRUCTOR(nap::EntityInstance&, nap::Component&)
 RTTI_END_CLASS
+
+
 
 namespace nap
 {
@@ -77,24 +87,31 @@ namespace nap
 		for (auto samplerDeclaration : mPassShader->getSamplerDeclarations()) {
 			std::string key = samplerDeclaration.mName;
 			// sampler relating to image found (starts with "i_")
-			if (key.find('i_', 0) == 0) {
-				nap::Logger::info("%s: creating sampler for image resource %s", getEntityInstance()->mID.c_str(), key);
+			if (key.find('i_', 0) == 1) {
+				bool resolved = false;
+				nap::Logger::info("%s: creating sampler for image resource %s, amount of groups %i", getEntityInstance()->mID.c_str(), key, mResourceManager->getObjects<ResourceGroup>().size());
 				mSamplers[key] = ensureSampler(key, mMaterialInstance, errorState);
-				if (mResourceManager->findObject(key) != nullptr) {
-					if (mResourceManager->findObject(key).getWrappedType() != rtti::TypeInfo::get<ImageFromFile>()) {
-						nap::Logger::error("%s: sampler relating to image exists with same name as resource in scene that is not of type <ImageFromFile>, therefore not binding %s", this->mID.c_str(), samplerDeclaration.mName);
-					}
-					else {
-						ResourcePtr<ImageFromFile> imageResource = mResourceManager->findObject<ImageFromFile>(key);
-						if (imageResource != nullptr) {
-							mSamplers[key]->setTexture(*imageResource.get());
+				for (auto group : mResourceManager->getObjects<ResourceGroup>()) {
+					nap::Logger::info("Traversing for images, searching in group %s", group->mID.c_str());
+					auto image = group->findObject(key);
+					if (image != nullptr) {
+						if (image.getWrappedType() != rtti::TypeInfo::get<ImageFromFile>()) {
+							nap::Logger::error("%s: sampler relating to image exists with same name as resource in scene that is not of type <ImageFromFile>, therefore not binding %s", this->mID.c_str(), key);
+						}
+						else {
+							ResourcePtr<ImageFromFile> imageResource = group->findObject<ImageFromFile>(key);
+							if (imageResource != nullptr) {
+								mSamplers[key]->setTexture(*imageResource.get());
+								resolved = true;
+								break;
+							}
 						}
 					}
 				}
-				else { // image does not exist as ImageFromFile resource in scene, create it instead
+				if (!resolved) { // image does not exist as ImageFromFile resource in scene, create it instead
 					ResourcePtr<ImageFromFile> imageResource = mResourceManager->createObject<ImageFromFile>();
-					for (const char extension : {'.png', '.jpg'}) {
-						const auto filePath = "/images/" + samplerDeclaration.mName.substr(2, samplerDeclaration.mName.length()) + extension;
+					for (const std::string& extension : { ".png", ".jpg" }) {
+						const std::string filePath = "/data/images/" + samplerDeclaration.mName.substr(2, samplerDeclaration.mName.length()) + extension;
 						if (utility::fileExists(filePath)) {
 							nap::Logger::info("Found image relating to sampler: %s", filePath);
 							// populate ImageFromFile resource
@@ -108,13 +125,13 @@ namespace nap
 							}
 						}
 						else {
-							nap::Logger::error("%s: Could not find image relating to sampler, image path = %s", this->mID.c_str(), samplerDeclaration.mName);
+							nap::Logger::error("%s: Could not find image relating to sampler, image path = %s", this->mID.c_str(), filePath.c_str());
 						}
 					}
+
 				}
 			}
 		}
-
 		// Videos
 		//mVideoResources = resource->mVideoResources;
 		//if (mVideoResources.size() != 0) {
@@ -188,6 +205,11 @@ namespace nap
 			return false;
 		// "hardcode" view matrix because it always looks down the z axis // do this in shader? and have no viewmatrix as uniform at all
 		mViewMatrixUniform->setValue(glm::mat4());
+		if (mPassShader->getSSBODeclarations().size() > 0) {
+			for (auto& ssboDecl : mPassShader->getSSBODeclarations()) {
+				nap::Logger::info("%s: ssboDecl", ssboDecl.mName);
+			}
+		}
 		mUBO = mMaterialInstance->getOrCreateUniform("UBO");
 		if (!errorState.check(mUBO != nullptr, "%s: Unable to create or find UBO struct", this->mID.c_str()))
 			return false;

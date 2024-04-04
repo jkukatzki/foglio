@@ -131,8 +131,6 @@ namespace nap
 		mStockCanvasPasses[CanvasMaterialType::INTERFACE].mUBO->getOrCreateUniform<UniformFloatInstance>(uniform::canvasinterface::frameThickness)->setValue(0.01);
 		
 
-		
-
 		return true;
 
 	}
@@ -145,7 +143,7 @@ namespace nap
 				passComponent->initPassTargetAndTexture(mFinalRenderTarget, mFinalTexture, errorState);
 				if (i > 0) {
 					// set pass component in texture to that of previous one in queue // extend this when implementing muting of passes / transparencies ?
-					passComponent->setInTextureSampler(mCanvasPassComponents[(i - 1)]->getOutputTexture());
+					passComponent->setInTextureSampler(mCanvasPassComponents[int(i - 1)]->getOutputTexture());
 				}
 			}
 			mFinalTexture = mCanvasPassComponents.back()->getOutputTexture();

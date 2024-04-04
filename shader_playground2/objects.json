@@ -9,7 +9,7 @@
                     "mID": "nap::RenderCanvasComponent_4b0af2f5",
                     "Visible": true,
                     "Aspect Ratio": 1.7699999809265137,
-                    "Resolution": 100,
+                    "Resolution": 400,
                     "CornerOffsets": [
                         {
                             "x": 0.0,
@@ -31,13 +31,26 @@
                 },
                 {
                     "Type": "nap::CanvasPassComponent",
-                    "mID": "nap::CanvasPassComponent_0c9b6bff",
+                    "mID": "fractalPassBackground",
                     "Visible": true,
-                    "PassShader": "SDF1"
+                    "PassShader": "SDF1",
+                    "ImageOverrides": []
+                },
+                {
+                    "Type": "nap::CanvasPassComponent",
+                    "mID": "maskPassBackground",
+                    "Visible": true,
+                    "PassShader": "maskShader",
+                    "ImageOverrides": [
+                        {
+                            "SamplerName": "i_mask",
+                            "Image": "i_flower"
+                        }
+                    ]
                 },
                 {
                     "Type": "nap::TransformComponent",
-                    "mID": "nap::TransformComponent_88581d9b",
+                    "mID": "nap::TransformComponent_9ee176a2",
                     "Properties": {
                         "Translate": {
                             "x": 0.0,
@@ -186,6 +199,20 @@
                     "SequencePlayerEditor": "SequenceEditor_77e81990",
                     "SequencePlayerEditorGUI": "SequenceEditorGUI_5a62ec71",
                     "Presentation Window": "MainWindow"
+                },
+                {
+                    "Type": "nap::MidiInputComponent",
+                    "mID": "nap::MidiInputComponent_3eaad8c8",
+                    "Ports": [],
+                    "Channels": [],
+                    "Numbers": [],
+                    "NoteOn": true,
+                    "NoteOff": true,
+                    "Aftertouch": true,
+                    "ControlChange": true,
+                    "ProgramChange": true,
+                    "ChannelPressure": true,
+                    "PitchBend": true
                 }
             ],
             "Children": [
@@ -242,6 +269,20 @@
         },
         {
             "Type": "nap::ResourceGroup",
+            "mID": "Masks",
+            "Members": [
+                {
+                    "Type": "nap::ImageFromFile",
+                    "mID": "i_flower",
+                    "Usage": "Static",
+                    "ImagePath": "images/masks/flower.png",
+                    "GenerateLods": true
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::ResourceGroup",
             "mID": "Shaders",
             "Members": [
                 {
@@ -249,6 +290,12 @@
                     "mID": "SDF1",
                     "VertShader": "shaders/mandelbulb.vert",
                     "FragShader": "shaders/mandelbulb.frag"
+                },
+                {
+                    "Type": "nap::ShaderFromFile",
+                    "mID": "maskShader",
+                    "VertShader": "shaders/mask.vert",
+                    "FragShader": "shaders/mask.frag"
                 }
             ],
             "Children": []
@@ -295,6 +342,10 @@
                             ]
                         }
                     ]
+                },
+                {
+                    "Entity": "VideoWallEntity",
+                    "InstanceProperties": []
                 }
             ]
         },
@@ -320,6 +371,20 @@
                 "Type": "nap::SequencePlayerStandardClock",
                 "mID": "SequencePlayerStandardClock_7819b630"
             }
+        },
+        {
+            "Type": "nap::VideoPlayer",
+            "mID": "VideoPlayer_a0072583",
+            "Loop": true,
+            "VideoFiles": [
+                {
+                    "Type": "nap::VideoFile",
+                    "mID": "video_1",
+                    "Path": "videos/background/people.mp4"
+                }
+            ],
+            "VideoIndex": 0,
+            "Speed": 1.0
         }
     ]
 }

@@ -40,7 +40,6 @@ namespace nap
 
 		// Fetch the resource manager
 		mResourceManager = getCore().getResourceManager();
-
 		// Get the render window
 		//ResourcePtr<nap::RenderWindow> dynWindow = mResourceManager->createObject<nap::RenderWindow>();
 		mMainWindow = mResourceManager->findObject<nap::RenderWindow>("MainWindow");
@@ -133,7 +132,7 @@ namespace nap
 		for (auto canvasEntity : mVideoWallEntity->getChildren()) {
 			canvasEntity->getComponent<RenderCanvasComponentInstance>().mIsControlWindowDraw = false;
 		}
-		
+		canvasGroupComponent->setSelectedTextureControlOverlay(false);
 		if (mRenderService->beginRecording(*mPresentationWindow)) {
 			// Begin render pass
 			mMainWindow->beginRendering();

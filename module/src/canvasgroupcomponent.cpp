@@ -464,19 +464,22 @@ namespace nap
 				ImGui::TreeNodeEx((EntityInstance*)pass, node_flags, pass->mID.c_str());
 				if (ImGui::IsItemClicked())
 				{
-					mSelectedCanvasPass = pass;
+					mSelectedCanvasPass = pass; 
 				}
 			}
 			ImGui::Text("%s: Overview", mSelectedCanvasPass->mID.c_str());
-			if (ImGui::CollapsingHeader("Preview", ImGuiTreeNodeFlags_None))
+			/*if (ImGui::CollapsingHeader(strcat("Preview##", mSelectedCanvasPass->mID.c_str()), ImGuiTreeNodeFlags_None))
 			{
 				ImGui::Image(*mSelectedCanvasPass->getOutputTexture().get(), { col_width , col_width / ratio_canvas_tex });
-			}
+			}*/
 		}
 		else {
 			ImGui::Text("No passes");
 		}
-		
+		/*
+		if (getComponent<MidiInputComponentInstance>() != nullptr) {
+			ImGui::Text("MIDI Input Component exists");
+		}*/
 		
 		if (mSelectedCanvas->hasComponent<SequenceCanvasComponentInstance>()) {
 			SequenceCanvasComponentInstance& seq_canvas_comp = mSelectedCanvas->getComponent<SequenceCanvasComponentInstance>();
