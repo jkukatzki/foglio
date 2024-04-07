@@ -15,15 +15,15 @@
 #include <rtti/objectptr.h>
 
 
-RTTI_BEGIN_STRUCT(nap::ImageSamplerOverride)
-	RTTI_PROPERTY("SamplerName", &nap::ImageSamplerOverride::uniformName, nap::rtti::EPropertyMetaData::Default)
-	RTTI_PROPERTY("Image", &nap::ImageSamplerOverride::image, nap::rtti::EPropertyMetaData::Default)
+RTTI_BEGIN_STRUCT(nap::ShaderDeclarationOverride)
+	RTTI_PROPERTY("Shader Declaration", &nap::ShaderDeclarationOverride::declarationName, nap::rtti::EPropertyMetaData::Default)
+	RTTI_PROPERTY("Override Value", &nap::ShaderDeclarationOverride::overrideValue, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_STRUCT
 
 // nap::rendercanvascomponent run time class definition
 RTTI_BEGIN_CLASS(nap::CanvasPassComponent)
 	RTTI_PROPERTY("PassShader", &nap::CanvasPassComponent::mPassShader, nap::rtti::EPropertyMetaData::Default)
-	RTTI_PROPERTY("ImageOverrides", &nap::CanvasPassComponent::mImageOverrides, nap::rtti::EPropertyMetaData::Default)
+	RTTI_PROPERTY("Unique Shader Declaration Overrides", &nap::CanvasPassComponent::shaderDeclarationOverrides, nap::rtti::EPropertyMetaData::Default)
 RTTI_END_CLASS
 
 RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::CanvasPassComponentInstance)
@@ -41,12 +41,6 @@ namespace nap
 		mFinalRenderTarget(new RenderTarget(*entity.getCore())),
 		mFinalTexture(new RenderTexture2D(*entity.getCore()))
 	{ }
-
-
-	ResourcePtr<RenderTexture2D> CanvasPassComponentInstance::getOutputTexture()
-	{
-		return mFinalTexture;
-	}
 
 	bool CanvasPassComponentInstance::init(utility::ErrorState& errorState)
 	{
@@ -70,7 +64,7 @@ namespace nap
 			return false;
 		}
 		// In texture (previous pass out texture)
-		mSamplers["inTextureSampler"] = ensureSampler("inTexture", mMaterialInstance, errorState);
+		mSamplers["inTextureSampler"] = ensureSampler("inTexture", errorState);
 		// create plane and initialize it
 		if (!setupPlaneMesh(mHeadlessPlaneMesh, errorState)) {
 			return false;
@@ -81,79 +75,7 @@ namespace nap
 		// Create uniforms
 		if (!errorState.check(createUniforms(errorState), "%s: create uniforms call returned false", this->mID.c_str())) {
 			return false;
-		}
-		
-		// SAMPLERS
-		for (auto samplerDeclaration : mPassShader->getSamplerDeclarations()) {
-			std::string key = samplerDeclaration.mName;
-			// sampler relating to image found (starts with "i_")
-			if (key.find('i_', 0) == 1) {
-				bool resolved = false;
-				nap::Logger::info("%s: creating sampler for image resource %s, amount of groups %i", getEntityInstance()->mID.c_str(), key, mResourceManager->getObjects<ResourceGroup>().size());
-				mSamplers[key] = ensureSampler(key, mMaterialInstance, errorState);
-				for (auto group : mResourceManager->getObjects<ResourceGroup>()) {
-					nap::Logger::info("Traversing for images, searching in group %s", group->mID.c_str());
-					auto image = group->findObject(key);
-					if (image != nullptr) {
-						if (image.getWrappedType() != rtti::TypeInfo::get<ImageFromFile>()) {
-							nap::Logger::error("%s: sampler relating to image exists with same name as resource in scene that is not of type <ImageFromFile>, therefore not binding %s", this->mID.c_str(), key);
-						}
-						else {
-							ResourcePtr<ImageFromFile> imageResource = group->findObject<ImageFromFile>(key);
-							if (imageResource != nullptr) {
-								mSamplers[key]->setTexture(*imageResource.get());
-								resolved = true;
-								break;
-							}
-						}
-					}
-				}
-				if (!resolved) { // image does not exist as ImageFromFile resource in scene, create it instead
-					ResourcePtr<ImageFromFile> imageResource = mResourceManager->createObject<ImageFromFile>();
-					for (const std::string& extension : { ".png", ".jpg" }) {
-						const std::string filePath = "/data/images/" + samplerDeclaration.mName.substr(2, samplerDeclaration.mName.length()) + extension;
-						if (utility::fileExists(filePath)) {
-							nap::Logger::info("Found image relating to sampler: %s", filePath);
-							// populate ImageFromFile resource
-							imageResource->mID = samplerDeclaration.mName;
-							imageResource->mImagePath = filePath;
-							if (imageResource->init(errorState)) {
-								mSamplers[key]->setTexture(*imageResource.get());
-							}
-							else {
-								nap::Logger::info("%s: Could not init image resource, %s", this->mID.c_str(), filePath);
-							}
-						}
-						else {
-							nap::Logger::error("%s: Could not find image relating to sampler, image path = %s", this->mID.c_str(), filePath.c_str());
-						}
-					}
-
-				}
-			}
-		}
-		// Videos
-		//mVideoResources = resource->mVideoResources;
-		//if (mVideoResources.size() != 0) {
-		//	nap::Logger::info("%s: creating samplers for video resources and connecting texture to video signal slot", getEntityInstance()->mID.c_str());
-		//	for (auto video : mVideoResources) {
-		//		if (!video->isPlaying()) {
-		//			video->play();
-		//		}
-		//		// create samplers for video player resource
-		//		mSamplers["v_" + video->mID + "_Y"] = ensureSampler("v_" + video->mID + "_Y", mMaterialInstance, errorState);
-		//		mSamplers["v_" + video->mID + "_U"] = ensureSampler("v_" + video->mID + "_U", mMaterialInstance, errorState);
-		//		mSamplers["v_" + video->mID + "_V"] = ensureSampler("v_" + video->mID + "_V", mMaterialInstance, errorState);
-		//		// set texture when video of video player changes
-		//		// maybe listen to required videos at higher level and update corresponding array of dependant canvas passes
-		//		nap::Slot<VideoPlayer&> slot = { this, &CanvasPassComponentInstance::videoChanged };
-		//		video->VideoChanged.connect(slot);
-		//		videoChanged(*video, this);
-		//	}
-		//}
-		//
-		//  
-		
+		} 
 		
 		return true;
 
@@ -216,8 +138,8 @@ namespace nap
 		
 	}
 
-	void CanvasPassComponentInstance::setInTextureSampler(ResourcePtr<RenderTexture2D> inTexture) {
-		mSamplers["inTextureSampler"]->setTexture(*inTexture);
+	void CanvasPassComponentInstance::setInTextureSampler(Texture2D& inTexture) {
+		mSamplers["inTextureSampler"]->setTexture(inTexture);
 	}
 
 	bool CanvasPassComponentInstance::constructMaterial(utility::ErrorState& errorState) {
@@ -300,14 +222,6 @@ namespace nap
 		outMatrix = glm::scale(outMatrix, glm::vec3(sizeX, sizeY, 1.0f));
 	}
 
-	void CanvasPassComponentInstance::videoChanged(VideoPlayer& player, CanvasPassComponentInstance* pass)
-	{
-		nap::Logger::info("Video Changed, relevant in: %s", pass->mID.c_str());
-		mSamplers["v_" + player.mID + "_Y"]->setTexture(player.getYTexture());
-		mSamplers["v_" + player.mID + "_U"]->setTexture(player.getUTexture());
-		mSamplers["v_" + player.mID + "_V"]->setTexture(player.getVTexture());
-	}
-
 	bool CanvasPassComponentInstance::setupPlaneMesh(ResourcePtr<PlaneMesh> planeMesh, nap::utility::ErrorState errorState) {
 		planeMesh->mSize = glm::vec2(1, 1);
 		planeMesh->mPosition = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -349,10 +263,9 @@ namespace nap
 		return found_uniform;
 	}
 
-	nap::Sampler2DInstance* CanvasPassComponentInstance::ensureSampler(const std::string& samplerName, MaterialInstance* materialInstance, utility::ErrorState& error)
+	nap::Sampler2DInstance* CanvasPassComponentInstance::ensureSampler(const std::string& samplerName, utility::ErrorState& error)
 	{
-		materialInstance->getMaterial().getShader().getSamplerDeclarations();
-		Sampler2DInstance* found_sampler = materialInstance->getOrCreateSampler<Sampler2DInstance>(samplerName);
+		Sampler2DInstance* found_sampler = mMaterialInstance->getOrCreateSampler<Sampler2DInstance>(samplerName);
 		if (!error.check(found_sampler != nullptr,
 			"%s: unable to find sampler: %s in material", getEntityInstance()->mID.c_str(), samplerName.c_str()))
 			return nullptr;

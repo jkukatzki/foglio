@@ -34,19 +34,14 @@
                     "mID": "fractalPassBackground",
                     "Visible": true,
                     "PassShader": "SDF1",
-                    "ImageOverrides": []
+                    "Unique Shader Declaration Overrides": []
                 },
                 {
                     "Type": "nap::CanvasPassComponent",
                     "mID": "maskPassBackground",
                     "Visible": true,
                     "PassShader": "maskShader",
-                    "ImageOverrides": [
-                        {
-                            "SamplerName": "i_mask",
-                            "Image": "i_flower"
-                        }
-                    ]
+                    "Unique Shader Declaration Overrides": []
                 },
                 {
                     "Type": "nap::TransformComponent",
@@ -273,7 +268,7 @@
             "Members": [
                 {
                     "Type": "nap::ImageFromFile",
-                    "mID": "i_flower",
+                    "mID": "flower",
                     "Usage": "Static",
                     "ImagePath": "images/masks/flower.png",
                     "GenerateLods": true

@@ -47,7 +47,6 @@ namespace nap
 		CanvasGroupComponent* resource = getComponent<CanvasGroupComponent>();
 		mPresentationWindow = resource->mPresentationWindow;
 		mSelectedCanvas = getEntityInstance()->getChildren()[0];
-		mSelectedCanvasPass = mSelectedCanvas->getComponent<CanvasPassComponentInstance*>();
 		if (!initSelectedRenderTarget()) {
 			return false;
 		}
@@ -379,40 +378,7 @@ namespace nap
 		{
 			ImGui::Image(*canvas_tex.get(), {col_width , col_width / ratio_canvas_tex});
 		}
-		utility::ErrorState errorState;
-		/*
-		if (canvas_comp.getVideoPlayer() != nullptr) {
-			VideoPlayer* video_player = canvas_comp.getVideoPlayer();
-			float current_time = canvas_comp.getVideoPlayer()->getCurrentTime();
-			if (ImGui::SliderFloat("", &current_time, 0.0f, canvas_comp.getVideoPlayer()->getDuration(), "%.3fs", 1.0f))
-				canvas_comp.getVideoPlayer()->seek(current_time);
-			ImGui::Text("Total time: %fs", canvas_comp.getVideoPlayer()->getDuration());
-			ImGui::BeginGroup();
-			std::string mediaControlSymbol = video_player->isPlaying() ? "X" : "O";
-			
-			if (ImGui::ArrowButton("##left", ImGuiDir_Left)) {
-				if (video_player->getIndex() == 0) {
-					video_player->selectVideo(video_player->getCount() - 1, errorState);
-					video_player->play();
-				}
-				else {
-					video_player->selectVideo((video_player->getIndex() - 1) % video_player->getCount(), errorState);
-					video_player->play();
-				}
-			}
-			ImGui::SameLine();
-			if (ImGui::Button(mediaControlSymbol.c_str())) {
-				video_player->isPlaying() ? video_player->stopPlayback() : video_player->play();
-			}
-			ImGui::SameLine();
-			if (ImGui::ArrowButton("##right", ImGuiDir_Right)) {
-				video_player->selectVideo((video_player->getIndex() + 1) % video_player->getCount(), errorState);
-				video_player->play();
-			}
-			ImGui::EndGroup();
-
-		}
-		*/
+		
 		ImGui::Text("Position");
 		glm::vec3 translate = canvas_transform_comp.getTranslate();
 		float tempXTransl = translate.x;
@@ -461,17 +427,38 @@ namespace nap
 				if (mSelectedCanvasPass == pass) {
 					node_flags |= ImGuiTreeNodeFlags_Selected;
 				}
-				ImGui::TreeNodeEx((EntityInstance*)pass, node_flags, pass->mID.c_str());
+				std::string treeNodeLabel = pass->mShaderDeclarationSetupErrors.size() > 0 ? (pass->mID + " (!)") : pass->mID;
+				ImGui::TreeNodeEx((EntityInstance*)pass, node_flags, treeNodeLabel.c_str());
 				if (ImGui::IsItemClicked())
 				{
 					mSelectedCanvasPass = pass; 
 				}
 			}
-			ImGui::Text("%s: Overview", mSelectedCanvasPass->mID.c_str());
-			/*if (ImGui::CollapsingHeader(strcat("Preview##", mSelectedCanvasPass->mID.c_str()), ImGuiTreeNodeFlags_None))
-			{
-				ImGui::Image(*mSelectedCanvasPass->getOutputTexture().get(), { col_width , col_width / ratio_canvas_tex });
-			}*/
+			if (mSelectedCanvasPass != nullptr) {
+				ImGui::Text("Canvas Pass Overview");
+				if (ImGui::CollapsingHeader("Preview##selectedCanvasPass", ImGuiTreeNodeFlags_None))
+				{
+					if (mSelectedCanvasPass->getOutputTextureResourcePtr() != nullptr) {
+						ImGui::Image(mSelectedCanvasPass->getOutputTexture(), {col_width , col_width / ratio_canvas_tex});
+					}
+				}
+				if (mSelectedCanvasPass->mShaderDeclarationSetupErrors.size() > 0)
+				{
+					ImGui::Text("Shader Declaration Setup Errors:");
+					for (auto iter = mSelectedCanvasPass->mShaderDeclarationSetupErrors.begin(); iter != mSelectedCanvasPass->mShaderDeclarationSetupErrors.end(); ++iter)
+					{
+						ImGui::Text(iter->first.c_str());
+						for (std::string errorText : iter->second) {
+							ImGui::Text(errorText.c_str());
+						}
+					}
+				}
+				
+			}
+			else {
+				mSelectedCanvasPass = passes.front();
+			}
+			
 		}
 		else {
 			ImGui::Text("No passes");

@@ -5,6 +5,7 @@
 #include <nap/signalslot.h>
 #include <sceneservice.h>
 #include <renderservice.h>
+#include <imguiservice.h>
 #include <rendervideocomponent.h>
 #include <rtti/objectptr.h>
 
@@ -15,7 +16,7 @@ namespace nap
 		RTTI_ENABLE(Service)
 	public:
 		// Default Constructor
-		FoglioService(ServiceConfiguration* configuration) : Service(configuration)	{ }
+		FoglioService(ServiceConfiguration* configuration) : Service(configuration) {	}
 
 		/**
 		 * Use this call to register service dependencies
@@ -47,19 +48,24 @@ namespace nap
 		 */
 		virtual void shutdown() override;
 
+		void renderRequiredVideos();
+		void updateVideosGUI(nap::utility::ErrorState errorState);
 
 	private:
-		Entity* mVideoRenderEntity = nullptr;
+		rtti::ObjectPtr<EntityInstance> mVideoRenderEntityInstance = nullptr;
+		std::map<ResourcePtr<VideoPlayer>, RenderVideoComponentInstance*> mRenderVideoComponentsMap;
+		rtti::ObjectPtr<EntityInstance> mMidiInputEntityInstance = nullptr;
 		SceneService* mSceneService = nullptr;
 		RenderService* mRenderService = nullptr;
-		ResourceManager mResourceManager;
+		IMGuiService* mGuiService = nullptr;
+		
 	protected:
 		/**
 		 * Called when a json file has been (re)loaded. Used to re-apply the presets.
 		 */
 		virtual void postResourcesLoaded() override;
 
-		void renderRequiredVideos(nap::utility::ErrorState errorState);
+		
 
 	
 	};

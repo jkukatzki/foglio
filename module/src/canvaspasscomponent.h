@@ -19,10 +19,10 @@
 
 namespace nap
 {
-	class NAPAPI ImageSamplerOverride {
+	class NAPAPI ShaderDeclarationOverride {
 	public: 
-		std::string uniformName = "";
-		ResourcePtr<ImageFromFile> image;
+		std::string declarationName = "";
+		std::string overrideValue = "";
 	};
 	// Forward declares
 	class CanvasPassComponentInstance;
@@ -34,7 +34,7 @@ namespace nap
 
 	public:
 		ResourcePtr<ShaderFromFile>				mPassShader = nullptr;
-		std::vector<ImageSamplerOverride>		mImageOverrides = {};
+		std::vector<ShaderDeclarationOverride>	shaderDeclarationOverrides;
 	};
 
 	class NAPAPI CanvasPassComponentInstance : public RenderableComponentInstance
@@ -47,13 +47,19 @@ namespace nap
 
 		bool initPassTargetAndTexture(ResourcePtr<RenderTarget> canvasRenderTarget, ResourcePtr<RenderTexture2D> canvasTexture, utility::ErrorState& errorState);
 
-		ResourcePtr<RenderTexture2D> getOutputTexture();
+		Texture2D& getOutputTexture() {
+			return *mFinalTexture;
+		}
+
+		ResourcePtr<RenderTexture2D> getOutputTextureResourcePtr() {
+			return mFinalTexture;
+		}
 
 		bool constructMaterial(utility::ErrorState& errorState);
 
 		void draw();
 
-		void setInTextureSampler(ResourcePtr<RenderTexture2D> inTexture);
+		void setInTextureSampler(Texture2D& inTexture);
 
 		void computeModelMatrixFullscreen(glm::mat4& outMatrix, float sizeX, float sizeY);
 
@@ -62,18 +68,20 @@ namespace nap
 		UniformMat4Instance* ensureUniformMat4(const std::string& uniformName, UniformStructInstance* structInstance, utility::ErrorState& error);
 		UniformVec3Instance* ensureUniformVec3(const std::string& uniformName, UniformStructInstance* structInstance, utility::ErrorState& error);
 		UniformFloatInstance* ensureUniformFloat(const std::string& uniformName, UniformStructInstance* structInstance, utility::ErrorState& error);
-		Sampler2DInstance* ensureSampler(const std::string& samplerName, MaterialInstance* materialInstance, utility::ErrorState& error);
+		Sampler2DInstance* ensureSampler(const std::string& samplerName, utility::ErrorState& error);
 		bool constructTextureAndRenderTarget(ResourcePtr<RenderTarget>& renderTarget, ResourcePtr<RenderTexture2D>& texture, bool transparent, utility::ErrorState& error);
 
 		bool createUniforms(utility::ErrorState& errorState);
 
+		std::unordered_map<std::string, std::vector<std::string>> mShaderDeclarationSetupErrors;
+
 		std::vector<ResourcePtr<VideoPlayer>>	mVideoPlayers;
 		std::vector<ResourcePtr<ImageFromFile>>	mImages;
+		ResourcePtr<ShaderFromFile> mPassShader = nullptr;
+		std::map<std::string, Sampler2DInstance*>	mSamplers;
 
 	protected:
-
 		virtual void onDraw(IRenderTarget& renderTarget, VkCommandBuffer commandBuffer, const glm::mat4& viewmatrix, const glm::mat4& projectionMatrix) override;
-
 
 	private:
 		using DoubleBufferedRenderTarget = std::array<rtti::ObjectPtr<RenderTarget>, 2>;
@@ -81,12 +89,12 @@ namespace nap
 		std::unique_ptr<MaterialInstanceResource>	mMaterialInstResource = nullptr;
 
 		MaterialInstance* mMaterialInstance = nullptr;
-		ResourcePtr<ShaderFromFile> mPassShader = nullptr;
+		
 		UniformStructInstance* mMVPStruct = nullptr;
 		UniformMat4Instance* mModelMatrixUniform = nullptr;
 		UniformMat4Instance* mProjectMatrixUniform = nullptr;
 		UniformMat4Instance* mViewMatrixUniform = nullptr;
-		std::map<std::string, Sampler2DInstance*>	mSamplers;
+		
 
 		UniformStructInstance* mUBO = nullptr;
 
@@ -96,7 +104,7 @@ namespace nap
 		ResourcePtr<RenderTarget>		mCurrentInternalRT;
 		
 		ResourcePtr<RenderTarget>		mFinalRenderTarget;
-		ResourcePtr<RenderTexture2D>	mFinalTexture;
+		ResourcePtr<RenderTexture2D>	mFinalTexture = nullptr;
 
 		ResourceManager* mResourceManager;
 		std::vector<ResourcePtr<VideoPlayer>> mVideoResources;

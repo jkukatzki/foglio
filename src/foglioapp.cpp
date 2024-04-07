@@ -37,6 +37,7 @@ namespace nap
 		mSceneService = getCore().getService<nap::SceneService>();
 		mInputService = getCore().getService<nap::InputService>();
 		mGuiService = getCore().getService<nap::IMGuiService>();
+		mFoglioService = getCore().getService<nap::FoglioService>();
 
 		// Fetch the resource manager
 		mResourceManager = getCore().getResourceManager();
@@ -123,6 +124,7 @@ namespace nap
 		// Start recording into the headless recording buffer.
 		if (mRenderService->beginHeadlessRecording())
 		{
+			mFoglioService->renderRequiredVideos();
 			canvasGroupComponent->drawAllHeadless();
 			canvasGroupComponent->drawSelectedInterface();
 			mRenderService->endHeadlessRecording();
@@ -271,9 +273,9 @@ namespace nap
 			mQueuedExitFullscreenDialog = false;
 		}
 
+		//canvas group outliner
 		ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
-		ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0, ImGui::GetIO().DisplaySize.y * 0.75));
-		
+		ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0, ImGui::GetIO().DisplaySize.y * 0.75));	
 		ImGui::Begin("Outliner");
 		
 		if (mVideoWallEntity->hasComponent<CanvasGroupComponentInstance>()) {
@@ -290,6 +292,7 @@ namespace nap
 		ImGui::SetNextWindowPos(ImVec2(0.0f, ImGui::GetIO().DisplaySize.y * 0.75));
 		ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0, ImGui::GetIO().DisplaySize.y * 0.25));
 		ImGui::Begin("Info");
+
 		ImGui::Text(getCurrentDateTime().toString().c_str());
 		ImGui::Text(utility::stringFormat("Framerate: %.02f", getCore().getFramerate()).c_str());
 		float requestedFramerateTemp = getRequestedFramerate();
@@ -323,13 +326,11 @@ namespace nap
 		
 
 		ImGui::End();
-
 		//midi and osc info window
-		ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0, 0.0f));
-		ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0, ImGui::GetIO().DisplaySize.y));
-		mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawMidiInformation();
 		
-		mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawSequenceEditor();
+		//mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawMidiInformation();
+		//mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawSequenceEditor();
+		ImGui::End();
 	}
 
 	void foglioApp::toggleFullscreen() {

@@ -21,6 +21,8 @@
 #include <videoplayer.h>
 #include <app.h>
 
+#include "foglioservice.h"
+
 namespace nap
 {
 	using namespace rtti;
@@ -83,6 +85,7 @@ namespace nap
 		SceneService*				mSceneService = nullptr;		///< Manages all the objects in the scene
 		InputService*				mInputService = nullptr;		///< Input service for processing input
 		IMGuiService*				mGuiService = nullptr;			///< Manages GUI related update / draw calls
+		FoglioService*				mFoglioService = nullptr;
 		ObjectPtr<RenderWindow>		mMainWindow = nullptr;					///< Pointer to the main render window
 		ObjectPtr<RenderWindow>		mControlsWindow = nullptr;					///< Pointer to the controls window	
 		ObjectPtr<Scene>			mScene = nullptr;				///< Pointer to the main scene
