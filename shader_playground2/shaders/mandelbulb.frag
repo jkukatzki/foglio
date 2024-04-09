@@ -31,7 +31,7 @@ float sdSphere(vec3 p, float s) {
 }
 
 float mandelbulb(vec3 p) {
-    float n = ubo.midiKnob0*16.0;
+    float n = 16.0;
     float dr = 1.0;
     float r = 0.0;
     vec3 z = p;

@@ -12,6 +12,9 @@
 #include <imgui/imgui.h>
 #include <imguiutils.h>
 
+#include <parameter.h>
+#include <parametergroup.h>
+
 #include <midiinputcomponent.h>
 #include <rendervideocomponent.h>
 
@@ -44,11 +47,72 @@ namespace nap
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0, 0.0f));
 		ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0, ImGui::GetIO().DisplaySize.y));
 		ImGui::Begin("Foglio Dashboard");
-		updateVideosGUI(errorState);
+		ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+		if (ImGui::BeginTabBar("FoglioDashboardTabBar", tab_bar_flags))
+		{
+			if (ImGui::BeginTabItem("Videos"))
+			{
+				updateVideosGUI(errorState);
+				ImGui::EndTabItem();
+			}
+			if (ImGui::BeginTabItem("Parameters"))
+			{
+				for (auto parameterGUI : mParameterGUIObjects) {
+					parameterGUI->show(false);
+				}
+				
+				ImGui::EndTabItem();
+			}
+			if (ImGui::BeginTabItem("MIDI"))
+			{
+				ImGui::EndTabItem();
+			}
+			ImGui::EndTabBar();
+		}
+		
 		ImGui::End();
 	}
 	
 	void FoglioService::postResourcesLoaded() {
+		nap::utility::ErrorState errorState = nap::utility::ErrorState();
+		//put parameters that do not belong to a ParameterGroup into general group so they can be displayed using ParameterGui::show
+		//also create ParameterGUI objects for every group
+		mNoGroupParametersGroup = getCore().getResourceManager()->createObject<ParameterGroup>();
+		mNoGroupParametersGroup->mID = "foglioNoGroupParametersGroup";
+		auto parameters = getCore().getResourceManager()->getObjects<Parameter>();
+		auto parameterGroups = getCore().getResourceManager()->getObjects<ParameterGroup>();
+		for (auto parameter : parameters) {
+			bool found = false;
+			nap::Logger::info("parameter %s", parameter->mID.c_str());
+			for (auto group : parameterGroups) {
+				if (group->findObjectRecursive(parameter->mID) != nullptr) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				mNoGroupParametersGroup->mMembers.emplace_back(parameter);
+			}
+		}
+		if (!mNoGroupParametersGroup->init(errorState)) {
+			nap::Logger::error("Could not init mNoGroupParametersGroup");
+		}
+		auto parameterNoGroupGUI = getCore().getResourceManager()->createObject<ParameterGUI>();
+		parameterNoGroupGUI->mParameterGroup = mNoGroupParametersGroup;
+		parameterNoGroupGUI->mID = "foglioAutomaticParameterGUI" + mNoGroupParametersGroup->mID;
+		if (!parameterNoGroupGUI->init(errorState)) {
+			nap::Logger::error("Init of parameterGUI failed %s", parameterNoGroupGUI->mID.c_str());
+		}
+		mParameterGUIObjects.emplace_back(parameterNoGroupGUI);
+		for (auto group : parameterGroups) {
+			auto parameterGUI = getCore().getResourceManager()->createObject<ParameterGUI>();
+			parameterGUI->mParameterGroup = group;
+			parameterGUI->mID = "foglioAutomaticParameterGUI" + group->mID;
+			if (!parameterGUI->init(errorState)) {
+				nap::Logger::error("Init of parameterGUI failed %s", parameterGUI->mID.c_str());
+			}
+			mParameterGUIObjects.emplace_back(parameterGUI);
+		}
 		//check for dependencies in foglio drivers
 		auto drivers = getCore().getResourceManager()->getObjects<FoglioDriver>();
 		for (auto driver : drivers) {
@@ -74,13 +138,16 @@ namespace nap
 			}
 		}
 		// VIDEO RENDERING
-		nap::utility::ErrorState errorState = nap::utility::ErrorState();
-		Scene* scene = *mSceneService->getScenes().begin();
-		/*for (auto it = *mSceneService->getScenes().begin(); it != *mSceneService->getScenes().end(); ++it) {
-			for (auto ent : it->getEntities()) {
-				nap::Logger::info("entity %s in scene %s", ent->mID.c_str(), it->mID.c_str());
+		//Scene* scene = *(mSceneService->getScenes().begin());
+		Scene* scene = nullptr;
+		for (auto it = mSceneService->getScenes().begin(); it != mSceneService->getScenes().end(); ++it) {
+			auto& oneOfTheScenes = *it; // Dereference the iterator to access the scene object
+			for (auto ent : oneOfTheScenes->getEntities()) {
+				nap::Logger::info("entity %s in scene %s", ent->mID.c_str(), oneOfTheScenes->mID.c_str());
 			}
-		}*/
+			scene = oneOfTheScenes;
+		}
+		
 		Entity* videoRenderEntity = new Entity();
 		int addedIdIfExisting = 0;
 		while (getCore().getResourceManager()->findObject("videoRenderEntity" + addedIdIfExisting) != nullptr) {
@@ -132,9 +199,10 @@ namespace nap
 						{
 							if (image.getWrappedType() == rtti::TypeInfo::get<ImageFromFile>()) 
 							{
-								ResourcePtr<ImageFromFile> imageResource = getCore().getResourceManager()->findObject<ImageFromFile>(key);
+								ResourcePtr<ImageFromFile> imageResource = getCore().getResourceManager()->findObject<ImageFromFile>(keyStripped);
 								if (imageResource != nullptr) 
 								{
+									nap::Logger::info("Setting texture of sampler to image %s", keyStripped.c_str());
 									canvasPass->mSamplers[key]->setTexture(*imageResource.get());
 								}
 							}
@@ -237,7 +305,12 @@ namespace nap
 			ImGui::SameLine();
 			if (ImGui::ImageButton(mGuiService->getIcon(playControlIcon.c_str())))
 			{
-				video_player->isPlaying() ? video_player->stopPlayback() : video_player->play();
+				if (video_player->isPlaying()) {
+					video_player->stopPlayback();
+				}
+				else {
+					video_player->play();
+				}
 			}
 			ImGui::SameLine();
 			if (ImGui::ArrowButton(("##right" + renderVideoComponent->mID).c_str(), ImGuiDir_Right)) {
@@ -254,6 +327,7 @@ namespace nap
 		dependencies.emplace_back(RTTI_OF(RenderService));
 		dependencies.emplace_back(RTTI_OF(SceneService));
 		dependencies.emplace_back(RTTI_OF(IMGuiService));
+		dependencies.emplace_back(RTTI_OF(VideoService));
 	}
 	
 

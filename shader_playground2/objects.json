@@ -215,6 +215,29 @@
             ]
         },
         {
+            "Type": "nap::ParameterFloat",
+            "mID": "someParentlessParameter",
+            "Name": "",
+            "Value": 0.0,
+            "Minimum": 0.0,
+            "Maximum": 1.0
+        },
+        {
+            "Type": "nap::ParameterGroup",
+            "mID": "ParameterGroup1",
+            "Parameters": [
+                {
+                    "Type": "nap::ParameterFloat",
+                    "mID": "someParentfullParameter",
+                    "Name": "",
+                    "Value": 0.0,
+                    "Minimum": 0.0,
+                    "Maximum": 1.0
+                }
+            ],
+            "Groups": []
+        },
+        {
             "Type": "nap::RenderWindow",
             "mID": "ControlsWindow",
             "Borderless": false,
@@ -369,13 +392,32 @@
         },
         {
             "Type": "nap::VideoPlayer",
-            "mID": "VideoPlayer_a0072583",
-            "Loop": true,
+            "mID": "VideoPlayer_0a28b0f1",
+            "Loop": false,
             "VideoFiles": [
                 {
                     "Type": "nap::VideoFile",
-                    "mID": "video_1",
+                    "mID": "VideoFile_2cc5a7f7",
                     "Path": "videos/background/people.mp4"
+                },
+                {
+                    "Type": "nap::VideoFile",
+                    "mID": "VideoFile_fefb0901",
+                    "Path": "videos/some_plane/horse.mp4"
+                }
+            ],
+            "VideoIndex": 0,
+            "Speed": 1.0
+        },
+        {
+            "Type": "nap::VideoPlayer",
+            "mID": "VideoPlayer_1ae7c8f6",
+            "Loop": false,
+            "VideoFiles": [
+                {
+                    "Type": "nap::VideoFile",
+                    "mID": "VideoFile_9a78692c",
+                    "Path": "videos/some_plane/horse.mp4"
                 }
             ],
             "VideoIndex": 0,

@@ -330,7 +330,6 @@ namespace nap
 		
 		//mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawMidiInformation();
 		//mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawSequenceEditor();
-		ImGui::End();
 	}
 
 	void foglioApp::toggleFullscreen() {

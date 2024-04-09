@@ -3,11 +3,14 @@
 // External Includes
 #include <nap/service.h>
 #include <nap/signalslot.h>
+#include <videoservice.h>
 #include <sceneservice.h>
 #include <renderservice.h>
 #include <imguiservice.h>
 #include <rendervideocomponent.h>
 #include <rtti/objectptr.h>
+
+#include <parametergui.h>
 
 namespace nap
 {
@@ -58,6 +61,8 @@ namespace nap
 		SceneService* mSceneService = nullptr;
 		RenderService* mRenderService = nullptr;
 		IMGuiService* mGuiService = nullptr;
+		ResourcePtr<ParameterGroup> mNoGroupParametersGroup = nullptr;
+		std::vector<ResourcePtr<ParameterGUI>> mParameterGUIObjects;
 		
 	protected:
 		/**
