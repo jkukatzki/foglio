@@ -55,12 +55,15 @@ namespace nap
 		void updateVideosGUI(nap::utility::ErrorState errorState);
 
 	private:
+		ResourcePtr<Entity> mVideoRenderEntity;
 		rtti::ObjectPtr<EntityInstance> mVideoRenderEntityInstance = nullptr;
 		std::map<ResourcePtr<VideoPlayer>, RenderVideoComponentInstance*> mRenderVideoComponentsMap;
 		rtti::ObjectPtr<EntityInstance> mMidiInputEntityInstance = nullptr;
+
 		SceneService* mSceneService = nullptr;
 		RenderService* mRenderService = nullptr;
 		IMGuiService* mGuiService = nullptr;
+
 		ResourcePtr<ParameterGroup> mNoGroupParametersGroup = nullptr;
 		std::vector<ResourcePtr<ParameterGUI>> mParameterGUIObjects;
 		
@@ -68,6 +71,7 @@ namespace nap
 		/**
 		 * Called when a json file has been (re)loaded. Used to re-apply the presets.
 		 */
+		virtual void preResourcesLoaded() override;
 		virtual void postResourcesLoaded() override;
 
 		

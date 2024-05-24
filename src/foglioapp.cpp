@@ -55,7 +55,9 @@ namespace nap
 		mScene = mResourceManager->findObject<Scene>("Scene");
 		if (!error.check(mScene != nullptr, "unable to find scene with name: %s", "Scene"))
 			return false;
-
+		for (auto entity : mScene->getEntities()) {
+			nap::Logger::info("FoglioApp : mScene entity : %s", entity->mID.c_str());
+		}
 		
 		// Get the camera entity
 		mCameraEntity = mScene->findEntity("CameraEntity");

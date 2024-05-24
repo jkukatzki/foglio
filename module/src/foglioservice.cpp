@@ -30,12 +30,11 @@ namespace nap
 {
 	bool FoglioService::init(nap::utility::ErrorState& errorState)
 	{
-		//Logger::info("Initializing FoglioService");
+		Logger::info("Initializing FoglioService");
 		mSceneService = getCore().getService<SceneService>();
 		mRenderService = getCore().getService<RenderService>();
 		mGuiService = getCore().getService<IMGuiService>();
-		
-
+		mVideoRenderEntity = getCore().getResourceManager()->createObject<Entity>();
 		return true;
 	}
 
@@ -72,6 +71,13 @@ namespace nap
 		
 		ImGui::End();
 	}
+
+	void FoglioService::preResourcesLoaded() {
+		nap::Logger::info("FoglioService: preResourcesLoaded call");
+		mParameterGUIObjects.clear();
+		mRenderVideoComponentsMap.clear();
+		mVideoRenderEntityInstance = nullptr;
+	}
 	
 	void FoglioService::postResourcesLoaded() {
 		nap::utility::ErrorState errorState = nap::utility::ErrorState();
@@ -83,7 +89,7 @@ namespace nap
 		auto parameterGroups = getCore().getResourceManager()->getObjects<ParameterGroup>();
 		for (auto parameter : parameters) {
 			bool found = false;
-			nap::Logger::info("parameter %s", parameter->mID.c_str());
+			nap::Logger::info("FoglioService: checking parameter %s", parameter->mID.c_str());
 			for (auto group : parameterGroups) {
 				if (group->findObjectRecursive(parameter->mID) != nullptr) {
 					found = true;
@@ -91,20 +97,15 @@ namespace nap
 				}
 			}
 			if (!found) {
+				nap::Logger::info("FoglioService: No parameter group associated with parameter %s, adding it to dynamically created group for GUI", parameter);
 				mNoGroupParametersGroup->mMembers.emplace_back(parameter);
 			}
 		}
 		if (!mNoGroupParametersGroup->init(errorState)) {
 			nap::Logger::error("Could not init mNoGroupParametersGroup");
 		}
-		auto parameterNoGroupGUI = getCore().getResourceManager()->createObject<ParameterGUI>();
-		parameterNoGroupGUI->mParameterGroup = mNoGroupParametersGroup;
-		parameterNoGroupGUI->mID = "foglioAutomaticParameterGUI" + mNoGroupParametersGroup->mID;
-		if (!parameterNoGroupGUI->init(errorState)) {
-			nap::Logger::error("Init of parameterGUI failed %s", parameterNoGroupGUI->mID.c_str());
-		}
-		mParameterGUIObjects.emplace_back(parameterNoGroupGUI);
 		for (auto group : parameterGroups) {
+			nap::Logger::info("creating parameter gui automatically for group %s", group->mID.c_str());
 			auto parameterGUI = getCore().getResourceManager()->createObject<ParameterGUI>();
 			parameterGUI->mParameterGroup = group;
 			parameterGUI->mID = "foglioAutomaticParameterGUI" + group->mID;
@@ -138,17 +139,21 @@ namespace nap
 			}
 		}
 		// VIDEO RENDERING
-		//Scene* scene = *(mSceneService->getScenes().begin());
-		Scene* scene = nullptr;
-		for (auto it = mSceneService->getScenes().begin(); it != mSceneService->getScenes().end(); ++it) {
-			auto& oneOfTheScenes = *it; // Dereference the iterator to access the scene object
-			for (auto ent : oneOfTheScenes->getEntities()) {
-				nap::Logger::info("entity %s in scene %s", ent->mID.c_str(), oneOfTheScenes->mID.c_str());
-			}
-			scene = oneOfTheScenes;
+		// Q: the line of code in the comment below instead of the for loop makes shader reloads not work
+		//Scene* scene = *mSceneService->getScenes().begin();
+		Scene* scene = *(mSceneService->getScenes().begin());
+		//for (auto it = mSceneService->getScenes().begin(); it != mSceneService->getScenes().end(); ++it) {
+		//	auto& oneOfTheScenes = *it; // Dereference the iterator to access the scene object
+		//	for (auto ent : oneOfTheScenes->getEntities()) {
+		//		nap::Logger::info("FoglioService: (inside for loop that gets first scene) Entity %s in scene %s", ent->mID.c_str(), oneOfTheScenes->mID.c_str());
+		//	}
+		//	scene = oneOfTheScenes;
+		//}
+		nap::Logger::info("scenes size !!!!!!!!!! %i", mSceneService->getScenes().size());
+		for (auto ent : scene->getEntities()) {
+			nap::Logger::info("FoglioService: (outside for loop that gets first scene) Entity %s in scene %s", ent->mID.c_str(), scene->mID.c_str());
 		}
-		
-		Entity* videoRenderEntity = new Entity();
+		ResourcePtr<Entity> videoRenderEntity = getCore().getResourceManager()->createObject<Entity>();
 		int addedIdIfExisting = 0;
 		while (getCore().getResourceManager()->findObject("videoRenderEntity" + addedIdIfExisting) != nullptr) {
 			addedIdIfExisting++;
@@ -156,7 +161,7 @@ namespace nap
 		videoRenderEntity->mID = "videoRenderEntity" + std::to_string(addedIdIfExisting);
 		std::vector<ResourcePtr<VideoPlayer>> videoPlayers = getCore().getResourceManager()->getObjects<VideoPlayer>();
 		for (auto videoPlayer : videoPlayers) {
-			RenderVideoComponent* renderVideoComponentResource = new RenderVideoComponent();
+			auto renderVideoComponentResource = getCore().getResourceManager()->createObject<RenderVideoComponent>();
 			renderVideoComponentResource->mID = "foglio_renderVideoComponent" + videoPlayer->mID;
 			nap::Logger::info("FoglioService : creating renderVideoComponent for video player %s", videoPlayer->mID.c_str());
 			renderVideoComponentResource->mVideoPlayer = videoPlayer;
@@ -172,7 +177,7 @@ namespace nap
 		mVideoRenderEntityInstance = scene->spawn(*videoRenderEntity, errorState).get();
 		nap::Logger::info("FoglioService: videoRenderEntityInstance spawned %s", mVideoRenderEntityInstance->mID.c_str());
 		for (auto entity : scene->getEntities()) {
-			nap::Logger::info("entity %s", entity->mID.c_str());
+			nap::Logger::info("FoglioService: ( after scene->spawn(...) ) Entity %s in scene %s ", entity->mID.c_str(), scene->mID.c_str());
 		}
 		std::vector<RenderVideoComponentInstance*> videoCmps;
 		mVideoRenderEntityInstance->getComponentsOfType(videoCmps);
@@ -324,10 +329,10 @@ namespace nap
 
 	void FoglioService::getDependentServices(std::vector<rtti::TypeInfo>& dependencies)
 	{
+		dependencies.emplace_back(RTTI_OF(VideoService));
 		dependencies.emplace_back(RTTI_OF(RenderService));
 		dependencies.emplace_back(RTTI_OF(SceneService));
 		dependencies.emplace_back(RTTI_OF(IMGuiService));
-		dependencies.emplace_back(RTTI_OF(VideoService));
 	}
 	
 

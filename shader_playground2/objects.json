@@ -411,12 +411,12 @@
         },
         {
             "Type": "nap::VideoPlayer",
-            "mID": "VideoPlayer_1ae7c8f6",
+            "mID": "VideoPlayer_2c9b1c04",
             "Loop": false,
             "VideoFiles": [
                 {
                     "Type": "nap::VideoFile",
-                    "mID": "VideoFile_9a78692c",
+                    "mID": "VideoFile_e8f732f8",
                     "Path": "videos/some_plane/horse.mp4"
                 }
             ],
