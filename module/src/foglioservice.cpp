@@ -139,29 +139,33 @@ namespace nap
 			}
 		}
 		// VIDEO RENDERING
-		// Q: the line of code in the comment below instead of the for loop makes shader reloads not work
-		//Scene* scene = *mSceneService->getScenes().begin();
-		Scene* scene = *(mSceneService->getScenes().begin());
-		//for (auto it = mSceneService->getScenes().begin(); it != mSceneService->getScenes().end(); ++it) {
-		//	auto& oneOfTheScenes = *it; // Dereference the iterator to access the scene object
-		//	for (auto ent : oneOfTheScenes->getEntities()) {
-		//		nap::Logger::info("FoglioService: (inside for loop that gets first scene) Entity %s in scene %s", ent->mID.c_str(), oneOfTheScenes->mID.c_str());
-		//	}
-		//	scene = oneOfTheScenes;
-		//}
-		nap::Logger::info("scenes size !!!!!!!!!! %i", mSceneService->getScenes().size());
-		for (auto ent : scene->getEntities()) {
-			nap::Logger::info("FoglioService: (outside for loop that gets first scene) Entity %s in scene %s", ent->mID.c_str(), scene->mID.c_str());
+		//Scene* scene = *(mSceneService->getScenes().begin());
+		Scene* scene;
+		for (auto it = mSceneService->getScenes().begin(); it != mSceneService->getScenes().end(); ++it) {
+			auto& oneOfTheScenes = *it; // Dereference the iterator to access the scene object
+			nap::Logger::info("FoglioService: Inspecting scene %s", oneOfTheScenes->mID.c_str());
+			for (auto ent : oneOfTheScenes->getEntities()) {
+				nap::Logger::info("FoglioService: (inside for loop that inspects all scenes) Entity %s in scene %s", ent->mID.c_str(), oneOfTheScenes->mID.c_str());
+			}
+			scene = oneOfTheScenes;
 		}
-		ResourcePtr<Entity> videoRenderEntity = getCore().getResourceManager()->createObject<Entity>();
+		nap::Logger::info("amount of scenes: %i", mSceneService->getScenes().size());
+		for (auto ent : scene->getEntities()) {
+			nap::Logger::info("FoglioService: Entity %s in scene %s (last scene in SceneService::getScenes() SceneSet and before spawning EntityInstance for video rendering)", ent->mID.c_str(), scene->mID.c_str());
+		}
+		
+		//handle the case that an entity defined by user in object.json with same name as automatically created entity exists
 		int addedIdIfExisting = 0;
 		while (getCore().getResourceManager()->findObject("videoRenderEntity" + addedIdIfExisting) != nullptr) {
 			addedIdIfExisting++;
 		}
+		ResourcePtr<Entity> videoRenderEntity = getCore().getResourceManager()->createObject<Entity>();
 		videoRenderEntity->mID = "videoRenderEntity" + std::to_string(addedIdIfExisting);
+		//create a VideoRenderComponent for every VideoPlayer found by the ResourceManger and add it to our videoRenderEntity
 		std::vector<ResourcePtr<VideoPlayer>> videoPlayers = getCore().getResourceManager()->getObjects<VideoPlayer>();
 		for (auto videoPlayer : videoPlayers) {
 			auto renderVideoComponentResource = getCore().getResourceManager()->createObject<RenderVideoComponent>();
+			//TODO: handle case in which user has defined components with same name
 			renderVideoComponentResource->mID = "foglio_renderVideoComponent" + videoPlayer->mID;
 			nap::Logger::info("FoglioService : creating renderVideoComponent for video player %s", videoPlayer->mID.c_str());
 			renderVideoComponentResource->mVideoPlayer = videoPlayer;
@@ -174,16 +178,19 @@ namespace nap
 			renderVideoComponentResource->mOutputTexture = texture;
 			videoRenderEntity->mComponents.emplace_back(renderVideoComponentResource);
 		}
+		//spawn the entity holding all the video render components
 		mVideoRenderEntityInstance = scene->spawn(*videoRenderEntity, errorState).get();
 		nap::Logger::info("FoglioService: videoRenderEntityInstance spawned %s", mVideoRenderEntityInstance->mID.c_str());
-		for (auto entity : scene->getEntities()) {
-			nap::Logger::info("FoglioService: ( after scene->spawn(...) ) Entity %s in scene %s ", entity->mID.c_str(), scene->mID.c_str());
-		}
+		
+		//assign values in mRenderVideoComponentsMap for later access of components
 		std::vector<RenderVideoComponentInstance*> videoCmps;
 		mVideoRenderEntityInstance->getComponentsOfType(videoCmps);
 		for (auto cmp : videoCmps) {
 			nap::Logger::info("Component existing on dynamically created video render entity: %s", cmp->mID.c_str());
 			mRenderVideoComponentsMap[cmp->getComponent<RenderVideoComponent>()->mVideoPlayer] = cmp;
+		}
+		for (auto ent : scene->getEntities()) {
+			nap::Logger::info("FoglioService: Entity %s in scene %s (last scene in SceneService::getScenes() SceneSet and after spawning EntityInstances for video rendering)", ent->mID.c_str(), scene->mID.c_str());
 		}
 
 		// canvas pass shader declarations handling

@@ -63,7 +63,7 @@ float map(vec3 p) {
 void main() 
 {
     vec2 cameraOrbit = vec2(sin(ubo.midiPitchBendAcc*2), cos(ubo.midiPitchBendAcc*2));
-    cameraOrbit *= 1.0+10.0*ubo.midiKnob4;
+    cameraOrbit *= 2.0+10.0*ubo.midiKnob4;
 	vec3 ro = vec3(cameraOrbit.x, 0., cameraOrbit.y);
     vec3 new_pass_Uvs = (pass_Uvs - 0.5) * 2.0;
 	vec3 rd = normalize(vec3(new_pass_Uvs.xy, 1));

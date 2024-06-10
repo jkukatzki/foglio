@@ -17,5 +17,5 @@ uniform UBO
 void main() 
 {
 	vec4 myTexture = texture(inTexture, pass_Uvs.xy);
-	out_Color = vec4(vec3(0.1), texture(i_flower, pass_Uvs.xy).w);
+	out_Color = vec4(myTexture.xyz, texture(i_flower, pass_Uvs.xy).w);
 }

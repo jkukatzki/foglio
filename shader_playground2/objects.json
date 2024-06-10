@@ -392,25 +392,6 @@
         },
         {
             "Type": "nap::VideoPlayer",
-            "mID": "VideoPlayer_0a28b0f1",
-            "Loop": false,
-            "VideoFiles": [
-                {
-                    "Type": "nap::VideoFile",
-                    "mID": "VideoFile_2cc5a7f7",
-                    "Path": "videos/background/people.mp4"
-                },
-                {
-                    "Type": "nap::VideoFile",
-                    "mID": "VideoFile_fefb0901",
-                    "Path": "videos/some_plane/horse.mp4"
-                }
-            ],
-            "VideoIndex": 0,
-            "Speed": 1.0
-        },
-        {
-            "Type": "nap::VideoPlayer",
             "mID": "VideoPlayer_2c9b1c04",
             "Loop": false,
             "VideoFiles": [
