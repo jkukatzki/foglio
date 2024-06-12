@@ -9,7 +9,7 @@
 #include <imguiservice.h>
 #include <rendervideocomponent.h>
 #include <rtti/objectptr.h>
-
+#include <scene.h>
 #include <parametergui.h>
 
 namespace nap
@@ -57,6 +57,7 @@ namespace nap
 	private:
 		ResourcePtr<Entity> mVideoRenderEntity;
 		rtti::ObjectPtr<EntityInstance> mVideoRenderEntityInstance = nullptr;
+		std::unique_ptr<SpawnedEntityInstance> mVideoRenderSpawnedEntityInstance = nullptr;
 		std::map<ResourcePtr<VideoPlayer>, RenderVideoComponentInstance*> mRenderVideoComponentsMap;
 		rtti::ObjectPtr<EntityInstance> mMidiInputEntityInstance = nullptr;
 
@@ -64,9 +65,19 @@ namespace nap
 		RenderService* mRenderService = nullptr;
 		IMGuiService* mGuiService = nullptr;
 
-		ResourcePtr<ParameterGroup> mNoGroupParametersGroup = nullptr;
+		std::unique_ptr<ParameterGroup> mNoGroupParametersGroup = nullptr;
 		std::vector<ResourcePtr<ParameterGUI>> mParameterGUIObjects;
+		std::unique_ptr<Scene> mDynamicScene = std::unique_ptr<Scene>(nullptr);
+
+		void setupVideoRendering(nap::utility::ErrorState errorState);
+		void setupMIDI();
+		void setupCanvasShaderUniformsAndSamplers(Scene* scene, nap::utility::ErrorState errorState);
+		void setupDrivers(nap::utility::ErrorState errorState);
+
+		void setupParametersGUI(nap::utility::ErrorState errorState);
 		
+
+
 	protected:
 		/**
 		 * Called when a json file has been (re)loaded. Used to re-apply the presets.

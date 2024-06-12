@@ -18,7 +18,6 @@
 #include <midiinputcomponent.h>
 #include <rendervideocomponent.h>
 
-#include <scene.h>
 #include <entity.h>
 #include <rtti/objectptr.h>
 
@@ -34,7 +33,12 @@ namespace nap
 		mSceneService = getCore().getService<SceneService>();
 		mRenderService = getCore().getService<RenderService>();
 		mGuiService = getCore().getService<IMGuiService>();
-		mVideoRenderEntity = getCore().getResourceManager()->createObject<Entity>();
+		
+		mDynamicScene = std::make_unique<nap::Scene>(getCore());
+		mDynamicScene->mID = "dynamicScene";
+		if (!mDynamicScene->init(errorState))
+			return false;
+		
 		return true;
 	}
 
@@ -73,195 +77,37 @@ namespace nap
 	}
 
 	void FoglioService::preResourcesLoaded() {
-		nap::Logger::info("FoglioService: preResourcesLoaded call");
+		nap::Logger::info("################### FoglioService: preResourcesLoaded call ###################");
+		
 		mParameterGUIObjects.clear();
 		mRenderVideoComponentsMap.clear();
-		mVideoRenderEntityInstance = nullptr;
+		if (mVideoRenderSpawnedEntityInstance != nullptr) {
+			mDynamicScene->destroy(*mVideoRenderSpawnedEntityInstance);
+		}
+		
 	}
 	
 	void FoglioService::postResourcesLoaded() {
+
+		nap::Logger::info("################### FoglioService: postResourcesLoaded call ###################");
 		nap::utility::ErrorState errorState = nap::utility::ErrorState();
-		//put parameters that do not belong to a ParameterGroup into general group so they can be displayed using ParameterGui::show
-		//also create ParameterGUI objects for every group
-		mNoGroupParametersGroup = getCore().getResourceManager()->createObject<ParameterGroup>();
-		mNoGroupParametersGroup->mID = "foglioNoGroupParametersGroup";
-		auto parameters = getCore().getResourceManager()->getObjects<Parameter>();
-		auto parameterGroups = getCore().getResourceManager()->getObjects<ParameterGroup>();
-		for (auto parameter : parameters) {
-			bool found = false;
-			nap::Logger::info("FoglioService: checking parameter %s", parameter->mID.c_str());
-			for (auto group : parameterGroups) {
-				if (group->findObjectRecursive(parameter->mID) != nullptr) {
-					found = true;
-					break;
-				}
-			}
-			if (!found) {
-				nap::Logger::info("FoglioService: No parameter group associated with parameter %s, adding it to dynamically created group for GUI", parameter);
-				mNoGroupParametersGroup->mMembers.emplace_back(parameter);
-			}
-		}
-		if (!mNoGroupParametersGroup->init(errorState)) {
-			nap::Logger::error("Could not init mNoGroupParametersGroup");
-		}
-		for (auto group : parameterGroups) {
-			nap::Logger::info("creating parameter gui automatically for group %s", group->mID.c_str());
-			auto parameterGUI = getCore().getResourceManager()->createObject<ParameterGUI>();
-			parameterGUI->mParameterGroup = group;
-			parameterGUI->mID = "foglioAutomaticParameterGUI" + group->mID;
-			if (!parameterGUI->init(errorState)) {
-				nap::Logger::error("Init of parameterGUI failed %s", parameterGUI->mID.c_str());
-			}
-			mParameterGUIObjects.emplace_back(parameterGUI);
-		}
-		//check for dependencies in foglio drivers
-		auto drivers = getCore().getResourceManager()->getObjects<FoglioDriver>();
-		for (auto driver : drivers) {
-			if (driver->mMidiRelations.size() > 0) {
-				//MIDI INPUT
-				nap::utility::ErrorState errorState = nap::utility::ErrorState();
-				Scene* scene = *mSceneService->getScenes().begin();
-				Entity* midiInputEntity = new Entity();
-				int addedIdIfExisting = 0;
-				while (getCore().getResourceManager()->findObject("midiInputEntity" + addedIdIfExisting) != nullptr) {
-					addedIdIfExisting++;
-				}
-				midiInputEntity->mID = "midiInputEntity" + std::to_string(addedIdIfExisting);
-				MidiInputComponent* midiInputComponentResource = new MidiInputComponent();
-				midiInputComponentResource->mID = "foglio_midiInputComponent" + addedIdIfExisting;
-				nap::Logger::info("FoglioService : creating MidiInputComponent because driver with midi dependency is present");
-				midiInputEntity->mComponents.emplace_back(midiInputComponentResource);
-				mMidiInputEntityInstance = scene->spawn(*midiInputEntity, errorState).get();
-				nap::Logger::info("FoglioService: midiInputEntityInstance spawned %s", mMidiInputEntityInstance->mID.c_str());
-				for (auto cmp : mMidiInputEntityInstance->getComponents()) {
-					nap::Logger::info("Component existing on dynamically created midi input entity: %s", cmp->mID.c_str());
-				}
-			}
-		}
-		// VIDEO RENDERING
+		setupParametersGUI(errorState);
+		
+
+		setupDrivers(errorState);
 		//Scene* scene = *(mSceneService->getScenes().begin());
+		
 		Scene* scene;
 		for (auto it = mSceneService->getScenes().begin(); it != mSceneService->getScenes().end(); ++it) {
 			auto& oneOfTheScenes = *it; // Dereference the iterator to access the scene object
 			nap::Logger::info("FoglioService: Inspecting scene %s", oneOfTheScenes->mID.c_str());
-			for (auto ent : oneOfTheScenes->getEntities()) {
-				nap::Logger::info("FoglioService: (inside for loop that inspects all scenes) Entity %s in scene %s", ent->mID.c_str(), oneOfTheScenes->mID.c_str());
-			}
 			scene = oneOfTheScenes;
 		}
-		nap::Logger::info("amount of scenes: %i", mSceneService->getScenes().size());
-		for (auto ent : scene->getEntities()) {
-			nap::Logger::info("FoglioService: Entity %s in scene %s (last scene in SceneService::getScenes() SceneSet and before spawning EntityInstance for video rendering)", ent->mID.c_str(), scene->mID.c_str());
-		}
-		
-		//handle the case that an entity defined by user in object.json with same name as automatically created entity exists
-		int addedIdIfExisting = 0;
-		while (getCore().getResourceManager()->findObject("videoRenderEntity" + addedIdIfExisting) != nullptr) {
-			addedIdIfExisting++;
-		}
-		ResourcePtr<Entity> videoRenderEntity = getCore().getResourceManager()->createObject<Entity>();
-		videoRenderEntity->mID = "videoRenderEntity" + std::to_string(addedIdIfExisting);
-		//create a VideoRenderComponent for every VideoPlayer found by the ResourceManger and add it to our videoRenderEntity
-		std::vector<ResourcePtr<VideoPlayer>> videoPlayers = getCore().getResourceManager()->getObjects<VideoPlayer>();
-		for (auto videoPlayer : videoPlayers) {
-			auto renderVideoComponentResource = getCore().getResourceManager()->createObject<RenderVideoComponent>();
-			//TODO: handle case in which user has defined components with same name
-			renderVideoComponentResource->mID = "foglio_renderVideoComponent" + videoPlayer->mID;
-			nap::Logger::info("FoglioService : creating renderVideoComponent for video player %s", videoPlayer->mID.c_str());
-			renderVideoComponentResource->mVideoPlayer = videoPlayer;
-			auto texture = getCore().getResourceManager()->createObject<RenderTexture2D>();
-			texture->mWidth = videoPlayer->getWidth();
-			texture->mHeight = videoPlayer->getHeight();
-			texture->mFormat = RenderTexture2D::EFormat::RGBA8;
-			if (!texture->init(errorState))
-				nap::Logger::error("FoglioService: could not init texture for video rendering");
-			renderVideoComponentResource->mOutputTexture = texture;
-			videoRenderEntity->mComponents.emplace_back(renderVideoComponentResource);
-		}
-		//spawn the entity holding all the video render components
-		mVideoRenderEntityInstance = scene->spawn(*videoRenderEntity, errorState).get();
-		nap::Logger::info("FoglioService: videoRenderEntityInstance spawned %s", mVideoRenderEntityInstance->mID.c_str());
-		
-		//assign values in mRenderVideoComponentsMap for later access of components
-		std::vector<RenderVideoComponentInstance*> videoCmps;
-		mVideoRenderEntityInstance->getComponentsOfType(videoCmps);
-		for (auto cmp : videoCmps) {
-			nap::Logger::info("Component existing on dynamically created video render entity: %s", cmp->mID.c_str());
-			mRenderVideoComponentsMap[cmp->getComponent<RenderVideoComponent>()->mVideoPlayer] = cmp;
-		}
-		for (auto ent : scene->getEntities()) {
-			nap::Logger::info("FoglioService: Entity %s in scene %s (last scene in SceneService::getScenes() SceneSet and after spawning EntityInstances for video rendering)", ent->mID.c_str(), scene->mID.c_str());
-		}
+		//assert(scene != nullptr);
 
-		// canvas pass shader declarations handling
-		for (EntityInstance* entity : scene->getEntities()) {
-			std::vector<CanvasPassComponentInstance*> canvas_passes;
-			entity->getComponentsOfType(canvas_passes);
-			for (CanvasPassComponentInstance* canvasPass : canvas_passes) {
-				for (auto samplerDeclaration : canvasPass->mPassShader->getSamplerDeclarations()) {
-					nap::Logger::info("Setting up sampler declaration %s", samplerDeclaration.mName);
-					std::string key = samplerDeclaration.mName;
-					// sampler declaration relating to image found (starts with "i_")
-					if (key.find("i_") == 0) {
-						std::string keyStripped = key.substr(2, key.length());
-						nap::Logger::info("%s: creating sampler for image resource %s", entity->mID.c_str(), key);
-						canvasPass->mSamplers[key] = canvasPass->ensureSampler(key, errorState);
-						auto image = getCore().getResourceManager()->findObject(keyStripped);
-						if (image != nullptr) 
-						{
-							if (image.getWrappedType() == rtti::TypeInfo::get<ImageFromFile>()) 
-							{
-								ResourcePtr<ImageFromFile> imageResource = getCore().getResourceManager()->findObject<ImageFromFile>(keyStripped);
-								if (imageResource != nullptr) 
-								{
-									nap::Logger::info("Setting texture of sampler to image %s", keyStripped.c_str());
-									canvasPass->mSamplers[key]->setTexture(*imageResource.get());
-								}
-							}
-							else 
-							{
-								nap::Logger::error("%s: sampler relating to image exists with same name as resource in scene that is not of type <ImageFromFile>, therefore not binding %s", canvasPass->mID.c_str(), key);
-								canvasPass->mShaderDeclarationSetupErrors[key].emplace_back(canvasPass->mID + ": image sampler declaration links to resource which is not of type <ImageFromFile>");
-							}
-						}
-						else 
-						{
-							nap::Logger::error("%s: sampler declaration links to resource which does not exist with name %s", canvasPass->mID.c_str(), keyStripped);
-							canvasPass->mShaderDeclarationSetupErrors[key].emplace_back(canvasPass->mID + ": image sampler declaration links to resource which does not exist ("+keyStripped+")");
-						}
-					}
-					// sampler declaration relating to video player found (starts with "v_")
-					else if (key.find("v_") == 0) {
-						std::string keyStripped = key.substr(2, key.length());
-						nap::Logger::info("%s: creating sampler for video player resource %s", entity->mID.c_str(), key);
-						canvasPass->mSamplers[key] = canvasPass->ensureSampler(key, errorState);
-						auto videoPlayer = getCore().getResourceManager()->findObject(keyStripped);
-						if (videoPlayer != nullptr)
-						{
-							if (videoPlayer.getWrappedType() == rtti::TypeInfo::get<VideoPlayer>())
-							{
-								ResourcePtr<VideoPlayer> videoPlayerResource = getCore().getResourceManager()->findObject<VideoPlayer>(key);
-								if (videoPlayerResource != nullptr)
-								{
-									canvasPass->mSamplers[key]->setTexture(mRenderVideoComponentsMap[videoPlayerResource]->getOutputTexture());
-								}
-							}
-							else
-							{
-								nap::Logger::error("%s: sampler relating to video player exists with same name as resource in scene that is not of type <VideoPlayer>, therefore not binding %s", canvasPass->mID.c_str(), key);
-								canvasPass->mShaderDeclarationSetupErrors[key].emplace_back(canvasPass->mID + ": video player sampler declaration links to resource which is not of type <VideoPlayer>");
-							}
-						}
-						else
-						{
-							nap::Logger::error("%s: sampler declaration links to resource which does not exist with name %s", canvasPass->mID.c_str(), keyStripped);
-							canvasPass->mShaderDeclarationSetupErrors[key].emplace_back(canvasPass->mID + ": video player sampler declaration links to resource which does not exist (" + keyStripped + ")");
-						}
-					}
-				}
-			}
-		}
 		
+		setupVideoRendering(errorState);
+		setupCanvasShaderUniformsAndSamplers(scene, errorState);
 
 	}
 
@@ -280,6 +126,7 @@ namespace nap
 	void FoglioService::updateVideosGUI(nap::utility::ErrorState errorState) {
 		std::vector<RenderVideoComponentInstance*> renderVideoComponents;
 		if (mVideoRenderEntityInstance != nullptr) {
+			ImGui::Text("FoglioService: videoRenderEntityInstance present");
 			mVideoRenderEntityInstance->getComponentsOfType(renderVideoComponents);
 		}
 		else {
@@ -334,6 +181,188 @@ namespace nap
 		
 	}
 
+	void FoglioService::setupVideoRendering(nap::utility::ErrorState errorState) {
+		//handle the case that an entity defined by user in object.json with same name as automatically created entity exists
+		int addedIdIfExisting = 0;
+		while (getCore().getResourceManager()->findObject("videoRenderEntity" + addedIdIfExisting) != nullptr) {
+			addedIdIfExisting++;
+		}
+
+		std::unique_ptr<Entity> videoRenderEntity = std::make_unique<Entity>();
+		videoRenderEntity->mID = "videoRenderEntity" + std::to_string(addedIdIfExisting);
+		//create a VideoRenderComponent for every VideoPlayer found by the ResourceManger and add it to our videoRenderEntity
+		std::vector<ResourcePtr<VideoPlayer>> videoPlayers = getCore().getResourceManager()->getObjects<VideoPlayer>();
+		for (auto videoPlayer : videoPlayers) {
+			auto renderVideoComponentResource = getCore().getResourceManager()->createObject<RenderVideoComponent>();
+			//TODO: handle case in which user has defined components with same name
+			renderVideoComponentResource->mID = "foglio_renderVideoComponent" + videoPlayer->mID;
+			nap::Logger::info("FoglioService : creating renderVideoComponent for video player %s", videoPlayer->mID.c_str());
+			renderVideoComponentResource->mVideoPlayer = videoPlayer;
+			auto texture = getCore().getResourceManager()->createObject<RenderTexture2D>();
+			texture->mWidth = videoPlayer->getWidth();
+			texture->mHeight = videoPlayer->getHeight();
+			texture->mFormat = RenderTexture2D::EFormat::RGBA8;
+			if (!texture->init(errorState))
+				nap::Logger::error("FoglioService: could not init texture for video rendering");
+			renderVideoComponentResource->mOutputTexture = texture;
+			videoRenderEntity->mComponents.emplace_back(renderVideoComponentResource);
+		}
+		//spawn the entity holding all the video render components
+		mVideoRenderSpawnedEntityInstance = std::make_unique<SpawnedEntityInstance>(mDynamicScene->spawn(*videoRenderEntity, errorState));
+		mVideoRenderEntityInstance = mVideoRenderSpawnedEntityInstance->get();
+		nap::Logger::info("FoglioService: videoRenderEntityInstance spawned %s", mVideoRenderEntityInstance->mID.c_str());
+
+		//assign values in mRenderVideoComponentsMap for later access of components
+		std::vector<RenderVideoComponentInstance*> videoCmps;
+		mVideoRenderEntityInstance->getComponentsOfType(videoCmps);
+		mRenderVideoComponentsMap.clear();
+		for (auto cmp : videoCmps) {
+			nap::Logger::info("Component existing on dynamically created video render entity: %s", cmp->mID.c_str());
+			mRenderVideoComponentsMap[cmp->getComponent<RenderVideoComponent>()->mVideoPlayer] = cmp;
+		}
+	}
+
+	void FoglioService::setupCanvasShaderUniformsAndSamplers(Scene* scene, nap::utility::ErrorState errorState) {
+		// canvas pass shader declarations handling
+		for (EntityInstance* entity : scene->getEntities()) {
+			std::vector<CanvasPassComponentInstance*> canvas_passes;
+			entity->getComponentsOfType(canvas_passes);
+			for (CanvasPassComponentInstance* canvasPass : canvas_passes) {
+				for (auto samplerDeclaration : canvasPass->mPassShader->getSamplerDeclarations()) {
+					nap::Logger::info("Setting up sampler declaration %s", samplerDeclaration.mName);
+					std::string key = samplerDeclaration.mName;
+					// sampler declaration relating to image found (starts with "i_")
+					if (key.find("i_") == 0) {
+						std::string keyStripped = key.substr(2, key.length());
+						nap::Logger::info("%s: creating sampler for image resource %s", entity->mID.c_str(), key);
+						canvasPass->mSamplers[key] = canvasPass->ensureSampler(key, errorState);
+						auto image = getCore().getResourceManager()->findObject(keyStripped);
+						if (image != nullptr)
+						{
+							if (image.getWrappedType() == rtti::TypeInfo::get<ImageFromFile>())
+							{
+								ResourcePtr<ImageFromFile> imageResource = getCore().getResourceManager()->findObject<ImageFromFile>(keyStripped);
+								if (imageResource != nullptr)
+								{
+									nap::Logger::info("Setting texture of sampler to image %s", keyStripped.c_str());
+									canvasPass->mSamplers[key]->setTexture(*imageResource.get());
+								}
+							}
+							else
+							{
+								nap::Logger::error("%s: sampler relating to image exists with same name as resource in scene that is not of type <ImageFromFile>, therefore not binding %s", canvasPass->mID.c_str(), key);
+								canvasPass->mShaderDeclarationSetupErrors[key].emplace_back(canvasPass->mID + ": image sampler declaration links to resource which is not of type <ImageFromFile>");
+							}
+						}
+						else
+						{
+							nap::Logger::error("%s: sampler declaration links to resource which does not exist with name %s", canvasPass->mID.c_str(), keyStripped);
+							canvasPass->mShaderDeclarationSetupErrors[key].emplace_back(canvasPass->mID + ": image sampler declaration links to resource which does not exist (" + keyStripped + ")");
+						}
+					}
+					// sampler declaration relating to video player found (starts with "v_")
+					else if (key.find("v_") == 0) {
+						std::string keyStripped = key.substr(2, key.length());
+						nap::Logger::info("%s: creating sampler for video player resource %s", entity->mID.c_str(), key);
+						canvasPass->mSamplers[key] = canvasPass->ensureSampler(key, errorState);
+						auto videoPlayer = getCore().getResourceManager()->findObject(keyStripped);
+						if (videoPlayer != nullptr)
+						{
+							if (videoPlayer.getWrappedType() == rtti::TypeInfo::get<VideoPlayer>())
+							{
+								ResourcePtr<VideoPlayer> videoPlayerResource = getCore().getResourceManager()->findObject<VideoPlayer>(key);
+								if (videoPlayerResource != nullptr)
+								{
+									canvasPass->mSamplers[key]->setTexture(mRenderVideoComponentsMap[videoPlayerResource]->getOutputTexture());
+								}
+							}
+							else
+							{
+								nap::Logger::error("%s: sampler relating to video player exists with same name as resource in scene that is not of type <VideoPlayer>, therefore not binding %s", canvasPass->mID.c_str(), key);
+								canvasPass->mShaderDeclarationSetupErrors[key].emplace_back(canvasPass->mID + ": video player sampler declaration links to resource which is not of type <VideoPlayer>");
+							}
+						}
+						else
+						{
+							nap::Logger::error("%s: sampler declaration links to resource which does not exist with name %s", canvasPass->mID.c_str(), keyStripped);
+							canvasPass->mShaderDeclarationSetupErrors[key].emplace_back(canvasPass->mID + ": video player sampler declaration links to resource which does not exist (" + keyStripped + ")");
+						}
+					}
+				}
+			}
+		}
+	}
+
+	void FoglioService::setupMIDI() {
+
+	}
+
+	void FoglioService::setupDrivers(nap::utility::ErrorState errorState) {
+		//check for dependencies in foglio drivers
+		auto drivers = getCore().getResourceManager()->getObjects<FoglioDriver>();
+		for (auto driver : drivers) {
+			if (driver->mMidiRelations.size() > 0) {
+				//MIDI INPUT
+				nap::utility::ErrorState errorState = nap::utility::ErrorState();
+				Scene* scene = *mSceneService->getScenes().begin();
+				Entity* midiInputEntity = new Entity();
+				int addedIdIfExisting = 0;
+				while (getCore().getResourceManager()->findObject("midiInputEntity" + addedIdIfExisting) != nullptr) {
+					addedIdIfExisting++;
+				}
+				midiInputEntity->mID = "midiInputEntity" + std::to_string(addedIdIfExisting);
+				MidiInputComponent* midiInputComponentResource = new MidiInputComponent();
+				midiInputComponentResource->mID = "foglio_midiInputComponent" + addedIdIfExisting;
+				nap::Logger::info("FoglioService : creating MidiInputComponent because driver with midi dependency is present");
+				midiInputEntity->mComponents.emplace_back(midiInputComponentResource);
+				mMidiInputEntityInstance = mDynamicScene->spawn(*midiInputEntity, errorState).get();
+				nap::Logger::info("FoglioService: midiInputEntityInstance spawned %s", mMidiInputEntityInstance->mID.c_str());
+				for (auto cmp : mMidiInputEntityInstance->getComponents()) {
+					nap::Logger::info("Component existing on dynamically created midi input entity: %s", cmp->mID.c_str());
+				}
+			}
+		}
+	}
+
+	void FoglioService::setupParametersGUI(nap::utility::ErrorState errorState) {
+		//put parameters that do not belong to a ParameterGroup into general group so they can be displayed using ParameterGui::show
+		//also create ParameterGUI objects for every group
+		mNoGroupParametersGroup = std::make_unique<ParameterGroup>();
+		mNoGroupParametersGroup->mID = "foglioNoGroupParametersGroup";
+		auto parameters = getCore().getResourceManager()->getObjects<Parameter>();
+		auto parameterGroups = getCore().getResourceManager()->getObjects<ParameterGroup>();
+		for (auto parameter : parameters) {
+			bool found = false;
+			nap::Logger::info("FoglioService: checking parameter %s", parameter->mID.c_str());
+			for (auto group : parameterGroups) {
+				if (group->findObjectRecursive(parameter->mID) != nullptr) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				nap::Logger::info("FoglioService: No parameter group associated with parameter %s, adding it to dynamically created group for GUI", parameter->mID.c_str());
+				mNoGroupParametersGroup->mMembers.emplace_back(parameter);
+			}
+		}
+		if (!mNoGroupParametersGroup->init(errorState)) {
+			nap::Logger::error("Could not init mNoGroupParametersGroup");
+		}
+		mParameterGUIObjects.clear();
+		parameterGroups.emplace_back(mNoGroupParametersGroup.get());
+		for (auto group : parameterGroups) {
+			nap::Logger::info("creating parameter gui automatically for group %s", group->mID.c_str());
+			auto parameterGUI = getCore().getResourceManager()->createObject<ParameterGUI>();
+			parameterGUI->mParameterGroup = group;
+			parameterGUI->mID = "foglioAutomaticParameterGUI" + group->mID;
+			if (!parameterGUI->init(errorState)) {
+				nap::Logger::error("Init of parameterGUI failed %s", parameterGUI->mID.c_str());
+			}
+			mParameterGUIObjects.emplace_back(parameterGUI);
+		}
+	}
+	
+
 	void FoglioService::getDependentServices(std::vector<rtti::TypeInfo>& dependencies)
 	{
 		dependencies.emplace_back(RTTI_OF(VideoService));
@@ -345,5 +374,9 @@ namespace nap
 
 	void FoglioService::shutdown()
 	{
+		if (mDynamicScene) {
+			mDynamicScene->onDestroy();
+			mDynamicScene.reset();
+		}
 	}
 }

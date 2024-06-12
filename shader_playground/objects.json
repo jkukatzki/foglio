@@ -181,7 +181,8 @@
                     "Type": "nap::CanvasGroupComponent",
                     "mID": "CanvasGroup",
                     "SequencePlayerEditor": "SequenceEditor_77e81990",
-                    "SequencePlayerEditorGUI": "SequenceEditorGUI_5a62ec71"
+                    "SequencePlayerEditorGUI": "SequenceEditorGUI_5a62ec71",
+                    "Presentation Window": "MainWindow"
                 },
                 {
                     "Type": "nap::MidiInputComponent",
@@ -204,7 +205,7 @@
         },
         {
             "Type": "nap::MidiInputPort",
-            "mID": "MidiInputPort_9a782d30",
+            "mID": "MidiInputPort_4921583f",
             "Ports": [],
             "EnableDebugOutput": false
         },
@@ -279,7 +280,21 @@
                 },
                 {
                     "Entity": "VideoWallEntity",
-                    "InstanceProperties": []
+                    "InstanceProperties": [
+                        {
+                            "TargetComponent": "./CanvasGroup",
+                            "TargetAttributes": [
+                                {
+                                    "Path": "Presentation Window",
+                                    "Value": {
+                                        "Type": "nap::PointerInstancePropertyValue",
+                                        "mID": "override_39966bc4",
+                                        "Value": "MainWindow"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
                 },
                 {
                     "Entity": "OrthoCameraEntity",

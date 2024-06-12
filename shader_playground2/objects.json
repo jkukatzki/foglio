@@ -37,13 +37,6 @@
                     "Unique Shader Declaration Overrides": []
                 },
                 {
-                    "Type": "nap::CanvasPassComponent",
-                    "mID": "maskPassBackground",
-                    "Visible": true,
-                    "PassShader": "maskShader",
-                    "Unique Shader Declaration Overrides": []
-                },
-                {
                     "Type": "nap::TransformComponent",
                     "mID": "nap::TransformComponent_9ee176a2",
                     "Properties": {
@@ -64,6 +57,13 @@
                         },
                         "UniformScale": 1.0
                     }
+                },
+                {
+                    "Type": "nap::CanvasPassComponent",
+                    "mID": "nap::CanvasPassComponent_bf3c8623",
+                    "Visible": true,
+                    "PassShader": "maskShader",
+                    "Unique Shader Declaration Overrides": []
                 }
             ],
             "Children": []
@@ -389,20 +389,6 @@
                 "Type": "nap::SequencePlayerStandardClock",
                 "mID": "SequencePlayerStandardClock_7819b630"
             }
-        },
-        {
-            "Type": "nap::VideoPlayer",
-            "mID": "VideoPlayer_2c9b1c04",
-            "Loop": false,
-            "VideoFiles": [
-                {
-                    "Type": "nap::VideoFile",
-                    "mID": "VideoFile_e8f732f8",
-                    "Path": "videos/some_plane/horse.mp4"
-                }
-            ],
-            "VideoIndex": 0,
-            "Speed": 1.0
         }
     ]
 }
