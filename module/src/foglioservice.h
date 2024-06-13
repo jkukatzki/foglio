@@ -67,7 +67,7 @@ namespace nap
 
 		std::unique_ptr<ParameterGroup> mNoGroupParametersGroup = nullptr;
 		std::vector<ResourcePtr<ParameterGUI>> mParameterGUIObjects;
-		std::unique_ptr<Scene> mDynamicScene = std::unique_ptr<Scene>(nullptr);
+		std::unique_ptr<Scene> mInternalScene = std::unique_ptr<Scene>(nullptr);
 
 		void setupVideoRendering(nap::utility::ErrorState errorState);
 		void setupMIDI();

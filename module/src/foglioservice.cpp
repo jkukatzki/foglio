@@ -34,9 +34,9 @@ namespace nap
 		mRenderService = getCore().getService<RenderService>();
 		mGuiService = getCore().getService<IMGuiService>();
 		
-		mDynamicScene = std::make_unique<nap::Scene>(getCore());
-		mDynamicScene->mID = "dynamicScene";
-		if (!mDynamicScene->init(errorState))
+		mInternalScene = std::make_unique<nap::Scene>(getCore());
+		mInternalScene->mID = "dynamicScene";
+		if (!mInternalScene->init(errorState))
 			return false;
 		
 		return true;
@@ -82,7 +82,7 @@ namespace nap
 		mParameterGUIObjects.clear();
 		mRenderVideoComponentsMap.clear();
 		if (mVideoRenderSpawnedEntityInstance != nullptr) {
-			mDynamicScene->destroy(*mVideoRenderSpawnedEntityInstance);
+			mInternalScene->destroy(*mVideoRenderSpawnedEntityInstance);
 		}
 		
 	}
@@ -103,9 +103,7 @@ namespace nap
 			nap::Logger::info("FoglioService: Inspecting scene %s", oneOfTheScenes->mID.c_str());
 			scene = oneOfTheScenes;
 		}
-		//assert(scene != nullptr);
-
-		
+		assert(scene != nullptr);
 		setupVideoRendering(errorState);
 		setupCanvasShaderUniformsAndSamplers(scene, errorState);
 
@@ -187,8 +185,7 @@ namespace nap
 		while (getCore().getResourceManager()->findObject("videoRenderEntity" + addedIdIfExisting) != nullptr) {
 			addedIdIfExisting++;
 		}
-
-		std::unique_ptr<Entity> videoRenderEntity = std::make_unique<Entity>();
+		ResourcePtr<Entity> videoRenderEntity = getCore().getResourceManager()->createObject<Entity>();
 		videoRenderEntity->mID = "videoRenderEntity" + std::to_string(addedIdIfExisting);
 		//create a VideoRenderComponent for every VideoPlayer found by the ResourceManger and add it to our videoRenderEntity
 		std::vector<ResourcePtr<VideoPlayer>> videoPlayers = getCore().getResourceManager()->getObjects<VideoPlayer>();
@@ -208,7 +205,7 @@ namespace nap
 			videoRenderEntity->mComponents.emplace_back(renderVideoComponentResource);
 		}
 		//spawn the entity holding all the video render components
-		mVideoRenderSpawnedEntityInstance = std::make_unique<SpawnedEntityInstance>(mDynamicScene->spawn(*videoRenderEntity, errorState));
+		mVideoRenderSpawnedEntityInstance = std::make_unique<SpawnedEntityInstance>(mInternalScene->spawn(*videoRenderEntity, errorState));
 		mVideoRenderEntityInstance = mVideoRenderSpawnedEntityInstance->get();
 		nap::Logger::info("FoglioService: videoRenderEntityInstance spawned %s", mVideoRenderEntityInstance->mID.c_str());
 
@@ -315,7 +312,7 @@ namespace nap
 				midiInputComponentResource->mID = "foglio_midiInputComponent" + addedIdIfExisting;
 				nap::Logger::info("FoglioService : creating MidiInputComponent because driver with midi dependency is present");
 				midiInputEntity->mComponents.emplace_back(midiInputComponentResource);
-				mMidiInputEntityInstance = mDynamicScene->spawn(*midiInputEntity, errorState).get();
+				mMidiInputEntityInstance = mInternalScene->spawn(*midiInputEntity, errorState).get();
 				nap::Logger::info("FoglioService: midiInputEntityInstance spawned %s", mMidiInputEntityInstance->mID.c_str());
 				for (auto cmp : mMidiInputEntityInstance->getComponents()) {
 					nap::Logger::info("Component existing on dynamically created midi input entity: %s", cmp->mID.c_str());
@@ -374,9 +371,9 @@ namespace nap
 
 	void FoglioService::shutdown()
 	{
-		if (mDynamicScene) {
-			mDynamicScene->onDestroy();
-			mDynamicScene.reset();
+		if (mInternalScene) {
+			mInternalScene->onDestroy();
+			mInternalScene.reset();
 		}
 	}
 }
