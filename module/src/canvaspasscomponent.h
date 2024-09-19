@@ -41,7 +41,7 @@ namespace nap
 
 		bool initPassTargetAndTexture(ResourcePtr<RenderTarget> canvasRenderTarget, ResourcePtr<RenderTexture2D> canvasTexture, utility::ErrorState& errorState);
 
-		ResourcePtr<RenderTexture2D> getOutputTexture();
+		RenderTexture2D* getOutputTexture();
 
 		bool constructMaterial(utility::ErrorState& errorState);
 
@@ -63,6 +63,7 @@ namespace nap
 
 		std::vector<ResourcePtr<VideoPlayer>>	mVideoPlayers;
 		std::vector<ResourcePtr<ImageFromFile>>	mImages;
+		RenderTexture2D* mFinalTexture;
 
 	protected:
 
@@ -90,7 +91,7 @@ namespace nap
 		ResourcePtr<RenderTarget>		mCurrentInternalRT;
 		
 		ResourcePtr<RenderTarget>		mFinalRenderTarget;
-		ResourcePtr<RenderTexture2D>	mFinalTexture;
+		
 
 		ResourceManager* mResourceManager;
 		std::vector<ResourcePtr<VideoPlayer>> mVideoResources;

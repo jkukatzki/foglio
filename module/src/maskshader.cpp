@@ -55,6 +55,6 @@ namespace nap
 			return false;
 
 		//Compile shader
-		return this->load(shader::mask, vert_source.data(), vert_source.size(), frag_source.data(), frag_source.size(), errorState);
+		return this->load(shader::mask, {}, vert_source.data(), vert_source.size(), frag_source.data(), frag_source.size(), errorState);
 	}
 }

@@ -142,6 +142,8 @@ namespace nap
 			getEntityInstance()->getComponentsOfType<CanvasPassComponentInstance>(mCanvasPassComponents);
 			for (int i = 0; i < mCanvasPassComponents.size(); i++) {
 				auto passComponent = mCanvasPassComponents[i];
+				int width = mFinalTexture->getWidth();
+				int height = mFinalTexture->getHeight();
 				passComponent->initPassTargetAndTexture(mFinalRenderTarget, mFinalTexture, errorState);
 				if (i > 0) {
 					// set pass component in texture to that of previous one in queue // extend this when implementing muting of passes / transparencies ?
@@ -528,7 +530,7 @@ namespace nap
 		
 		texture->mWidth = width;
 		texture->mHeight = height;
-		texture->mFormat = RenderTexture2D::EFormat::RGBA8;
+		texture->mColorFormat = RenderTexture2D::EFormat::RGBA8;
 		if (!texture->init(errorState))
 			return false;
 		if (transparent) {

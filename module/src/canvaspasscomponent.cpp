@@ -33,7 +33,7 @@ namespace nap
 	{ }
 
 
-	ResourcePtr<RenderTexture2D> CanvasPassComponentInstance::getOutputTexture()
+	RenderTexture2D* CanvasPassComponentInstance::getOutputTexture()
 	{
 		return mFinalTexture;
 	}
@@ -158,7 +158,7 @@ namespace nap
 	bool CanvasPassComponentInstance::constructTextureAndRenderTarget(ResourcePtr<RenderTarget>& referenceTarget, ResourcePtr<RenderTexture2D>& referenceTexture, bool transparent, utility::ErrorState& errorState) {
 		mFinalTexture->mWidth = referenceTexture->mWidth;
 		mFinalTexture->mHeight = referenceTexture->mHeight;
-		mFinalTexture->mFormat = RenderTexture2D::EFormat::RGBA8;
+		mFinalTexture->mColorFormat = RenderTexture2D::EFormat::RGBA8;
 		if (!mFinalTexture->init(errorState))
 			return false;
 		if (transparent) {

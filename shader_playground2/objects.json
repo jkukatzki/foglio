@@ -8,6 +8,8 @@
                     "Type": "nap::RenderCanvasComponent",
                     "mID": "nap::RenderCanvasComponent_4b0af2f5",
                     "Visible": true,
+                    "Tags": [],
+                    "Layer": "",
                     "Aspect Ratio": 1.7699999809265137,
                     "Resolution": 100,
                     "CornerOffsets": [
@@ -33,7 +35,17 @@
                     "Type": "nap::CanvasPassComponent",
                     "mID": "nap::CanvasPassComponent_0c9b6bff",
                     "Visible": true,
+                    "Tags": [],
+                    "Layer": "",
                     "PassShader": "SDF1"
+                },
+                {
+                    "Type": "nap::CanvasPassComponent",
+                    "mID": "CanvasPassComponent",
+                    "Visible": true,
+                    "Tags": [],
+                    "Layer": "",
+                    "PassShader": "PassTest1"
                 },
                 {
                     "Type": "nap::TransformComponent",
@@ -109,13 +121,13 @@
                     "MovementSpeed": 0.5,
                     "RotateSpeed": 0.004999999888241291,
                     "PerspCameraComponent": "./PerspectiveCamera",
+                    "LimitZoomDistance": false,
+                    "MinimumZoomDistance": 0.5,
                     "LookAtPosition": {
                         "x": 0.0,
                         "y": 0.0,
                         "z": 0.0
-                    },
-                    "MinimumZoomDistance": 0.5,
-                    "LimitZoomDistance": false
+                    }
                 },
                 {
                     "Type": "nap::PointerInputComponent",
@@ -248,7 +260,15 @@
                     "Type": "nap::ShaderFromFile",
                     "mID": "SDF1",
                     "VertShader": "shaders/mandelbulb.vert",
-                    "FragShader": "shaders/mandelbulb.frag"
+                    "FragShader": "shaders/mandelbulb.frag",
+                    "RestrictModuleIncludes": false
+                },
+                {
+                    "Type": "nap::ShaderFromFile",
+                    "mID": "PassTest1",
+                    "VertShader": "shaders/passtest1.vert",
+                    "FragShader": "shaders/passtest1.frag",
+                    "RestrictModuleIncludes": false
                 }
             ],
             "Children": []

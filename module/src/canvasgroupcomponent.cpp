@@ -245,8 +245,8 @@ namespace nap
 		ResourcePtr<RenderTexture2D> outputTexRef = mSelectedCanvas->getComponent<RenderCanvasComponentInstance>().getFinalOutputTexture();
 		mSelectedOverlayTexture->mWidth = outputTexRef->mWidth;
 		mSelectedOverlayTexture->mHeight = outputTexRef->mHeight;
-		mSelectedOverlayTexture->mFormat = outputTexRef->mFormat;
-		mSelectedOverlayTexture->mUsage = ETextureUsage::Static;
+		mSelectedOverlayTexture->mColorFormat = outputTexRef->mColorFormat;
+		mSelectedOverlayTexture->mUsage = nap::Texture::EUsage::Static;
 		nap::utility::ErrorState error;
 		if (!mSelectedOverlayTexture->init(error))
 		{
@@ -375,7 +375,7 @@ namespace nap
 		ResourcePtr<RenderTexture2D> canvas_tex = canvas_comp.getFinalOutputTexture();
 		float col_width = ImGui::GetContentRegionAvailWidth();
 		float ratio_canvas_tex = static_cast<float>(canvas_tex->getWidth()) / static_cast<float>(canvas_tex->getHeight());
-		if (ImGui::CollapsingHeader("Preview", ImGuiTreeNodeFlags_None))
+		if (ImGui::CollapsingHeader("Preview##final", ImGuiTreeNodeFlags_None))
 		{
 			ImGui::Image(*canvas_tex.get(), {col_width , col_width / ratio_canvas_tex});
 		}
@@ -468,9 +468,9 @@ namespace nap
 				}
 			}
 			ImGui::Text("%s: Overview", mSelectedCanvasPass->mID.c_str());
-			if (ImGui::CollapsingHeader("Preview", ImGuiTreeNodeFlags_None))
+			if (ImGui::CollapsingHeader("Preview##pass", ImGuiTreeNodeFlags_None))
 			{
-				ImGui::Image(*mSelectedCanvasPass->getOutputTexture().get(), { col_width , col_width / ratio_canvas_tex });
+				ImGui::Image(*mSelectedCanvasPass->mFinalTexture, { col_width , col_width / ratio_canvas_tex });
 			}
 		}
 		else {
