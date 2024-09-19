@@ -1,10 +1,8 @@
 ﻿
 #include "canvasgroupcomponent.h"
-#include "rendercanvascomponent.h"
 #include "canvaspasscomponent.h"
 #include "inputcomponent.h"
 
-#include <sequencecanvascomponent.h>
 #include <midiinputcomponent.h>
 #include <entity.h>
 #include <nap/core.h>
@@ -220,12 +218,12 @@ namespace nap
 	}
 
 	void CanvasGroupComponentInstance::setSequencePlayer() {
-		if (mSelectedCanvas->hasComponent<SequenceCanvasComponent>()) {
+		/*if (mSelectedCanvas->hasComponent<SequenceCanvasComponent>()) {
 			mSequenceEditor->mSequencePlayer = mSelectedCanvas->getComponent<SequenceCanvasComponentInstance>().mSequencePlayer;
 			nap::utility::ErrorState error;
 			mSequenceEditor->init(error);
 			mSequenceEditorGUI->init(error);
-		}
+		}*/
 	}
 
 	void CanvasGroupComponentInstance::setSelectedTextureControlOverlay(bool isControlWindowDraw) {
@@ -478,7 +476,7 @@ namespace nap
 		}
 		
 		
-		if (mSelectedCanvas->hasComponent<SequenceCanvasComponentInstance>()) {
+		/*if (mSelectedCanvas->hasComponent<SequenceCanvasComponentInstance>()) {
 			SequenceCanvasComponentInstance& seq_canvas_comp = mSelectedCanvas->getComponent<SequenceCanvasComponentInstance>();
 			ResourcePtr<SequencePlayer> seq_player = seq_canvas_comp.getSequencePlayer();
 			ImGui::Text("Sequence %s", seq_player->getSequenceFilename());
@@ -489,7 +487,7 @@ namespace nap
 				nap::Logger::info("set playback speed for sequence");
 				seq_player->setPlaybackSpeed(playbackSpeed);
 			}
-		}
+		}*/
 		/***
 		if (canvas_comp.mCustomPostPass != nullptr) {
 			UniformStructInstance* ubo = canvas_comp.mCustomPostPass->mUBO;

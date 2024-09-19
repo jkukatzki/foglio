@@ -3,15 +3,26 @@
 // External Includes
 #include <nap/service.h>
 #include <nap/signalslot.h>
+#include <videoservice.h>
+#include <sceneservice.h>
+#include <renderservice.h>
+#include <imguiservice.h>
+#include <rendervideocomponent.h>
+
+#include "fogliocomponent.h"
+#include <rtti/objectptr.h>
+#include <scene.h>
+#include <parametergui.h>
 
 namespace nap
 {
 	class NAPAPI FoglioService : public Service
 	{
+		friend class FoglioComponentInstance;
 		RTTI_ENABLE(Service)
 	public:
 		// Default Constructor
-		FoglioService(ServiceConfiguration* configuration) : Service(configuration)	{ }
+		FoglioService(ServiceConfiguration* configuration);
 
 		/**
 		 * Use this call to register service dependencies
@@ -43,16 +54,44 @@ namespace nap
 		 */
 		virtual void shutdown() override;
 
-		/**
-		 * Signal that is emitted when a file reload occurs
-		 */
-		nap::Signal<> fileLoaded;
+		//void renderRequiredVideos();
+		//void updateVideosGUI(nap::utility::ErrorState errorState);
+		std::unique_ptr<Scene> mInternalScene = nullptr;
+		void destroy(SpawnedEntityInstance& entity);
+
+	protected:
+		SpawnedEntityInstance spawn(nap::Entity& entity, nap::utility::ErrorState& error);
+
+	private:
+		ResourcePtr<Entity> mVideoRenderEntity;
+		//rtti::ObjectPtr<EntityInstance> mVideoRenderEntityInstance = nullptr;
+		SpawnedEntityInstance mVideoRenderSpawnedEntityInstance;
+		std::map<ResourcePtr<VideoPlayer>, RenderVideoComponentInstance*> mRenderVideoComponentsMap;
+		rtti::ObjectPtr<EntityInstance> mMidiInputEntityInstance = nullptr;
+
+		SceneService* mSceneService = nullptr;
+		RenderService* mRenderService = nullptr;
+		IMGuiService* mGuiService = nullptr;
+
+		std::unique_ptr<ParameterGroup> mNoGroupParametersGroup = nullptr;
+		std::vector<ResourcePtr<ParameterGUI>> mParameterGUIObjects;
+
+		
+
+		//void setupVideoRendering(nap::utility::ErrorState errorState);
+		void setupMIDI();
+		//void setupCanvasShaderUniformsAndSamplers(Scene* scene, nap::utility::ErrorState errorState);
+		//void setupDrivers(nap::utility::ErrorState errorState);
+
+		void setupParametersGUI(nap::utility::ErrorState errorState);
+		
+
 
 	protected:
 		/**
 		 * Called when a json file has been (re)loaded. Used to re-apply the presets.
 		 */
-		virtual void postResourcesLoaded() override;
-
+		virtual void postUpdate(double deltaTime);
+	
 	};
 }

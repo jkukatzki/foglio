@@ -138,6 +138,23 @@
         },
         {
             "Type": "nap::Entity",
+            "mID": "Foglio",
+            "Components": [
+                {
+                    "Type": "nap::FoglioComponent",
+                    "mID": "FoglioComponent",
+                    "VideoPlayers": [
+                        "VideoPlayer"
+                    ],
+                    "Images": []
+                }
+            ],
+            "Children": [
+                "VideoWallEntity"
+            ]
+        },
+        {
+            "Type": "nap::Entity",
             "mID": "OrthoCameraEntity",
             "Components": [
                 {
@@ -198,6 +215,20 @@
                     "SequencePlayerEditor": "SequenceEditor_77e81990",
                     "SequencePlayerEditorGUI": "SequenceEditorGUI_5a62ec71",
                     "Presentation Window": "MainWindow"
+                },
+                {
+                    "Type": "nap::MidiInputComponent",
+                    "mID": "MidiInputComponent",
+                    "Ports": [],
+                    "Channels": [],
+                    "Numbers": [],
+                    "NoteOn": true,
+                    "NoteOff": true,
+                    "Aftertouch": true,
+                    "ControlChange": true,
+                    "ProgramChange": true,
+                    "ChannelPressure": true,
+                    "PitchBend": true
                 }
             ],
             "Children": [
@@ -282,10 +313,6 @@
                     "InstanceProperties": []
                 },
                 {
-                    "Entity": "VideoWallEntity",
-                    "InstanceProperties": []
-                },
-                {
                     "Entity": "OrthoCameraEntity",
                     "InstanceProperties": [
                         {
@@ -315,6 +342,10 @@
                             ]
                         }
                     ]
+                },
+                {
+                    "Entity": "Foglio",
+                    "InstanceProperties": []
                 }
             ]
         },
@@ -340,6 +371,20 @@
                 "Type": "nap::SequencePlayerStandardClock",
                 "mID": "SequencePlayerStandardClock_7819b630"
             }
+        },
+        {
+            "Type": "nap::VideoPlayer",
+            "mID": "VideoPlayer",
+            "Loop": false,
+            "VideoFiles": [
+                {
+                    "Type": "nap::VideoFile",
+                    "mID": "VideoFile",
+                    "Path": "videos/background/people.mp4"
+                }
+            ],
+            "VideoIndex": 0,
+            "Speed": 1.0
         }
     ]
 }

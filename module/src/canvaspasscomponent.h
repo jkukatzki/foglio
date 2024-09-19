@@ -64,6 +64,11 @@ namespace nap
 		std::vector<ResourcePtr<VideoPlayer>>	mVideoPlayers;
 		std::vector<ResourcePtr<ImageFromFile>>	mImages;
 		RenderTexture2D* mFinalTexture;
+		ResourcePtr<ShaderFromFile> mPassShader = nullptr;
+		std::map<std::string, Sampler2DInstance*>	mSamplers;
+		MaterialInstance* mMaterialInstance = nullptr;
+
+		std::unordered_map<std::string, std::vector<std::string>> mShaderDeclarationSetupErrors;
 
 	protected:
 
@@ -75,13 +80,13 @@ namespace nap
 		ResourcePtr<Material>						mMaterial = nullptr;
 		std::unique_ptr<MaterialInstanceResource>	mMaterialInstResource = nullptr;
 
-		MaterialInstance* mMaterialInstance = nullptr;
-		ResourcePtr<ShaderFromFile> mPassShader = nullptr;
+		
+		
 		UniformStructInstance* mMVPStruct = nullptr;
 		UniformMat4Instance* mModelMatrixUniform = nullptr;
 		UniformMat4Instance* mProjectMatrixUniform = nullptr;
 		UniformMat4Instance* mViewMatrixUniform = nullptr;
-		std::map<std::string, Sampler2DInstance*>	mSamplers;
+		
 
 		UniformStructInstance* mUBO = nullptr;
 

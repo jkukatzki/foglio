@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fogliocomponent.h>
 
 // Core includes
 #include <nap/resourcemanager.h>
@@ -100,7 +101,8 @@ namespace nap
 		ObjectPtr<EntityInstance>	mOrthoCameraEntity = nullptr;
 		ObjectPtr<EntityInstance>	mGnomonEntity = nullptr;		///< Pointer to the entity that can render the gnomon
 		ObjectPtr<EntityInstance>	mVideoWallEntity = nullptr;
-		
+		FoglioComponentInstance* mFoglioComponent = nullptr;
+
 		bool						mFullscreen = false;
 		/**
 		 * Sets up the GUI every frame

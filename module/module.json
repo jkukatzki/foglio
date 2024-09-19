@@ -7,6 +7,7 @@
         "napsequencegui",
         "napscene",
         "napparameter",
+        "napparametergui",
         "napimgui",
         "napvideo",
         "napmidi"

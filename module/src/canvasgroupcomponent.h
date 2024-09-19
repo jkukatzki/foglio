@@ -85,7 +85,7 @@ namespace nap
 		RenderService* mRenderService = nullptr;
 		ResourcePtr<SequenceEditorGUI>				mSequenceEditorGUI = nullptr;
 		ResourcePtr<SequenceEditor>					mSequenceEditor = nullptr;
-		std::vector<RenderCanvasComponentInstance*> mCanvases;
+		//std::vector<RenderCanvasComponentInstance*> mCanvases = {};
 		EntityInstance*								mSelectedCanvas = nullptr;
 		CanvasPassComponentInstance*				mSelectedCanvasPass = nullptr;
 		std::unique_ptr<MidiData>					mMidiData = nullptr;

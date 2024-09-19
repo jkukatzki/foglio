@@ -32,7 +32,7 @@ namespace nap
 	 */
 	bool foglioApp::init(utility::ErrorState& error)
 	{
-		// Retrieve services
+		// Retrieve servicesmFoglioComponent->renderVideos();
 		mRenderService = getCore().getService<nap::RenderService>();
 		mSceneService = getCore().getService<nap::SceneService>();
 		mInputService = getCore().getService<nap::InputService>();
@@ -69,6 +69,12 @@ namespace nap
 			return false;
 		if (mVideoWallEntity->hasComponent<CanvasGroupComponentInstance>()) {
 			mPresentationWindow = mVideoWallEntity->findComponent<CanvasGroupComponentInstance>()->getPresentationWindow();
+		}
+		auto foglioEntity = mScene->findEntity("Foglio");
+		if (!error.check(foglioEntity != nullptr, "unable to find foglio entity with name: %s", "Foglio"))
+			return false;
+		if (foglioEntity->hasComponent<FoglioComponentInstance>()) {
+			mFoglioComponent = foglioEntity->findComponent<FoglioComponentInstance>();
 		}
 		else {
 			nap::Logger::error("No canvas group component");
@@ -124,6 +130,7 @@ namespace nap
 		// Start recording into the headless recording buffer.
 		if (mRenderService->beginHeadlessRecording())
 		{
+			mFoglioComponent->renderVideos();
 			canvasGroupComponent->drawAllHeadless();
 			canvasGroupComponent->drawSelectedInterface();
 			mRenderService->endHeadlessRecording();
@@ -330,7 +337,7 @@ namespace nap
 		ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0, ImGui::GetIO().DisplaySize.y));
 		mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawMidiInformation();
 		
-		mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawSequenceEditor();
+		mFoglioComponent->drawVideosGUI();
 	}
 
 	void foglioApp::toggleFullscreen() {
