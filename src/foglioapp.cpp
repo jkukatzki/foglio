@@ -13,10 +13,12 @@
 #include <perspcameracomponent.h>
 #include <orthocameracomponent.h>
 #include <imguiutils.h>
-
+#include <fftaudionodecomponent.h>
 #include <sequenceplayereventoutput.h>
 #include <sequenceevent.h>
 #include <midiinputcomponent.h>
+#include <cmath>
+
 
 
 
@@ -24,8 +26,13 @@ RTTI_BEGIN_CLASS_NO_DEFAULT_CONSTRUCTOR(nap::foglioApp)
 	RTTI_CONSTRUCTOR(nap::Core&)
 RTTI_END_CLASS
 
+static constexpr double plotDelta = 1.0 / 60.0;
+
 namespace nap 
 {
+	float lerp(float start, float end, float t) {
+		return start + t * (end - start);
+	}
 	/**
 	 * Initialize all the resources and instances used for drawing
 	 * slowly migrating all functionality to NAP
@@ -73,6 +80,13 @@ namespace nap
 		else {
 			nap::Logger::error("No canvas group component");
 		}
+		mAudioEntity = mScene->findEntity("AudioEntity");
+		if (!error.check(mAudioEntity != nullptr, "unable to find audio entity with name: %s", "AudioEntity"))
+			return false;
+		if (mAudioEntity->hasComponent<FFTAudioNodeComponentInstance>()) {
+			fft_comp = &mAudioEntity->getComponent<FFTAudioNodeComponentInstance>();
+		}
+		
 		//set second monitor as main display
 		DisplayList displays = mRenderService->getDisplays();
 		if (displays.size() < 2) {
@@ -101,6 +115,80 @@ namespace nap
 		updateGUI();
 		CanvasGroupComponentInstance* canvasGroupComponent = &mVideoWallEntity->getComponent<CanvasGroupComponentInstance>();
 		canvasGroupComponent->handleTimeDependentAction(deltaTime);
+		const auto& amps = fft_comp->getFFTBuffer().getAmplitudeSpectrum();
+		//smooth amps
+
+		
+
+		if (smoothedAmps.size() != amps.size()) {
+			smoothedAmps.resize(amps.size());
+		}
+		for (int i = 0; i < amps.size(); i++) {
+			smoothedAmps[i] = 0.0f;
+			for (int j = -2; j < 3; j++) {
+				if (i + j >= 0 && i + j < amps.size()) {
+					smoothedAmps[i] += amps[i + j] / 5.0f;
+				}
+			}
+		}
+		if (smoothedAmps.size() != amps.size()) {
+			smoothedAmps.resize(amps.size());
+			smoothedAmps.assign(amps.size(), 0.0f);
+		}
+		for (int i = 0; i < amps.size(); i++) {
+			smoothedAmps[i] += (amps[i] - smoothedAmps[i]) * deltaTime / mSpectrumSmoothAmount;
+		}
+
+		int start = spectrumCrop[0] * smoothedAmps.size();
+		int end = spectrumCrop[1] * smoothedAmps.size();
+		auto v = smoothedAmps;
+		if (start < 0) start = 0;
+		if (end > v.size()) end = v.size();
+		if (start > end) start = end;
+
+		// Create a new vector with the sliced elements
+		croppedSmoothedAmps.assign(v.begin() + start, v.begin() + end);
+
+		if (mTimer.getElapsedTime() > plotDelta)
+		{
+			for (int i = 0; i < croppedSmoothedAmps.size(); i++) {
+				if (i < (spectrumCrop[1] * croppedSmoothedAmps.size() - spectrumCrop[0] * croppedSmoothedAmps.size()) * mBassRange[1] && i > croppedSmoothedAmps.size() * mBassRange[0]) {
+					mBassRangeSum += croppedSmoothedAmps[i];
+				}
+				if (i < croppedSmoothedAmps.size() * mMidsRange[1] && i > croppedSmoothedAmps.size() * mMidsRange[0]) {
+					mMidRangeSum += croppedSmoothedAmps[i];
+				}
+				if (i < croppedSmoothedAmps.size() * mHighsRange[1] && i > croppedSmoothedAmps.size() * mHighsRange[0]) {
+					mHighRangeSum += croppedSmoothedAmps[i];
+				}
+			}
+			mBassRangeSum *= mMasterGain * mBassGain / croppedSmoothedAmps.size();
+			mMidRangeSum *= mMasterGain * mMidsGain / croppedSmoothedAmps.size();
+			mHighRangeSum *= mMasterGain * mHighsGain / croppedSmoothedAmps.size();
+			
+			mBassRangeSumTimeLerped = lerp(mBassRangeSumTimeLerped, mBassRangeSum, deltaTime * mRangeTimeLerpSmoothAmount);
+			mMidRangeSumTimeLerped = lerp(mMidRangeSumTimeLerped, mMidRangeSum, deltaTime * mRangeTimeLerpSmoothAmount);
+			mHighRangeSumTimeLerped = lerp(mHighRangeSumTimeLerped, mHighRangeSum, deltaTime * mRangeTimeLerpSmoothAmount);
+			mPlotvaluesBass[mTickIdx] = mBassRangeSum;	// save new value so it can be subtracted later
+			mPlotvaluesMids[mTickIdx] = mMidRangeSum;
+			mPlotvaluesHighs[mTickIdx] = mHighRangeSum;
+			if (++mTickIdx == mPlotvaluesBass.size())							// increment current sample index
+				mTickIdx = 0;
+
+			mTimer.reset();
+		}
+
+		
+		auto canvas_comp = mScene->findEntity("BackgroundCanvasEntity")->findComponent<RenderCanvasComponentInstance>();
+		UniformStructInstance* ubo = canvas_comp->mCustomPostPass->mUBO;
+		UniformFloatInstance* uniform = ubo->findUniform<UniformFloatInstance>("audio_bass");
+		uniform->setValue(mBassRangeSumTimeLerped);
+		uniform = ubo->findUniform<UniformFloatInstance>("audio_mids");
+		uniform->setValue(mMidRangeSumTimeLerped);
+		uniform = ubo->findUniform<UniformFloatInstance>("audio_highs");
+		uniform->setValue(mHighRangeSumTimeLerped);
+
+
 	}
 	
 	
@@ -328,7 +416,37 @@ namespace nap
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0, 0.0f));
 		ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0, ImGui::GetIO().DisplaySize.y));
 		mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawMidiInformation();
+		const auto& amps = fft_comp->getFFTBuffer().getAmplitudeSpectrum();
+		float bassRange[2] = { 0.0f, 0.3f };
+		float midRange[2] = { 0.3f, 0.7f };
+		float highRange[2] = { 0.7f, 1.0f };
 		
+
+		ImGui::PlotHistogram("Bass", mPlotvaluesBass.data(), mPlotvaluesBass.size(), mTickIdx, nullptr, 0.0f, 0.2f, ImVec2(ImGui::GetColumnWidth(), 128)); // Plot the output values
+		ImGui::PlotHistogram("Mids", mPlotvaluesMids.data(), mPlotvaluesMids.size(), mTickIdx, nullptr, 0.0f, 0.2f, ImVec2(ImGui::GetColumnWidth(), 128)); // Plot the output values
+		ImGui::PlotHistogram("Highs", mPlotvaluesHighs.data(), mPlotvaluesHighs.size(), mTickIdx, nullptr, 0.0f, 0.2f, ImVec2(ImGui::GetColumnWidth(), 128)); // Plot the output values
+		ImGui::SliderFloat2("Bass Range", mBassRange, 0.0f, 1.0f);
+		ImGui::SliderFloat2("Mids Range", mMidsRange, 0.0f, 1.0f);
+		ImGui::SliderFloat2("Highs Range", mHighsRange, 0.0f, 1.0f);
+		ImGui::SliderFloat2("Spectrum Crop", spectrumCrop, 0.0f, 1.0f);
+		ImGui::DragFloat("Range Time Lerp Smooth Amount", &mRangeTimeLerpSmoothAmount, 0.01f, 0.0f, 10.0f);
+		ImGui::DragFloat("Spectrum Smooth Amount", &mSpectrumSmoothAmount, 0.01f, 0.0f, 10.0f);
+
+		
+
+		ImGui::DragFloat("Bass Gain", &mBassGain, 0.01f, 0.0f, 20.0f);
+		ImGui::DragFloat("Mids Gain", &mMidsGain, 0.01f, 0.0f, 20.0f);
+		ImGui::DragFloat("Highs Gain", &mHighsGain, 0.01f, 0.0f, 20.0f);
+		ImGui::DragFloat("Master Gain", &mMasterGain, 0.01f, 0.0f, 20.0f);
+
+		
+
+		ImGui::PlotLines("FFT Smoothed", croppedSmoothedAmps.data(), croppedSmoothedAmps.size(), 0);
+
+		ImGui::PlotLines("FFT", amps.data(), spectrumCrop[1] * amps.size() - spectrumCrop[0] * amps.size(), spectrumCrop[0] * amps.size());
+
+
+		ImGui::PlotLines("FFT", amps.data(), spectrumCrop[1] * amps.size() - spectrumCrop[0] * amps.size(), spectrumCrop[0]*amps.size());
 		mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawSequenceEditor();
 	}
 

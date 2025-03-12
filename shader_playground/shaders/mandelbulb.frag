@@ -9,6 +9,9 @@ in vec3 pass_Uvs;
 out vec4 out_Color;
 uniform UBO
 {
+    float audio_bass;
+    float audio_mids;
+    float audio_highs;
 	float iTime;
     float midiKnob0;
     float midiKnob1;
@@ -31,7 +34,7 @@ float sdSphere(vec3 p, float s) {
 }
 
 float mandelbulb(vec3 p) {
-    float n = ubo.midiKnob0*16.0;
+    float n = 16.0+ubo.audio_bass*128.0;
     float dr = 1.0;
     float r = 0.0;
     vec3 z = p;
@@ -47,7 +50,7 @@ float mandelbulb(vec3 p) {
         theta = theta*n;
         phi = phi*n;
         // convert back to cartesian coordinates
-        z = zr*vec3(sin(theta)*cos(phi), sin(phi)*sin(theta), cos(theta));
+        z = zr*vec3(sin(theta*0.5)*cos(phi), sin(phi)*sin(theta), cos(theta));
         z+=p;
     }
     return 0.5*log(r)*r/dr;
@@ -62,12 +65,12 @@ float map(vec3 p) {
 
 void main() 
 {
-    vec2 cameraOrbit = vec2(sin(ubo.midiPitchBendAcc*2), cos(ubo.midiPitchBendAcc*2));
-    cameraOrbit *= 1.0+10.0*ubo.midiKnob4;
+    vec2 cameraOrbit = vec2(sin(ubo.iTime/5), cos(ubo.iTime/5));
+    cameraOrbit *= 1.5;
 	vec3 ro = vec3(cameraOrbit.x, 0., cameraOrbit.y);
     vec3 new_pass_Uvs = (pass_Uvs - 0.5) * 2.0;
 	vec3 rd = normalize(vec3(new_pass_Uvs.xy, 1));
-    rd.xz *= rot2D(-PI-ubo.midiPitchBendAcc*2.0);
+    rd.xz *= rot2D(-PI-ubo.iTime/5);
 
 
     float t = 0.; // total distance traveled
@@ -83,7 +86,12 @@ void main()
         if ( d > 100.0) break; // marched too far, give up
     }
     vec3 col = vec3(i) / maxSteps;
-    col *= vec3(1.0, 0.5, 0.5)*2.0;
+    float colorChangeSpeed = 0.2;
+    vec3 noiseColor = vec3( (sin(ubo.iTime*colorChangeSpeed)+1.0)/2, (1.0+cos(ubo.iTime*colorChangeSpeed*1.3))/2, (1.0+sin(ubo.iTime*colorChangeSpeed*1.6))/2 );
+    noiseColor = normalize(noiseColor);
+    noiseColor *= 1.5;
+    col *= noiseColor;
+    //col *= vec3(1.0, 0.5, 0.5)*2.0;
     col = col * (1.0 - (t/100.0)) *1.5;
     out_Color = vec4(col, 1.0);
 }

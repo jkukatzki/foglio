@@ -10,9 +10,12 @@
         "napapp",
         "napimgui",
         "napcameracontrol",
-        "napmidi"
+        "napmidi",
+        "napaudio",
+        "napportaudio",
+        "napfft"
     ],
-    "Data": "geckos_new/objects.json",
+    "Data": "shader_playground/objects.json",
     "ServiceConfig": "",
     "PathMapping": "cache/path_mapping.json"
 }

@@ -165,6 +165,9 @@ namespace nap
 			for (int i = 0; i < 8; i++) {
 				ensureUniformFloat("midiKnob" + std::to_string(i), mCustomPostPass->mUBO, errorState);
 			}
+			ensureUniformFloat("audio_bass", mCustomPostPass->mUBO, errorState);
+			ensureUniformFloat("audio_mids", mCustomPostPass->mUBO, errorState);
+			ensureUniformFloat("audio_highs", mCustomPostPass->mUBO, errorState);
 			ensureUniformFloat("midiPitchBend", mCustomPostPass->mUBO, errorState);
 			ensureUniformFloat("midiPitchBendAcc", mCustomPostPass->mUBO, errorState);
 			ensureUniformFloat("iTime", mCustomPostPass->mUBO, errorState);
@@ -639,7 +642,7 @@ namespace nap
 		
 		texture->mWidth = width;
 		texture->mHeight = height;
-		texture->mFormat = RenderTexture2D::EFormat::RGBA8;
+		texture->mColorFormat = RenderTexture2D::EFormat::RGBA8;
 		if (!texture->init(errorState))
 			return false;
 		if (transparent) {

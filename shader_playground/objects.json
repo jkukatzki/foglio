@@ -2,12 +2,71 @@
     "Objects": [
         {
             "Type": "nap::Entity",
+            "mID": "AudioEntity",
+            "Components": [
+                {
+                    "Type": "nap::audio::AudioInputComponent",
+                    "mID": "audioInput",
+                    "Channels": [
+                        0,
+                        1
+                    ],
+                    "Gain": 1.0,
+                    "AllowOutOfBoundChannels": true
+                },
+                {
+                    "Type": "nap::audio::LevelMeterComponent",
+                    "mID": "levelMeterBass",
+                    "Input": "./audioInput",
+                    "AnalysisWindowSize": 10.0,
+                    "MeterType": "RMS",
+                    "FilterInput": false,
+                    "CenterFrequency": 10000.0,
+                    "BandWidth": 10000.0,
+                    "Channel": 0
+                },
+                {
+                    "Type": "nap::audio::LevelMeterComponent",
+                    "mID": "levelMeterMids",
+                    "Input": "./audioInput",
+                    "AnalysisWindowSize": 10.0,
+                    "MeterType": "RMS",
+                    "FilterInput": false,
+                    "CenterFrequency": 10000.0,
+                    "BandWidth": 10000.0,
+                    "Channel": 0
+                },
+                {
+                    "Type": "nap::audio::LevelMeterComponent",
+                    "mID": "levelMeterHighs",
+                    "Input": "./audioInput",
+                    "AnalysisWindowSize": 10.0,
+                    "MeterType": "RMS",
+                    "FilterInput": false,
+                    "CenterFrequency": 10000.0,
+                    "BandWidth": 10000.0,
+                    "Channel": 0
+                },
+                {
+                    "Type": "nap::FFTAudioNodeComponent",
+                    "mID": "FFTAudioNodeComponent",
+                    "Input": "./audioInput",
+                    "Overlaps": "One",
+                    "Channel": 0
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::Entity",
             "mID": "BackgroundCanvasEntity",
             "Components": [
                 {
                     "Type": "nap::RenderCanvasComponent",
                     "mID": "BackgroundCanvas",
                     "Visible": true,
+                    "Tags": [],
+                    "Layer": "",
                     "VideoPlayer": "",
                     "Aspect Ratio": 0.0,
                     "Resolution": 1000,
@@ -106,13 +165,13 @@
                     "MovementSpeed": 0.5,
                     "RotateSpeed": 0.004999999888241291,
                     "PerspCameraComponent": "./PerspectiveCamera",
+                    "LimitZoomDistance": false,
+                    "MinimumZoomDistance": 0.5,
                     "LookAtPosition": {
                         "x": 0.0,
                         "y": 0.0,
                         "z": 0.0
-                    },
-                    "MinimumZoomDistance": 0.5,
-                    "LimitZoomDistance": false
+                    }
                 },
                 {
                     "Type": "nap::PointerInputComponent",
@@ -181,7 +240,8 @@
                     "Type": "nap::CanvasGroupComponent",
                     "mID": "CanvasGroup",
                     "SequencePlayerEditor": "SequenceEditor_77e81990",
-                    "SequencePlayerEditorGUI": "SequenceEditorGUI_5a62ec71"
+                    "SequencePlayerEditorGUI": "SequenceEditorGUI_5a62ec71",
+                    "Presentation Window": "MainWindow"
                 },
                 {
                     "Type": "nap::MidiInputComponent",
@@ -264,7 +324,8 @@
                     "Type": "nap::ShaderFromFile",
                     "mID": "SDF1",
                     "VertShader": "shaders/mandelbulb.vert",
-                    "FragShader": "shaders/mandelbulb.frag"
+                    "FragShader": "shaders/mandelbulb.frag",
+                    "RestrictModuleIncludes": false
                 }
             ],
             "Children": []
@@ -311,6 +372,10 @@
                             ]
                         }
                     ]
+                },
+                {
+                    "Entity": "AudioEntity",
+                    "InstanceProperties": []
                 }
             ]
         },

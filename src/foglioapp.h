@@ -20,6 +20,7 @@
 #include <entity.h>
 #include <videoplayer.h>
 #include <app.h>
+#include <fftaudionodecomponent.h>
 
 namespace nap
 {
@@ -94,13 +95,43 @@ namespace nap
 		bool						mQueuedExitDialog = false;
 		bool						mQueuedExitFullscreenDialog = false;
 
+		std::array<audio::ControllerValue, 256> mPlotvaluesBass = {};
+		std::array<audio::ControllerValue, 256> mPlotvaluesMids = {};
+		std::array<audio::ControllerValue, 256> mPlotvaluesHighs = {};
+
+		float mBassRange[2] = { 0.0f, 0.2f };
+		float mMidsRange[2] = { 0.2f, 0.6f };
+		float mHighsRange[2] = { 0.6f, 1.0f };
+		float spectrumCrop[2] = { 0.0f, 0.02f };
+		float mBassGain = 1.0f;
+		float mMidsGain = 1.0f;
+		float mHighsGain = 1.0f;
+		float mMasterGain = 1.0f;
+		float mBassRangeSum = 0.0f;
+		float mBassRangeSumTimeLerped = 0.0f;
+		float mMidRangeSum = 0.0f;
+		float mMidRangeSumTimeLerped = 0.0f;
+		float mHighRangeSum = 0.0f;
+		float mHighRangeSumTimeLerped = 0.0f;
+		float mRangeTimeLerpSmoothAmount = 0.01f;
+		float mSpectrumSmoothAmount = 0.01f;
+		std::vector<float> smoothedAmps;
+		std::vector<float> croppedSmoothedAmps;
+
+		nap::SteadyTimer mTimer;
+		uint32 mTickSum = 0;
+		uint32 mTickIdx = 0;
+
 		ObjectPtr<SequenceEditorGUI>mCanvasSequenceEditorGUI = nullptr;
 
 		ObjectPtr<EntityInstance>	mCameraEntity = nullptr;		///< Pointer to the entity that holds the perspective camera
 		ObjectPtr<EntityInstance>	mOrthoCameraEntity = nullptr;
+		ObjectPtr<EntityInstance>	mAudioEntity = nullptr;		///< Pointer to the entity that holds the canvas
 		ObjectPtr<EntityInstance>	mGnomonEntity = nullptr;		///< Pointer to the entity that can render the gnomon
 		ObjectPtr<EntityInstance>	mVideoWallEntity = nullptr;
 		
+		FFTAudioNodeComponentInstance* fft_comp = nullptr;
+
 		bool						mFullscreen = false;
 		/**
 		 * Sets up the GUI every frame

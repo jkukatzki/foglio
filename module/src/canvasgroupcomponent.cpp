@@ -231,8 +231,8 @@ namespace nap
 		ResourcePtr<RenderTexture2D> outputTexRef = mSelected->getComponent<RenderCanvasComponentInstance>().getOutputTexture();
 		mSelectedOutputTexture->mWidth = outputTexRef->mWidth;
 		mSelectedOutputTexture->mHeight = outputTexRef->mHeight;
-		mSelectedOutputTexture->mFormat = outputTexRef->mFormat;
-		mSelectedOutputTexture->mUsage = ETextureUsage::Static;
+		mSelectedOutputTexture->mColorFormat = outputTexRef->mColorFormat;
+		mSelectedOutputTexture->mUsage = nap::Texture::EUsage::Static;
 		nap::utility::ErrorState error;
 		if (!mSelectedOutputTexture->init(error))
 		{
