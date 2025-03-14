@@ -148,45 +148,36 @@ namespace nap
 
 		// Create a new vector with the sliced elements
 		croppedSmoothedAmps.assign(v.begin() + start, v.begin() + end);
-
 		if (mTimer.getElapsedTime() > plotDelta)
 		{
-			for (int i = 0; i < croppedSmoothedAmps.size(); i++) {
-				if (i < (spectrumCrop[1] * croppedSmoothedAmps.size() - spectrumCrop[0] * croppedSmoothedAmps.size()) * mBassRange[1] && i > croppedSmoothedAmps.size() * mBassRange[0]) {
-					mBassRangeSum += croppedSmoothedAmps[i];
-				}
-				if (i < croppedSmoothedAmps.size() * mMidsRange[1] && i > croppedSmoothedAmps.size() * mMidsRange[0]) {
-					mMidRangeSum += croppedSmoothedAmps[i];
-				}
-				if (i < croppedSmoothedAmps.size() * mHighsRange[1] && i > croppedSmoothedAmps.size() * mHighsRange[0]) {
-					mHighRangeSum += croppedSmoothedAmps[i];
-				}
+			mBassRangeSum = 0;
+			mMidRangeSum = 0;
+			mHighRangeSum = 0;
+			const int sampleSize = rangeSampleSize;
+			for (int i = 0; i < sampleSize; i++) {
+				const int sampleIndexBass = static_cast<int>((mBassRange[0] + ((mBassRange[1] - mBassRange[0]) * i / (sampleSize - 1))) * croppedSmoothedAmps.size() - 1);
+				const int sampleIndexMids = static_cast<int>((mMidsRange[0] + ((mMidsRange[1] - mMidsRange[0]) * i / (sampleSize - 1))) * croppedSmoothedAmps.size() - 1);
+				const int sampleIndexHighs = static_cast<int>((mHighsRange[0] + ((mHighsRange[1] - mHighsRange[0]) * i / (sampleSize - 1))) * croppedSmoothedAmps.size() - 1);
+				nap::Logger::info("Bass Sample Index: %i, Mids Sample Index: %i, Highs Sample Index: %i, Amp Buffer Size: %i", sampleIndexBass, sampleIndexMids, sampleIndexHighs, croppedSmoothedAmps.size() - 1);
+				mBassRangeSum += croppedSmoothedAmps[sampleIndexBass];
+				mMidRangeSum += croppedSmoothedAmps[sampleIndexMids];
+				mHighRangeSum += croppedSmoothedAmps[sampleIndexHighs];
 			}
-			mBassRangeSum *= mMasterGain * mBassGain / croppedSmoothedAmps.size();
-			mMidRangeSum *= mMasterGain * mMidsGain / croppedSmoothedAmps.size();
-			mHighRangeSum *= mMasterGain * mHighsGain / croppedSmoothedAmps.size();
-			
+			mBassRangeSum *= mMasterGain * mBassGain / sampleSize;
+			mMidRangeSum *= mMasterGain * mMidsGain / sampleSize;
+			mHighRangeSum *= mMasterGain * mHighsGain / sampleSize;
+
 			mBassRangeSumTimeLerped = lerp(mBassRangeSumTimeLerped, mBassRangeSum, deltaTime * mRangeTimeLerpSmoothAmount);
 			mMidRangeSumTimeLerped = lerp(mMidRangeSumTimeLerped, mMidRangeSum, deltaTime * mRangeTimeLerpSmoothAmount);
 			mHighRangeSumTimeLerped = lerp(mHighRangeSumTimeLerped, mHighRangeSum, deltaTime * mRangeTimeLerpSmoothAmount);
-			mPlotvaluesBass[mTickIdx] = mBassRangeSum;	// save new value so it can be subtracted later
-			mPlotvaluesMids[mTickIdx] = mMidRangeSum;
-			mPlotvaluesHighs[mTickIdx] = mHighRangeSum;
-			if (++mTickIdx == mPlotvaluesBass.size())							// increment current sample index
+			mPlotvaluesBass[mTickIdx] = mBassRangeSumTimeLerped;
+			mPlotvaluesMids[mTickIdx] = mMidRangeSumTimeLerped;
+			mPlotvaluesHighs[mTickIdx] = mHighRangeSumTimeLerped;
+			if (++mTickIdx == mPlotvaluesBass.size())
 				mTickIdx = 0;
 
 			mTimer.reset();
 		}
-
-		
-		auto canvas_comp = mScene->findEntity("BackgroundCanvasEntity")->findComponent<RenderCanvasComponentInstance>();
-		UniformStructInstance* ubo = canvas_comp->mCustomPostPass->mUBO;
-		UniformFloatInstance* uniform = ubo->findUniform<UniformFloatInstance>("audio_bass");
-		uniform->setValue(mBassRangeSumTimeLerped);
-		uniform = ubo->findUniform<UniformFloatInstance>("audio_mids");
-		uniform->setValue(mMidRangeSumTimeLerped);
-		uniform = ubo->findUniform<UniformFloatInstance>("audio_highs");
-		uniform->setValue(mHighRangeSumTimeLerped);
 
 
 	}
@@ -195,6 +186,14 @@ namespace nap
 	// Called when the window is going to render
 	void foglioApp::render()
 	{
+		auto canvas_comp = mScene->findEntity("BackgroundCanvasEntity")->findComponent<RenderCanvasComponentInstance>();
+		UniformStructInstance* ubo = canvas_comp->mCustomPostPass->mUBO;
+		UniformFloatInstance* uniform = ubo->findUniform<UniformFloatInstance>("audio_bass");
+		uniform->setValue(mBassRangeSumTimeLerped);
+		uniform = ubo->findUniform<UniformFloatInstance>("audio_mids");
+		uniform->setValue(mMidRangeSumTimeLerped);
+		uniform = ubo->findUniform<UniformFloatInstance>("audio_highs");
+		uniform->setValue(mHighRangeSumTimeLerped);
 		// Signal the beginning of a new frame, allowing it to be recorded.
 		// The system might wait until all commands that were previously associated with the new frame have been processed on the GPU.
 		// Multiple frames are in flight at the same time, but if the graphics load is heavy the system might wait here to ensure resources are available.
@@ -421,17 +420,19 @@ namespace nap
 		float midRange[2] = { 0.3f, 0.7f };
 		float highRange[2] = { 0.7f, 1.0f };
 		
-
-		ImGui::PlotHistogram("Bass", mPlotvaluesBass.data(), mPlotvaluesBass.size(), mTickIdx, nullptr, 0.0f, 0.2f, ImVec2(ImGui::GetColumnWidth(), 128)); // Plot the output values
-		ImGui::PlotHistogram("Mids", mPlotvaluesMids.data(), mPlotvaluesMids.size(), mTickIdx, nullptr, 0.0f, 0.2f, ImVec2(ImGui::GetColumnWidth(), 128)); // Plot the output values
-		ImGui::PlotHistogram("Highs", mPlotvaluesHighs.data(), mPlotvaluesHighs.size(), mTickIdx, nullptr, 0.0f, 0.2f, ImVec2(ImGui::GetColumnWidth(), 128)); // Plot the output values
-		ImGui::SliderFloat2("Bass Range", mBassRange, 0.0f, 1.0f);
-		ImGui::SliderFloat2("Mids Range", mMidsRange, 0.0f, 1.0f);
-		ImGui::SliderFloat2("Highs Range", mHighsRange, 0.0f, 1.0f);
+		ImGui::Text(utility::stringFormat("Bass Value: %.02f", mBassRangeSumTimeLerped).c_str());
+		ImGui::PlotHistogram("Bass", mPlotvaluesBass.data(), mPlotvaluesBass.size(), mTickIdx, nullptr, 0.0f, 0.2f, ImVec2(ImGui::GetColumnWidth(), 128));
+		ImGui::Text(utility::stringFormat("Mids Value: %.02f", mMidRangeSumTimeLerped).c_str());
+		ImGui::PlotHistogram("Mids", mPlotvaluesMids.data(), mPlotvaluesMids.size(), mTickIdx, nullptr, 0.0f, 0.2f, ImVec2(ImGui::GetColumnWidth(), 128));
+		ImGui::Text(utility::stringFormat("Highs Value: %.02f", mHighRangeSumTimeLerped).c_str());
+		ImGui::PlotHistogram("Highs", mPlotvaluesHighs.data(), mPlotvaluesHighs.size(), mTickIdx, nullptr, 0.0f, 0.2f, ImVec2(ImGui::GetColumnWidth(), 128));
+		ImGui::SliderFloat2("Bass Range", mBassRange, 0.0f, 10.0f);
+		ImGui::SliderFloat2("Mids Range", mMidsRange, 0.0f, 10.0f);
+		ImGui::SliderFloat2("Highs Range", mHighsRange, 0.0f, 10.0f);
 		ImGui::SliderFloat2("Spectrum Crop", spectrumCrop, 0.0f, 1.0f);
 		ImGui::DragFloat("Range Time Lerp Smooth Amount", &mRangeTimeLerpSmoothAmount, 0.01f, 0.0f, 10.0f);
 		ImGui::DragFloat("Spectrum Smooth Amount", &mSpectrumSmoothAmount, 0.01f, 0.0f, 10.0f);
-
+		ImGui::DragInt("Range Sample Size", &rangeSampleSize, 1, 2, 32);
 		
 
 		ImGui::DragFloat("Bass Gain", &mBassGain, 0.01f, 0.0f, 20.0f);

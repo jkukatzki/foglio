@@ -95,26 +95,27 @@ namespace nap
 		bool						mQueuedExitDialog = false;
 		bool						mQueuedExitFullscreenDialog = false;
 
-		std::array<audio::ControllerValue, 256> mPlotvaluesBass = {};
-		std::array<audio::ControllerValue, 256> mPlotvaluesMids = {};
-		std::array<audio::ControllerValue, 256> mPlotvaluesHighs = {};
+		std::array<audio::ControllerValue, 128> mPlotvaluesBass = {};
+		std::array<audio::ControllerValue, 128> mPlotvaluesMids = {};
+		std::array<audio::ControllerValue, 128> mPlotvaluesHighs = {};
 
 		float mBassRange[2] = { 0.0f, 0.2f };
 		float mMidsRange[2] = { 0.2f, 0.6f };
 		float mHighsRange[2] = { 0.6f, 1.0f };
-		float spectrumCrop[2] = { 0.0f, 0.02f };
+		float spectrumCrop[2] = { 0.0f, 0.2f };
 		float mBassGain = 1.0f;
 		float mMidsGain = 1.0f;
 		float mHighsGain = 1.0f;
-		float mMasterGain = 1.0f;
+		float mMasterGain = 10.0f;
 		float mBassRangeSum = 0.0f;
 		float mBassRangeSumTimeLerped = 0.0f;
 		float mMidRangeSum = 0.0f;
 		float mMidRangeSumTimeLerped = 0.0f;
 		float mHighRangeSum = 0.0f;
 		float mHighRangeSumTimeLerped = 0.0f;
-		float mRangeTimeLerpSmoothAmount = 0.01f;
+		float mRangeTimeLerpSmoothAmount = 4.5f;
 		float mSpectrumSmoothAmount = 0.01f;
+		int rangeSampleSize = 3;
 		std::vector<float> smoothedAmps;
 		std::vector<float> croppedSmoothedAmps;
 

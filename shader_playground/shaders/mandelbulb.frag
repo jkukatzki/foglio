@@ -34,7 +34,7 @@ float sdSphere(vec3 p, float s) {
 }
 
 float mandelbulb(vec3 p) {
-    float n = 16.0+ubo.audio_bass*128.0;
+    float n = 16.0+ubo.audio_mids*10.0;
     float dr = 1.0;
     float r = 0.0;
     vec3 z = p;
@@ -65,12 +65,27 @@ float map(vec3 p) {
 
 void main() 
 {
-    vec2 cameraOrbit = vec2(sin(ubo.iTime/5), cos(ubo.iTime/5));
-    cameraOrbit *= 1.5;
-	vec3 ro = vec3(cameraOrbit.x, 0., cameraOrbit.y);
+    int cameraPath = 1;
     vec3 new_pass_Uvs = (pass_Uvs - 0.5) * 2.0;
-	vec3 rd = normalize(vec3(new_pass_Uvs.xy, 1));
-    rd.xz *= rot2D(-PI-ubo.iTime/5);
+    vec3 rd = normalize(vec3(new_pass_Uvs.xy, 1));
+    vec2 cameraOrbit = vec2(0.0, 0.0);
+    if (cameraPath == 0) {
+        float cameraSpeed = 5.0;
+        rd.xz *= rot2D(-PI-ubo.iTime/cameraSpeed);
+        rd.zy *= rot2D(-PI-ubo.iTime/cameraSpeed);
+        cameraOrbit = vec2(sin(ubo.iTime/cameraSpeed), cos(ubo.iTime/cameraSpeed));
+        cameraOrbit *= 1.5;
+    } else if (cameraPath == 1) {
+        float cameraSpeed = 5.0;
+        rd.xy *= rot2D(-PI/2);
+        rd.xz *= rot2D(-PI-ubo.iTime/cameraSpeed);
+        cameraOrbit = vec2(sin(ubo.iTime/cameraSpeed), cos(ubo.iTime/cameraSpeed));
+        cameraOrbit *= 1.8 - ubo.audio_bass*0.5;
+    }
+    
+	vec3 ro = vec3(cameraOrbit.x, 0., cameraOrbit.y);
+    
+	
 
 
     float t = 0.; // total distance traveled
