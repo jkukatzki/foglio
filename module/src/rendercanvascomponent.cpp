@@ -165,6 +165,7 @@ namespace nap
 			for (int i = 0; i < 8; i++) {
 				ensureUniformFloat("midiKnob" + std::to_string(i), mCustomPostPass->mUBO, errorState);
 			}
+			ensureUniformFloat("cameraPath", mCustomPostPass->mUBO, errorState);
 			ensureUniformFloat("audio_bass", mCustomPostPass->mUBO, errorState);
 			ensureUniformFloat("audio_mids", mCustomPostPass->mUBO, errorState);
 			ensureUniformFloat("audio_highs", mCustomPostPass->mUBO, errorState);
@@ -172,6 +173,7 @@ namespace nap
 			ensureUniformFloat("midiPitchBendAcc", mCustomPostPass->mUBO, errorState);
 			ensureUniformFloat("iTime", mCustomPostPass->mUBO, errorState);
 			mCustomPostPass->mUBO->getOrCreateUniform<UniformFloatInstance>("iTime")->setValue(float(getCurrentDateTime().getMilliSecond()));
+			mCustomPostPass->mUBO->getOrCreateUniform<UniformIntInstance>("cameraPath")->setValue(0);
 			
 			mCustomPostPass->mSamplers["inTextureSampler"] = ensureSampler("inTexture", mCustomPostPass->mMaterialInstance, errorState);
 			mCustomPostPass->mRenderableMesh = mRenderService->createRenderableMesh(*mHeadlessPlaneMesh, *mCustomPostPass->mMaterialInstance, errorState);

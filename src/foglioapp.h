@@ -84,11 +84,13 @@ namespace nap
 		SceneService*				mSceneService = nullptr;		///< Manages all the objects in the scene
 		InputService*				mInputService = nullptr;		///< Input service for processing input
 		IMGuiService*				mGuiService = nullptr;			///< Manages GUI related update / draw calls
-		ObjectPtr<RenderWindow>		mMainWindow = nullptr;					///< Pointer to the main render window
+		ObjectPtr<RenderWindow>		mMainWindow1 = nullptr;					///< Pointer to the main render window
+		ObjectPtr<RenderWindow>		mMainWindow2 = nullptr;					///< Pointer to the main render window
 		ObjectPtr<RenderWindow>		mControlsWindow = nullptr;					///< Pointer to the controls window	
 		ObjectPtr<Scene>			mScene = nullptr;				///< Pointer to the main scene
 
-		ResourcePtr<RenderWindow>	mPresentationWindow = nullptr;
+		ResourcePtr<RenderWindow>	mPresentationWindow1 = nullptr;
+		ResourcePtr<RenderWindow>	mPresentationWindow2 = nullptr;
 		nap::Display*				mMainDisplay = nullptr;
 
 
@@ -99,14 +101,14 @@ namespace nap
 		std::array<audio::ControllerValue, 128> mPlotvaluesMids = {};
 		std::array<audio::ControllerValue, 128> mPlotvaluesHighs = {};
 
-		float mBassRange[2] = { 0.0f, 0.2f };
-		float mMidsRange[2] = { 0.2f, 0.6f };
-		float mHighsRange[2] = { 0.6f, 1.0f };
+		float mBassRange[2] = { 0.0f, 0.036f };
+		float mMidsRange[2] = { 0.079f, 0.417f };
+		float mHighsRange[2] = { 0.76f, 1.0f };
 		float spectrumCrop[2] = { 0.0f, 0.2f };
 		float mBassGain = 1.0f;
 		float mMidsGain = 1.0f;
 		float mHighsGain = 1.0f;
-		float mMasterGain = 10.0f;
+		float mMasterGain = 50.0f;
 		float mBassRangeSum = 0.0f;
 		float mBassRangeSumTimeLerped = 0.0f;
 		float mMidRangeSum = 0.0f;
@@ -115,7 +117,7 @@ namespace nap
 		float mHighRangeSumTimeLerped = 0.0f;
 		float mRangeTimeLerpSmoothAmount = 4.5f;
 		float mSpectrumSmoothAmount = 0.01f;
-		int rangeSampleSize = 3;
+		int rangeSampleSize = 7;
 		std::vector<float> smoothedAmps;
 		std::vector<float> croppedSmoothedAmps;
 
@@ -123,13 +125,16 @@ namespace nap
 		uint32 mTickSum = 0;
 		uint32 mTickIdx = 0;
 
+		int currentCameraPath = 0;
+
 		ObjectPtr<SequenceEditorGUI>mCanvasSequenceEditorGUI = nullptr;
 
 		ObjectPtr<EntityInstance>	mCameraEntity = nullptr;		///< Pointer to the entity that holds the perspective camera
 		ObjectPtr<EntityInstance>	mOrthoCameraEntity = nullptr;
 		ObjectPtr<EntityInstance>	mAudioEntity = nullptr;		///< Pointer to the entity that holds the canvas
 		ObjectPtr<EntityInstance>	mGnomonEntity = nullptr;		///< Pointer to the entity that can render the gnomon
-		ObjectPtr<EntityInstance>	mVideoWallEntity = nullptr;
+		ObjectPtr<EntityInstance>	mVideoWall1Entity = nullptr;
+		ObjectPtr<EntityInstance>	mVideoWall2Entity = nullptr;
 		
 		FFTAudioNodeComponentInstance* fft_comp = nullptr;
 

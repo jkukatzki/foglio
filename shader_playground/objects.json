@@ -59,6 +59,65 @@
         },
         {
             "Type": "nap::Entity",
+            "mID": "Background2CanvasEntity",
+            "Components": [
+                {
+                    "Type": "nap::RenderCanvasComponent",
+                    "mID": "RenderCanvasComponent",
+                    "Visible": true,
+                    "Tags": [],
+                    "Layer": "",
+                    "VideoPlayer": "",
+                    "Aspect Ratio": 1.0,
+                    "Resolution": 1000,
+                    "CornerOffsets": [
+                        {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        {
+                            "x": 0.0,
+                            "y": 0.0
+                        }
+                    ],
+                    "PostShader": "Blobs",
+                    "Mask": ""
+                },
+                {
+                    "Type": "nap::TransformComponent",
+                    "mID": "TransformComponent",
+                    "Properties": {
+                        "Translate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Rotate": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "Scale": {
+                            "x": 1.0,
+                            "y": 1.0,
+                            "z": 1.0
+                        },
+                        "UniformScale": 1.0
+                    }
+                }
+            ],
+            "Children": []
+        },
+        {
+            "Type": "nap::Entity",
             "mID": "BackgroundCanvasEntity",
             "Components": [
                 {
@@ -234,6 +293,22 @@
         },
         {
             "Type": "nap::Entity",
+            "mID": "VideoWall2Entity",
+            "Components": [
+                {
+                    "Type": "nap::CanvasGroupComponent",
+                    "mID": "CanvasGroupComponent",
+                    "SequencePlayerEditor": "SequenceEditor_77e81990",
+                    "SequencePlayerEditorGUI": "SequenceEditorGUI_5a62ec71",
+                    "Presentation Window": "MainWindow2"
+                }
+            ],
+            "Children": [
+                "Background2CanvasEntity"
+            ]
+        },
+        {
+            "Type": "nap::Entity",
             "mID": "VideoWallEntity",
             "Components": [
                 {
@@ -317,6 +392,30 @@
             "RestorePosition": true
         },
         {
+            "Type": "nap::RenderWindow",
+            "mID": "MainWindow2",
+            "Borderless": false,
+            "Resizable": true,
+            "Visible": true,
+            "SampleShading": true,
+            "Title": "",
+            "Width": 512,
+            "Height": 512,
+            "Mode": "Immediate",
+            "ClearColor": {
+                "Values": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            },
+            "Samples": "Four",
+            "AdditionalSwapImages": 1,
+            "RestoreSize": true,
+            "RestorePosition": true
+        },
+        {
             "Type": "nap::ResourceGroup",
             "mID": "Shaders",
             "Members": [
@@ -325,6 +424,13 @@
                     "mID": "SDF1",
                     "VertShader": "shaders/mandelbulb.vert",
                     "FragShader": "shaders/mandelbulb.frag",
+                    "RestrictModuleIncludes": false
+                },
+                {
+                    "Type": "nap::ShaderFromFile",
+                    "mID": "Blobs",
+                    "VertShader": "shaders/blobs.vert",
+                    "FragShader": "shaders/blobs.frag",
                     "RestrictModuleIncludes": false
                 }
             ],
@@ -375,6 +481,10 @@
                 },
                 {
                     "Entity": "AudioEntity",
+                    "InstanceProperties": []
+                },
+                {
+                    "Entity": "VideoWall2Entity",
                     "InstanceProperties": []
                 }
             ]

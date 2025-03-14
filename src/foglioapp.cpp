@@ -50,8 +50,11 @@ namespace nap
 
 		// Get the render window
 		ResourcePtr<nap::RenderWindow> dynWindow = mResourceManager->createObject<nap::RenderWindow>();
-		mMainWindow = mResourceManager->findObject<nap::RenderWindow>("MainWindow");
-		if (!error.check(mMainWindow != nullptr, "unable to find render window with name: %s", "MainWindow"))
+		mMainWindow1 = mResourceManager->findObject<nap::RenderWindow>("MainWindow");
+		if (!error.check(mMainWindow1 != nullptr, "unable to find render window with name: %s", "MainWindow"))
+			return false;
+		mMainWindow2 = mResourceManager->findObject<nap::RenderWindow>("MainWindow2");
+		if (!error.check(mMainWindow2 != nullptr, "unable to find render window with name: %s", "MainWindow"))
 			return false;
 		// Get the render window
 		mControlsWindow = mResourceManager->findObject<nap::RenderWindow>("ControlsWindow");
@@ -71,11 +74,17 @@ namespace nap
 		mOrthoCameraEntity = mScene->findEntity("OrthoCameraEntity");
 		if (!error.check(mOrthoCameraEntity != nullptr, "unable to find camera entity with name: %s", "OrthoCameraEntity"))
 			return false;
-		mVideoWallEntity = mScene->findEntity("VideoWallEntity");
-		if (!error.check(mVideoWallEntity != nullptr, "unable to find video wall entity with name: %s", "VideoWallEntity"))
+		mVideoWall1Entity = mScene->findEntity("VideoWallEntity");
+		if (!error.check(mVideoWall1Entity != nullptr, "unable to find video wall entity with name: %s", "VideoWallEntity"))
 			return false;
-		if (mVideoWallEntity->hasComponent<CanvasGroupComponentInstance>()) {
-			mPresentationWindow = mVideoWallEntity->findComponent<CanvasGroupComponentInstance>()->getPresentationWindow();
+		if (mVideoWall1Entity->hasComponent<CanvasGroupComponentInstance>()) {
+			mPresentationWindow1 = mVideoWall1Entity->findComponent<CanvasGroupComponentInstance>()->getPresentationWindow();
+		}
+		mVideoWall2Entity = mScene->findEntity("VideoWall2Entity");
+		if (!error.check(mVideoWall2Entity != nullptr, "unable to find video wall entity with name: %s", "VideoWallEntity"))
+			return false;
+		if (mVideoWall2Entity->hasComponent<CanvasGroupComponentInstance>()) {
+			mPresentationWindow2 = mVideoWall2Entity->findComponent<CanvasGroupComponentInstance>()->getPresentationWindow();
 		}
 		else {
 			nap::Logger::error("No canvas group component");
@@ -113,7 +122,7 @@ namespace nap
 		//mInputService->processWindowEvents(*mMainWindow, input_router, { &mScene->getRootEntity() });
 		mInputService->processWindowEvents(*mControlsWindow, input_router, { &mScene->getRootEntity() });
 		updateGUI();
-		CanvasGroupComponentInstance* canvasGroupComponent = &mVideoWallEntity->getComponent<CanvasGroupComponentInstance>();
+		CanvasGroupComponentInstance* canvasGroupComponent = &mVideoWall1Entity->getComponent<CanvasGroupComponentInstance>();
 		canvasGroupComponent->handleTimeDependentAction(deltaTime);
 		const auto& amps = fft_comp->getFFTBuffer().getAmplitudeSpectrum();
 		//smooth amps
@@ -158,7 +167,6 @@ namespace nap
 				const int sampleIndexBass = static_cast<int>((mBassRange[0] + ((mBassRange[1] - mBassRange[0]) * i / (sampleSize - 1))) * croppedSmoothedAmps.size() - 1);
 				const int sampleIndexMids = static_cast<int>((mMidsRange[0] + ((mMidsRange[1] - mMidsRange[0]) * i / (sampleSize - 1))) * croppedSmoothedAmps.size() - 1);
 				const int sampleIndexHighs = static_cast<int>((mHighsRange[0] + ((mHighsRange[1] - mHighsRange[0]) * i / (sampleSize - 1))) * croppedSmoothedAmps.size() - 1);
-				nap::Logger::info("Bass Sample Index: %i, Mids Sample Index: %i, Highs Sample Index: %i, Amp Buffer Size: %i", sampleIndexBass, sampleIndexMids, sampleIndexHighs, croppedSmoothedAmps.size() - 1);
 				mBassRangeSum += croppedSmoothedAmps[sampleIndexBass];
 				mMidRangeSum += croppedSmoothedAmps[sampleIndexMids];
 				mHighRangeSum += croppedSmoothedAmps[sampleIndexHighs];
@@ -194,6 +202,14 @@ namespace nap
 		uniform->setValue(mMidRangeSumTimeLerped);
 		uniform = ubo->findUniform<UniformFloatInstance>("audio_highs");
 		uniform->setValue(mHighRangeSumTimeLerped);
+		canvas_comp = mScene->findEntity("Background2CanvasEntity")->findComponent<RenderCanvasComponentInstance>();
+		ubo = canvas_comp->mCustomPostPass->mUBO;
+		uniform = ubo->findUniform<UniformFloatInstance>("audio_bass");
+		uniform->setValue(mBassRangeSumTimeLerped);
+		uniform = ubo->findUniform<UniformFloatInstance>("audio_mids");
+		uniform->setValue(mMidRangeSumTimeLerped);
+		uniform = ubo->findUniform<UniformFloatInstance>("audio_highs");
+		uniform->setValue(mHighRangeSumTimeLerped);
 		// Signal the beginning of a new frame, allowing it to be recorded.
 		// The system might wait until all commands that were previously associated with the new frame have been processed on the GPU.
 		// Multiple frames are in flight at the same time, but if the graphics load is heavy the system might wait here to ensure resources are available.
@@ -203,48 +219,64 @@ namespace nap
 		nap::OrthoCameraComponentInstance& ortho_cam = mOrthoCameraEntity->getComponent<OrthoCameraComponentInstance>();
 		//get canvases once again for the render service
 		std::vector<nap::RenderableComponentInstance*> canvas_components_to_render;
-		for (nap::EntityInstance* canvasEntity : mVideoWallEntity->getChildren()) {
+		for (nap::EntityInstance* canvasEntity : mVideoWall1Entity->getChildren()) {
 			canvas_components_to_render.emplace_back(&canvasEntity->getComponent<RenderableComponentInstance>());
 		};
 
-		CanvasGroupComponentInstance* canvasGroupComponent = &mVideoWallEntity->getComponent<CanvasGroupComponentInstance>();
+		CanvasGroupComponentInstance* canvasGroupComponent1 = &mVideoWall1Entity->getComponent<CanvasGroupComponentInstance>();
+		CanvasGroupComponentInstance* canvasGroupComponent2 = &mVideoWall2Entity->getComponent<CanvasGroupComponentInstance>();
 		// Start recording into the headless recording buffer.
 		if (mRenderService->beginHeadlessRecording())
 		{
-			canvasGroupComponent->drawAllHeadless();
-			canvasGroupComponent->drawSelectedInterface();
+			canvasGroupComponent1->drawAllHeadless();
+			canvasGroupComponent1->drawSelectedInterface();
+			canvasGroupComponent2->drawAllHeadless();
+			canvasGroupComponent2->drawSelectedInterface();
 			mRenderService->endHeadlessRecording();
 		}
-		canvasGroupComponent->getSelected()->getComponent<RenderCanvasComponentInstance>().setFinalSampler(false);
-		for (auto canvasEntity : mVideoWallEntity->getChildren()) {
+		canvasGroupComponent1->getSelected()->getComponent<RenderCanvasComponentInstance>().setFinalSampler(false);
+		for (auto canvasEntity : mVideoWall1Entity->getChildren()) {
 			canvasEntity->getComponent<RenderCanvasComponentInstance>().mIsControlViewDraw = false;
 		}
 		
-		if (mRenderService->beginRecording(*mPresentationWindow)) {
+		if (mRenderService->beginRecording(*mPresentationWindow1)) {
 			// Begin render pass
-			mMainWindow->beginRendering();
+			mMainWindow1->beginRendering();
 
-			mRenderService->renderObjects(*mPresentationWindow, ortho_cam, canvas_components_to_render);
+			mRenderService->renderObjects(*mPresentationWindow1, ortho_cam, canvas_components_to_render);
 			
 			mGuiService->draw();
 
 			// End render pass
-			mMainWindow->endRendering();
+			mMainWindow1->endRendering();
 
 			// End recording
 			mRenderService->endRecording();
 		}
-		
-		for (auto canvasEntity : mVideoWallEntity->getChildren()) {
-			canvasEntity->getComponent<RenderCanvasComponentInstance>().mIsControlViewDraw = true;
+		canvas_components_to_render.clear();
+		for (nap::EntityInstance* canvasEntity : mVideoWall2Entity->getChildren()) {
+			canvas_components_to_render.emplace_back(&canvasEntity->getComponent<RenderableComponentInstance>());
+		};
+		if (mRenderService->beginRecording(*mPresentationWindow2)) {
+			// Begin render pass
+			mMainWindow2->beginRendering();
+
+			mRenderService->renderObjects(*mPresentationWindow2, ortho_cam, canvas_components_to_render);
+
+			mGuiService->draw();
+
+			// End render pass
+			mMainWindow2->endRendering();
+
+			// End recording
+			mRenderService->endRecording();
 		}
-		canvasGroupComponent->getSelected()->getComponent<RenderCanvasComponentInstance>().setFinalSampler(true);
 
 		if (mRenderService->beginRecording(*mControlsWindow)) {
 			// Begin render pass
 			mControlsWindow->beginRendering();
 			// render canvases
-			if (canvasGroupComponent->mDrawBackdrop) {
+			if (canvasGroupComponent1->mDrawBackdrop) {
 				mRenderService->renderObjects(*mControlsWindow, ortho_cam, canvas_components_to_render);
 			}
 			// Render GUI elements
@@ -288,13 +320,12 @@ namespace nap
 			}
 
 			if (press_event->mKey == nap::EKeyCode::KEY_l && press_event->mWindow == mControlsWindow->getNumber()) {
-				ResourcePtr<VideoPlayer> player = mScene->findEntity("NameCardCanvasEntity")->findComponent<RenderCanvasComponentInstance>()->getVideoPlayer();
-				nap::utility::ErrorState error;
-				player->selectVideo((player->getIndex() + 1) % player->getCount(), error);
-				player->play();
-				player = mScene->findEntity("SoundBoxEntity")->findComponent<RenderCanvasComponentInstance>()->getVideoPlayer();
-				player->selectVideo((player->getIndex() + 1) % player->getCount(), error);
-				player->play();
+				currentCameraPath++;
+				currentCameraPath = currentCameraPath % 3;
+				auto canvas_comp = mScene->findEntity("BackgroundCanvasEntity")->findComponent<RenderCanvasComponentInstance>();
+				UniformStructInstance* ubo = canvas_comp->mCustomPostPass->mUBO;
+				UniformIntInstance* uniform = ubo->findUniform<UniformIntInstance>("cameraPath");
+				uniform->setValue(currentCameraPath);
 			}
 		}
 		// Add event, so it can be forwarded on update
@@ -363,8 +394,8 @@ namespace nap
 		
 		ImGui::Begin("Outliner");
 		
-		if (mVideoWallEntity->hasComponent<CanvasGroupComponentInstance>()) {
-			mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawOutliner();
+		if (mVideoWall1Entity->hasComponent<CanvasGroupComponentInstance>()) {
+			mVideoWall1Entity->getComponent<CanvasGroupComponentInstance>().drawOutliner();
 		}
 		else {
 			ImGui::Text("No CanvasGroupComponentInstance found");
@@ -414,31 +445,31 @@ namespace nap
 		//midi and osc info window
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0, 0.0f));
 		ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0, ImGui::GetIO().DisplaySize.y));
-		mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawMidiInformation();
+		mVideoWall1Entity->getComponent<CanvasGroupComponentInstance>().drawMidiInformation();
 		const auto& amps = fft_comp->getFFTBuffer().getAmplitudeSpectrum();
 		float bassRange[2] = { 0.0f, 0.3f };
 		float midRange[2] = { 0.3f, 0.7f };
 		float highRange[2] = { 0.7f, 1.0f };
 		
 		ImGui::Text(utility::stringFormat("Bass Value: %.02f", mBassRangeSumTimeLerped).c_str());
-		ImGui::PlotHistogram("Bass", mPlotvaluesBass.data(), mPlotvaluesBass.size(), mTickIdx, nullptr, 0.0f, 0.2f, ImVec2(ImGui::GetColumnWidth(), 128));
+		ImGui::PlotHistogram("Bass", mPlotvaluesBass.data(), mPlotvaluesBass.size(), mTickIdx, nullptr, 0.0f, 1.0f, ImVec2(ImGui::GetColumnWidth(), 128));
 		ImGui::Text(utility::stringFormat("Mids Value: %.02f", mMidRangeSumTimeLerped).c_str());
-		ImGui::PlotHistogram("Mids", mPlotvaluesMids.data(), mPlotvaluesMids.size(), mTickIdx, nullptr, 0.0f, 0.2f, ImVec2(ImGui::GetColumnWidth(), 128));
+		ImGui::PlotHistogram("Mids", mPlotvaluesMids.data(), mPlotvaluesMids.size(), mTickIdx, nullptr, 0.0f, 1.0f, ImVec2(ImGui::GetColumnWidth(), 128));
 		ImGui::Text(utility::stringFormat("Highs Value: %.02f", mHighRangeSumTimeLerped).c_str());
-		ImGui::PlotHistogram("Highs", mPlotvaluesHighs.data(), mPlotvaluesHighs.size(), mTickIdx, nullptr, 0.0f, 0.2f, ImVec2(ImGui::GetColumnWidth(), 128));
-		ImGui::SliderFloat2("Bass Range", mBassRange, 0.0f, 10.0f);
-		ImGui::SliderFloat2("Mids Range", mMidsRange, 0.0f, 10.0f);
-		ImGui::SliderFloat2("Highs Range", mHighsRange, 0.0f, 10.0f);
+		ImGui::PlotHistogram("Highs", mPlotvaluesHighs.data(), mPlotvaluesHighs.size(), mTickIdx, nullptr, 0.0f, 1.0f, ImVec2(ImGui::GetColumnWidth(), 128));
+		ImGui::SliderFloat2("Bass Range", mBassRange, 0.0f, 1.0f);
+		ImGui::SliderFloat2("Mids Range", mMidsRange, 0.0f, 1.0f);
+		ImGui::SliderFloat2("Highs Range", mHighsRange, 0.0f, 1.0f);
 		ImGui::SliderFloat2("Spectrum Crop", spectrumCrop, 0.0f, 1.0f);
-		ImGui::DragFloat("Range Time Lerp Smooth Amount", &mRangeTimeLerpSmoothAmount, 0.01f, 0.0f, 10.0f);
+		ImGui::DragFloat("Range Time Lerp Smooth Amount", &mRangeTimeLerpSmoothAmount, 0.01f, 0.0f, 20.0f);
 		ImGui::DragFloat("Spectrum Smooth Amount", &mSpectrumSmoothAmount, 0.01f, 0.0f, 10.0f);
 		ImGui::DragInt("Range Sample Size", &rangeSampleSize, 1, 2, 32);
 		
 
-		ImGui::DragFloat("Bass Gain", &mBassGain, 0.01f, 0.0f, 20.0f);
-		ImGui::DragFloat("Mids Gain", &mMidsGain, 0.01f, 0.0f, 20.0f);
-		ImGui::DragFloat("Highs Gain", &mHighsGain, 0.01f, 0.0f, 20.0f);
-		ImGui::DragFloat("Master Gain", &mMasterGain, 0.01f, 0.0f, 20.0f);
+		ImGui::DragFloat("Bass Gain", &mBassGain, 0.01f, 0.0f, 10.0f);
+		ImGui::DragFloat("Mids Gain", &mMidsGain, 0.01f, 0.0f, 10.0f);
+		ImGui::DragFloat("Highs Gain", &mHighsGain, 0.01f, 0.0f, 10.0f);
+		ImGui::DragFloat("Master Gain", &mMasterGain, 0.01f, 0.0f, 100.0f);
 
 		
 
@@ -448,22 +479,27 @@ namespace nap
 
 
 		ImGui::PlotLines("FFT", amps.data(), spectrumCrop[1] * amps.size() - spectrumCrop[0] * amps.size(), spectrumCrop[0]*amps.size());
-		mVideoWallEntity->getComponent<CanvasGroupComponentInstance>().drawSequenceEditor();
+		mVideoWall1Entity->getComponent<CanvasGroupComponentInstance>().drawSequenceEditor();
 	}
 
 	void foglioApp::toggleFullscreen() {
 		if (!mFullscreen) {
-			mMainWindow->mBorderless = !&mMainWindow->mBorderless;
-			mMainWindow->setWidth(mMainDisplay->getBounds().getWidth());
-			mMainWindow->setHeight(mMainDisplay->getBounds().getHeight());
-			mMainWindow->setPosition(mMainDisplay->getBounds().getMin());
+			mMainWindow1->mBorderless = !&mMainWindow1->mBorderless;
+			mMainWindow1->setWidth(mMainDisplay->getBounds().getWidth());
+			mMainWindow1->setHeight(mMainDisplay->getBounds().getHeight());
+			mMainWindow1->setPosition(mMainDisplay->getBounds().getMin());
+			mMainWindow2->mBorderless = !&mMainWindow2->mBorderless;
 			mFullscreen = true;
 		}
 		else {
-			mMainWindow->mBorderless = !&mMainWindow->mBorderless;
-			mMainWindow->setWidth(mMainDisplay->getMax()[0] / 2);
-			mMainWindow->setHeight(mMainDisplay->getMax()[1] / 2);
-			mMainWindow->setPosition(glm::vec2(mMainDisplay->getMax()[0] / 4, mMainDisplay->getMax()[1] / 4));
+			mMainWindow1->mBorderless = !&mMainWindow1->mBorderless;
+			mMainWindow1->setWidth(mMainDisplay->getMax()[0] / 2);
+			mMainWindow1->setHeight(mMainDisplay->getMax()[1] / 2);
+			mMainWindow1->setPosition(glm::vec2(mMainDisplay->getMax()[0] / 4, mMainDisplay->getMax()[1] / 4));
+			mMainWindow2->mBorderless = !&mMainWindow2->mBorderless;
+			mMainWindow2->setWidth(mMainDisplay->getMax()[0] / 2);
+			mMainWindow2->setHeight(mMainDisplay->getMax()[1] / 2);
+			mMainWindow2->setPosition(glm::vec2(mMainDisplay->getMax()[0] / 4, mMainDisplay->getMax()[1] / 4));
 			mFullscreen = false;
 		}
 	}
